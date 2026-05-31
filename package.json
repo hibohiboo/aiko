@@ -8,5 +8,10 @@
   },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "@types/cheerio": "^1.0.0",
+    "cheerio": "^1.2.0",
+    "iconv-lite": "^0.7.2"
   }
 }
