@@ -109,7 +109,7 @@ const EVENT_STORIES: WikiPage[] = [
   { name: 'スパイスパラダイス_OP', url: '/d/OP%20%c4%b6%cb%dc%b3%ca%a1%f9curry%20the%20MOVIE', category: 'event_story', subCategory: '05_spice', order: 1 },
   { name: 'スパイスパラダイス_第1話', url: '/d/%c2%e81%cf%c3%a1%a1%a4%aa%a4%ab%a4%ef%a4%ea%a4%b4%cd%d1%b0%d5%a1%f9cumin', category: 'event_story', subCategory: '05_spice', order: 2 },
   { name: 'スパイスパラダイス_第2話', url: '/d/%c2%e82%cf%c3%a1%a1%a4%ac%a4%c3%a4%c4%a4%ea%c6%c3%b7%b1%a1%f9turmeric', category: 'event_story', subCategory: '05_spice', order: 3 },
-  { name: 'スパイスパラダイス_第3話', url: '/d/%c2%e83%cf%c3%a1%a1%a4%b8%a4%c3%a4%af%a4%ea%bd%fc%c0%ae%a1%f9red%20chili', category: 'event_story', subCategory: '05_spice', order: 4 },
+  { name: 'スパイスパラダイス_第3話', url: '/d/%c2%e83%cf%c3%a1%a1%a4%b8%a4%c3%a4%af%a4%ea%bd%cf%c0%ae%a1%f9red%20chili', category: 'event_story', subCategory: '05_spice', order: 4 },
   { name: 'スパイスパラダイス_第4話', url: '/d/%c2%e84%cf%c3%a1%a1%c6%c3%c0%b9%a1%f9curry%20TV%20special%28%c1%b0%29', category: 'event_story', subCategory: '05_spice', order: 5 },
   { name: 'スパイスパラダイス_第5話', url: '/d/%c2%e85%cf%c3%a1%a1%c6%c3%c0%b9%a1%f9curry%20TV%20special%28%b8%e5%29', category: 'event_story', subCategory: '05_spice', order: 6 },
   { name: 'スパイスパラダイス_ED', url: '/d/ED%20%cb%fe%ca%a2%cb%fe%c2%ad%a1%f9spice%20%26%20paradise', category: 'event_story', subCategory: '05_spice', order: 7 },
