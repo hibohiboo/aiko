@@ -60,8 +60,10 @@ function extractArticle(html: string): string {
   // コメントフォーム・広告
   $('.comment-form-box, #pageroot-form-box').remove();
   $('.ads-box, [id^="adsense"], [id^="crt-"], #seesaa-bnr').remove();
-  // 編集リンク等の操作UI（#page-body-inner の直下にある #information-box）
+  // 編集リンク等の操作UI
   $('#information-box').remove();
+  // コメント数・カテゴリ表示
+  $('#page-posted, #page-category').remove();
   // 画像を含むテーブルと画像は台詞管理には不要
   $('img').closest('table').remove();
   $('img').remove();
@@ -69,10 +71,20 @@ function extractArticle(html: string): string {
   // メインコンテンツは #page-body-inner 内の .user-area に入っている
   // (.user-area は記事コンテンツのラッパーであり削除してはいけない)
   const $root = $('#page-body-inner');
-  if ($root.length) return nodeToMd($, $root as unknown as Cheerio<Element>).trim();
+  const raw = $root.length
+    ? nodeToMd($, $root as unknown as Cheerio<Element>)
+    : nodeToMd($, $('body') as unknown as Cheerio<Element>);
 
-  // フォールバック
-  return nodeToMd($, $('body') as unknown as Cheerio<Element>).trim();
+  return cleanupMd(raw);
+}
+
+function cleanupMd(md: string): string {
+  return md
+    // 「次＞＞1話」「<<前 OP」のようなページ間ナビゲーション行を除去
+    .replace(/^.*[＞＜《》]{2}.*$/gm, '')
+    // 空行が3行以上続く場合は2行に圧縮
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
 }
 
 function nodeToMd($: CheerioAPI, $el: Cheerio<Element>): string {
