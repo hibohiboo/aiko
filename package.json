@@ -1,5 +1,5 @@
 {
-  "name": "高森藍子bot",
+  "name": "takamori-aiko-bot",
   "module": "index.ts",
   "type": "module",
   "private": true,
