@@ -82,6 +82,9 @@ function cleanupMd(md: string): string {
   return md
     // 「次＞＞1話」「<<前 OP」のようなページ間ナビゲーション行を除去
     .replace(/^.*[＞＜《》]{2}.*$/gm, '')
+    // ナビゲーションリンクのテキスト残骸（「1話」「OP」「ED」単独行）を除去
+    .replace(/^\d+話\s*$/gm, '')
+    .replace(/^(OP|ED)\s*$/gm, '')
     // 空行が3行以上続く場合は2行に圧縮
     .replace(/\n{3,}/g, '\n\n')
     .trim();
