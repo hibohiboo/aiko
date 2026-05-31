@@ -53,29 +53,26 @@ function tableToMd($: CheerioAPI, $table: Cheerio<Element>): string {
 function extractArticle(html: string): string {
   const $ = load(html);
 
-  // ノイズ除去：広告・コメントフォーム・編集リンク・ページ管理UI
+  // サイドバー・ヘッダー・フッターなどグローバルノイズを除去
   $('script, style, iframe').remove();
-  $('#wiki-header, #wiki-menu, #sub, .sidecolumn').remove();
-  $('#page-header, #page-toplink, #page-footer').remove();
+  $('#wiki-header, #wiki-menu, #sub').remove();
+  $('#page-toplink, #page-footer').remove();
+  // コメントフォーム・広告
   $('.comment-form-box, #pageroot-form-box').remove();
   $('.ads-box, [id^="adsense"], [id^="crt-"], #seesaa-bnr').remove();
+  // 編集リンク等の操作UI（#page-body-inner の直下にある #information-box）
   $('#information-box').remove();
-  // 「編集する」「添付する」「印刷する」などの操作リンク領域
-  $('.user-area').remove();
+  // 画像を含むテーブルと画像は台詞管理には不要
+  $('img').closest('table').remove();
+  $('img').remove();
 
-  // seesaa wiki の記事本文は [class*="wiki-section-body"] に格納される
-  const $sections = $('[class*="wiki-section-body"]');
-  if ($sections.length) {
-    let md = '';
-    $sections.each((_, el) => {
-      md += nodeToMd($, $(el) as unknown as Cheerio<Element>) + '\n';
-    });
-    return md.trim();
-  }
+  // メインコンテンツは #page-body-inner 内の .user-area に入っている
+  // (.user-area は記事コンテンツのラッパーであり削除してはいけない)
+  const $root = $('#page-body-inner');
+  if ($root.length) return nodeToMd($, $root as unknown as Cheerio<Element>).trim();
 
-  // フォールバック：ページ本文全体
-  return nodeToMd($, $('#page-body-inner') as unknown as Cheerio<Element>).trim()
-    || nodeToMd($, $('body') as unknown as Cheerio<Element>).trim();
+  // フォールバック
+  return nodeToMd($, $('body') as unknown as Cheerio<Element>).trim();
 }
 
 function nodeToMd($: CheerioAPI, $el: Cheerio<Element>): string {
