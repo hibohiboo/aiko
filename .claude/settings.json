@@ -1,14 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Edit(/anaylysis/**)",
-      "Write(/anaylysis/**)",
-      "Edit(/dialogues/**)",
-      "Write(/dialogues/**)",
-      "Edit(/docs/**)",
-      "Write(/docs/**)",
-      "Edit(/prompts/**)",
-      "Write(/prompts/**)"
+      "Edit",
+      "Write"
     ],
     "additionalDirectories": [
       "D:\\projects\\fantasy-line\\.claude\\skills"
