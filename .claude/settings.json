@@ -2,11 +2,12 @@
   "permissions": {
     "allow": [
       "Edit",
-      "Write"
-    ],
-    "additionalDirectories": [
-      "D:\\projects\\fantasy-line\\.claude\\skills"
+      "Write",
+      "Bash"
     ]
+  },
+  "worktree": {
+    "bgIsolation": "none"
   },
   "mcpServers": {
     "azure-devops": {
