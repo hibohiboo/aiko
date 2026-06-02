@@ -213,6 +213,16 @@
 - [x] dialogues/04_event_story/12_koi_no_kai/05_この恋の解を答えなさい_第5話.md（2026/06/02追加）
 - [x] dialogues/04_event_story/12_koi_no_kai/06_この恋の解を答えなさい_ED.md（2026/06/02追加）
 
+## 外部ソース追加分（依田芳乃情報wiki）
+
+- [x] dialogues/04_event_story/13_mirai_compass/01_ミライコンパス_OP.md（2026/06/02追加）
+- [x] dialogues/04_event_story/13_mirai_compass/02_ミライコンパス_第1話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/13_mirai_compass/03_ミライコンパス_第2話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/13_mirai_compass/04_ミライコンパス_第3話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/13_mirai_compass/05_ミライコンパス_第4話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/13_mirai_compass/06_ミライコンパス_第5話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/13_mirai_compass/07_ミライコンパス_ED.md（2026/06/02追加）
+
 ## 進捗サマリ
 
 - 元の総ファイル数：130
