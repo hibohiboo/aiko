@@ -233,11 +233,21 @@
 - [x] dialogues/04_event_story/14_kamisama_zettai_dayo/06_神様絶対だよ_第5話.md（2026/06/02追加）
 - [x] dialogues/04_event_story/14_kamisama_zettai_dayo/07_神様絶対だよ_ED.md（2026/06/02追加）
 
+## 外部ソース追加分（イヴ・サンタクロースwiki）
+
+- [x] dialogues/04_event_story/15_winter_and_window/01_WinterAndWindow_OP.md（2026/06/03追加）
+- [x] dialogues/04_event_story/15_winter_and_window/02_WinterAndWindow_第1話.md（2026/06/03追加）
+- [x] dialogues/04_event_story/15_winter_and_window/03_WinterAndWindow_第2話.md（2026/06/03追加）
+- [x] dialogues/04_event_story/15_winter_and_window/04_WinterAndWindow_第3話.md（2026/06/03追加）
+- [x] dialogues/04_event_story/15_winter_and_window/05_WinterAndWindow_第4話.md（2026/06/03追加）
+- [x] dialogues/04_event_story/15_winter_and_window/06_WinterAndWindow_第5話.md（2026/06/03追加）
+- [x] dialogues/04_event_story/15_winter_and_window/07_WinterAndWindow_ED.md（2026/06/03追加）
+
 ## 進捗サマリ
 
 - 元の総ファイル数：130
 - 読み込み済み：127（anime+event_storyはサブエージェント）
 - 未読：3（07_その他モバマス・15_劇場相関・16_ユニット相関 ※事実情報なし）
 - **imascg wiki追加分：1ファイル（17_誕生日アイドル紹介.md）**
-- **外部ソース追加分：6ファイル（12_koi_no_kai 全話）**
+- **外部ソース追加分：27ファイル（12_koi_no_kai / 13_mirai_compass / 14_kamisama_zettai_dayo / 15_winter_and_window）**
 - **全事実はanalysis/06_other/00_事実まとめ.md に反映済み**
