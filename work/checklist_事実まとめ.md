@@ -204,10 +204,20 @@
 
 - [x] dialogues/06_other/17_誕生日アイドル紹介.md（imascgwikiより追加 2026/06/02）
 
+## 外部ソース追加分（大石泉データベース）
+
+- [x] dialogues/04_event_story/12_koi_no_kai/01_この恋の解を答えなさい_第1話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/12_koi_no_kai/02_この恋の解を答えなさい_第2話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/12_koi_no_kai/03_この恋の解を答えなさい_第3話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/12_koi_no_kai/04_この恋の解を答えなさい_第4話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/12_koi_no_kai/05_この恋の解を答えなさい_第5話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/12_koi_no_kai/06_この恋の解を答えなさい_ED.md（2026/06/02追加）
+
 ## 進捗サマリ
 
 - 元の総ファイル数：130
 - 読み込み済み：127（anime+event_storyはサブエージェント）
 - 未読：3（07_その他モバマス・15_劇場相関・16_ユニット相関 ※事実情報なし）
 - **imascg wiki追加分：1ファイル（17_誕生日アイドル紹介.md）**
+- **外部ソース追加分：6ファイル（12_koi_no_kai 全話）**
 - **全事実はanalysis/06_other/00_事実まとめ.md に反映済み**
