@@ -223,6 +223,16 @@
 - [x] dialogues/04_event_story/13_mirai_compass/06_ミライコンパス_第5話.md（2026/06/02追加）
 - [x] dialogues/04_event_story/13_mirai_compass/07_ミライコンパス_ED.md（2026/06/02追加）
 
+## 外部ソース追加分（新田美波データベース）
+
+- [x] dialogues/04_event_story/14_kamisama_zettai_dayo/01_神様絶対だよ_OP.md（2026/06/02追加）
+- [x] dialogues/04_event_story/14_kamisama_zettai_dayo/02_神様絶対だよ_第1話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/14_kamisama_zettai_dayo/03_神様絶対だよ_第2話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/14_kamisama_zettai_dayo/04_神様絶対だよ_第3話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/14_kamisama_zettai_dayo/05_神様絶対だよ_第4話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/14_kamisama_zettai_dayo/06_神様絶対だよ_第5話.md（2026/06/02追加）
+- [x] dialogues/04_event_story/14_kamisama_zettai_dayo/07_神様絶対だよ_ED.md（2026/06/02追加）
+
 ## 進捗サマリ
 
 - 元の総ファイル数：130
