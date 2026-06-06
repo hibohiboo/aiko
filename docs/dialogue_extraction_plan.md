@@ -64,7 +64,7 @@ seesaawiki の高森藍子 wiki (https://seesaawiki.jp/aiko_takamori/) から台
 
 | イベント名 | OP | 第1話〜第5話 | ED |
 |---|---|---|---|
-| 絶対定義します！ | `/d/OP%20%c0%e4%c2%d0%a1%f9%c6%c3%b8%a2` | 第1〜5話 | `/d/ED%20%c2%c7%a4%c1%be%e5%a4%b2%a5%d1%a1%bc%a5%c6%a5%a3%a1%bc%a2%f6` |
+| 絶対特権します！ | `/d/OP%20%c0%e4%c2%d0%a1%f9%c6%c3%b8%a2` | 第1〜5話 | `/d/ED%20%c2%c7%a4%c1%be%e5%a4%b2%a5%d1%a1%bc%a5%c6%a5%a3%a1%bc%a2%f6` |
 | 生存本能ヴァルキューリア | `/d/OP%20%c0%ef%b2%b5%bd%f7%a4%cb%a4%ca%a4%eb%c6%fc` | 第1〜5話 | `/d/ED%20%b2%b5%bd%f7%a4%bf%a4%c1%a4%ce%b1%e0` |
 | Flip Flop | `/d/OP%20Woh%20yeah%21%20Slapstick%21` | 第1〜5話 | `/d/ED%20Laugh%20and%20grow%20happy%21` |
 | 情熱ファンファンファーレ | `/d/OP%20FUN%26FAN%21%21%21` | 第1〜5話 | `/d/ED%20Positive%26Passion%21%21%21` |
@@ -250,6 +250,6 @@ url: "https://seesaawiki.jp/aiko_takamori/d/..."
 ## 次のアクション
 
 - [ ] デレステ「高森藍子」カードボイスページの内容を確認・抽出
-- [ ] イベントストーリー「絶対定義します！」OP/各話の内容を確認
+- [ ] イベントストーリー「絶対特権します！」OP/各話の内容を確認
 - [ ] 抽出テスト結果を元にフォーマットを調整
 - [ ] 自動スクリプトの要否を判断

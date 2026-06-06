@@ -69,13 +69,13 @@
 ## 04_event_story（77ファイル）（サブエージェント処理中）
 
 ### 01_zettai_teigi（7ファイル）
-- [x] dialogues/04_event_story/01_zettai_teigi/01_絶対定義_OP.md
-- [x] dialogues/04_event_story/01_zettai_teigi/02_絶対定義_第1話.md
-- [x] dialogues/04_event_story/01_zettai_teigi/03_絶対定義_第2話.md
-- [x] dialogues/04_event_story/01_zettai_teigi/04_絶対定義_第3話.md
-- [x] dialogues/04_event_story/01_zettai_teigi/05_絶対定義_第4話.md
-- [x] dialogues/04_event_story/01_zettai_teigi/06_絶対定義_第5話.md
-- [x] dialogues/04_event_story/01_zettai_teigi/07_絶対定義_ED.md
+- [x] dialogues/04_event_story/01_zettai_teigi/01_絶対特権_OP.md
+- [x] dialogues/04_event_story/01_zettai_teigi/02_絶対特権_第1話.md
+- [x] dialogues/04_event_story/01_zettai_teigi/03_絶対特権_第2話.md
+- [x] dialogues/04_event_story/01_zettai_teigi/04_絶対特権_第3話.md
+- [x] dialogues/04_event_story/01_zettai_teigi/05_絶対特権_第4話.md
+- [x] dialogues/04_event_story/01_zettai_teigi/06_絶対特権_第5話.md
+- [x] dialogues/04_event_story/01_zettai_teigi/07_絶対特権_ED.md
 
 ### 02_valkyria（7ファイル）
 - [x] dialogues/04_event_story/02_valkyria/01_ヴァルキューリア_OP.md

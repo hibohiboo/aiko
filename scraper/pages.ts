@@ -73,14 +73,14 @@ const MOBAMAS_CARDS: WikiPage[] = [
 
 // ─── イベントストーリー ─────────────────────────────────────────────────────
 const EVENT_STORIES: WikiPage[] = [
-  // 絶対定義します！
-  { name: '絶対定義_OP', url: '/d/OP%20%c0%e4%c2%d0%a1%f9%c6%c3%b8%a2', category: 'event_story', subCategory: '01_zettai_teigi', order: 1 },
-  { name: '絶対定義_第1話', url: '/d/%c2%e81%cf%c3%20%b0%a6%cd%fc%a4%ce%a5%ea%a1%bc%a5%c0%a1%bc%c6%c3%b8%a2', category: 'event_story', subCategory: '01_zettai_teigi', order: 2 },
-  { name: '絶対定義_第2話', url: '/d/%c2%e82%cf%c3%20%b0%ab%a4%ce%b0%ae%ce%cf%bc%e7%c4%a5', category: 'event_story', subCategory: '01_zettai_teigi', order: 3 },
-  { name: '絶対定義_第3話', url: '/d/%c2%e83%cf%c3%20%b5%b1%bb%d2%a4%ce%a4%dc%a4%c3%a4%c1%bc%e7%c4%a5', category: 'event_story', subCategory: '01_zettai_teigi', order: 4 },
-  { name: '絶対定義_第4話', url: '/d/%c2%e84%cf%c3%20%cd%b5%bb%d2%a4%ce%a5%b5%a5%a4%a5%ad%a5%c3%a5%af%bc%e7%c4%a5', category: 'event_story', subCategory: '01_zettai_teigi', order: 5 },
-  { name: '絶対定義_第5話', url: '/d/%c2%e85%cf%c3%20%cd%f5%bb%d2%a4%ce%a4%e6%a4%eb%a4%d5%a4%ef%bc%e7%c4%a5', category: 'event_story', subCategory: '01_zettai_teigi', order: 6 },
-  { name: '絶対定義_ED', url: '/d/ED%20%c2%c7%a4%c1%be%e5%a4%b2%a5%d1%a1%bc%a5%c6%a5%a3%a1%bc%a2%f6', category: 'event_story', subCategory: '01_zettai_teigi', order: 7 },
+  // 絶対特権します！
+  { name: '絶対特権_OP', url: '/d/OP%20%c0%e4%c2%d0%a1%f9%c6%c3%b8%a2', category: 'event_story', subCategory: '01_zettai_teigi', order: 1 },
+  { name: '絶対特権_第1話', url: '/d/%c2%e81%cf%c3%20%b0%a6%cd%fc%a4%ce%a5%ea%a1%bc%a5%c0%a1%bc%c6%c3%b8%a2', category: 'event_story', subCategory: '01_zettai_teigi', order: 2 },
+  { name: '絶対特権_第2話', url: '/d/%c2%e82%cf%c3%20%b0%ab%a4%ce%b0%ae%ce%cf%bc%e7%c4%a5', category: 'event_story', subCategory: '01_zettai_teigi', order: 3 },
+  { name: '絶対特権_第3話', url: '/d/%c2%e83%cf%c3%20%b5%b1%bb%d2%a4%ce%a4%dc%a4%c3%a4%c1%bc%e7%c4%a5', category: 'event_story', subCategory: '01_zettai_teigi', order: 4 },
+  { name: '絶対特権_第4話', url: '/d/%c2%e84%cf%c3%20%cd%b5%bb%d2%a4%ce%a5%b5%a5%a4%a5%ad%a5%c3%a5%af%bc%e7%c4%a5', category: 'event_story', subCategory: '01_zettai_teigi', order: 5 },
+  { name: '絶対特権_第5話', url: '/d/%c2%e85%cf%c3%20%cd%f5%bb%d2%a4%ce%a4%e6%a4%eb%a4%d5%a4%ef%bc%e7%c4%a5', category: 'event_story', subCategory: '01_zettai_teigi', order: 6 },
+  { name: '絶対特権_ED', url: '/d/ED%20%c2%c7%a4%c1%be%e5%a4%b2%a5%d1%a1%bc%a5%c6%a5%a3%a1%bc%a2%f6', category: 'event_story', subCategory: '01_zettai_teigi', order: 7 },
   // 生存本能ヴァルキューリア
   { name: 'ヴァルキューリア_OP', url: '/d/OP%20%c0%ef%b2%b5%bd%f7%a4%cb%a4%ca%a4%eb%c6%fc', category: 'event_story', subCategory: '02_valkyria', order: 1 },
   { name: 'ヴァルキューリア_第1話', url: '/d/%c2%e81%cf%c3%20%be%af%bd%f7%a4%cf%c0%ef%b2%b5%bd%f7%a4%ce%c0%bc%a4%f2%c5%bb%a4%a6', category: 'event_story', subCategory: '02_valkyria', order: 2 },
