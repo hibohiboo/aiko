@@ -166,7 +166,7 @@ url: "https://seesaawiki.jp/aiko_takamori/..."
 |---|---|---|
 | `01_mobamas_card/` | `mobamas_card` | モバマス カードコミュ |
 | `02_deresute_card/` | `deresute_card` | デレステ カードボイス |
-| `03_anime/` | `anime` | アニメ登場回 |
+| `03_story/` | `story` | ストーリー登場回 |
 | `04_event_story/` | `event_story` | イベントストーリー |
 | `05_memorial/` | `memorial` | メモリアルコミュ |
 | `06_other/` | `other` | その他（劇場など） |

@@ -163,7 +163,7 @@ const EVENT_STORIES: WikiPage[] = [
   { name: 'メモリーブロッサム_ED', url: '/d/ED%20Felice%20like%20a%20flower', category: 'event_story', subCategory: '11_memory_blossom', order: 7 },
 ];
 
-// ─── アニメ出演話数 ─────────────────────────────────────────────────────────
+// ─── ストーリー出演話数 ─────────────────────────────────────────────────────────
 const ANIME_EPISODES: WikiPage[] = [
   { name: '第5話_LuckyStar', url: '/d/%c2%e85%cf%c3%20Lucky%20Star%a1%f9', category: 'anime', order: 1 },
   { name: '第13話_SweetsParty', url: '/d/%c2%e813%cf%c3%20Sweets%20Party%21%21', category: 'anime', order: 2 },
