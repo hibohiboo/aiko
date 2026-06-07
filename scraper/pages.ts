@@ -10,7 +10,7 @@ export type Category =
   | 'deresute_card'
   | 'mobamas_card'
   | 'event_story'
-  | 'anime'
+  | 'story'
   | 'memorial'
   | 'other';
 
@@ -19,7 +19,7 @@ export const BASE_URL = 'https://seesaawiki.jp/aiko_takamori';
 export const CATEGORY_DIRS: Record<Category, string> = {
   mobamas_card: '01_mobamas_card',
   deresute_card: '02_deresute_card',
-  anime: '03_anime',
+  story: '03_story',
   event_story: '04_event_story',
   memorial: '05_memorial',
   other: '06_other',
@@ -161,16 +161,23 @@ const EVENT_STORIES: WikiPage[] = [
   { name: 'メモリーブロッサム_第4話', url: '/d/%c2%e84%cf%c3%20Flower%20just%20show', category: 'event_story', subCategory: '11_memory_blossom', order: 5 },
   { name: 'メモリーブロッサム_第5話', url: '/d/%c2%e85%cf%c3%20In%20the%20seeds%20of%20today', category: 'event_story', subCategory: '11_memory_blossom', order: 6 },
   { name: 'メモリーブロッサム_ED', url: '/d/ED%20Felice%20like%20a%20flower', category: 'event_story', subCategory: '11_memory_blossom', order: 7 },
+  // Go Just Go！
+  { name: 'GoJustGo_A3話', url: '/d/Go%20Just%20Go%a1%aa%20A3%cf%c3%20Enjoy%20Our%20Break%20Time%a1%aa', category: 'event_story', subCategory: '16_go_just_go', order: 3 },
+  // ススメ！シンデレラロード（松山久美子編）
+  { name: 'シンデレラロード松山久美子_第3話', url: '/d/%a5%b9%a5%b9%a5%e1%a1%aa%a5%b7%a5%f3%a5%c7%a5%ec%a5%e9%a5%ed%a1%bc%a5%c9%a1%a1%c2%e83%cf%c3%28%be%be%bb%b3%b5%d7%c8%fe%bb%d2%29', category: 'event_story', subCategory: '17_cinderella_road_kumiko', order: 3 },
+  { name: 'シンデレラロード松山久美子_第5話', url: '/d/%a5%b9%a5%b9%a5%e1%a1%aa%a5%b7%a5%f3%a5%c7%a5%ec%a5%e9%a5%ed%a1%bc%a5%c9%a1%a1%c2%e85%cf%c3%28%be%be%bb%b3%b5%d7%c8%fe%bb%d2%29', category: 'event_story', subCategory: '17_cinderella_road_kumiko', order: 5 },
+  // Bottoms up with tea cup！
+  { name: 'BottomsUpTeaCup_OP', url: '/d/OP%20Bottoms%20up%20with%20tea%20cup%a1%aa', category: 'event_story', subCategory: '18_bottoms_up_tea_cup', order: 1 },
 ];
 
 // ─── ストーリー出演話数 ─────────────────────────────────────────────────────────
-const ANIME_EPISODES: WikiPage[] = [
-  { name: '第5話_LuckyStar', url: '/d/%c2%e85%cf%c3%20Lucky%20Star%a1%f9', category: 'anime', order: 1 },
-  { name: '第13話_SweetsParty', url: '/d/%c2%e813%cf%c3%20Sweets%20Party%21%21', category: 'anime', order: 2 },
-  { name: '第20話_HappinessHappening', url: '/d/%c2%e820%cf%c3%20Happiness%20Happening%21', category: 'anime', order: 3 },
-  { name: '第26話_PPPeace', url: '/d/%c2%e826%cf%c3%20P%2eP%2ePeace%21%21', category: 'anime', order: 4 },
-  { name: '第48話_HeartOfGrowingFlowers', url: '/d/%c2%e848%cf%c3%20The%20heart%20of%20growing%20flowers', category: 'anime', order: 5 },
-  { name: '第52話_ThanksFromNowOn', url: '/d/%c2%e852%cf%c3%20Thanks%20from%20now%20on', category: 'anime', order: 6 },
+const STORY_EPISODES: WikiPage[] = [
+  { name: '第5話_LuckyStar', url: '/d/%c2%e85%cf%c3%20Lucky%20Star%a1%f9', category: 'story', order: 1 },
+  { name: '第13話_SweetsParty', url: '/d/%c2%e813%cf%c3%20Sweets%20Party%21%21', category: 'story', order: 2 },
+  { name: '第20話_HappinessHappening', url: '/d/%c2%e820%cf%c3%20Happiness%20Happening%21', category: 'story', order: 3 },
+  { name: '第26話_PPPeace', url: '/d/%c2%e826%cf%c3%20P%2eP%2ePeace%21%21', category: 'story', order: 4 },
+  { name: '第48話_HeartOfGrowingFlowers', url: '/d/%c2%e848%cf%c3%20The%20heart%20of%20growing%20flowers', category: 'story', order: 5 },
+  { name: '第52話_ThanksFromNowOn', url: '/d/%c2%e852%cf%c3%20Thanks%20from%20now%20on', category: 'story', order: 6 },
 ];
 
 // ─── メモリアルコミック ─────────────────────────────────────────────────────
@@ -192,12 +199,17 @@ const OTHER: WikiPage[] = [
   { name: 'のんびりタイム', url: '/d/%a4%ce%a4%f3%a4%d3%a4%ea%a5%bf%a5%a4%a5%e0', category: 'other', order: 6 },
   { name: 'その他（モバマス）', url: '/d/%a4%bd%a4%ce%c2%be', category: 'other', order: 7 },
   { name: 'その他（デレステ）', url: '/d/%a4%bd%a4%ce%c2%be%28%a5%c7%a5%ec%a5%b9%a5%c6%29', category: 'other', order: 8 },
+  // 営業コミュ
+  { name: '互いの手を取り合って', url: '/d/%cb%cc%c5%ec%c3%cf%ca%fd%20%b8%df%a4%a4%a4%ce%bc%ea%a4%f2%bc%e8%a4%ea%b9%e7%a4%c3%a4%c6', category: 'other', order: 24 },
+  { name: 'Passion on Stage！', url: '/d/%bc%f3%c5%d4%c3%cf%ca%fd%20Passion%20on%20Stage%a1%aa', category: 'other', order: 25 },
+  { name: 'Passion in Summer！', url: '/d/%be%e5%ca%fd%c3%cf%ca%fd%20Passion%20in%20Summer%a1%aa', category: 'other', order: 26 },
+  { name: '日々の中にカメラを添えて', url: '/d/%be%e5%ca%fd%c3%cf%ca%fd%20%c6%fc%a1%b9%a4%ce%c3%e6%a4%cb%a5%ab%a5%e1%a5%e9%a4%f2%c5%ba%a4%a8%a4%c6', category: 'other', order: 27 },
 ];
 
 export const PAGES: WikiPage[] = [
   ...MOBAMAS_CARDS,
   ...DERESUTE_CARDS,
-  ...ANIME_EPISODES,
+  ...STORY_EPISODES,
   ...EVENT_STORIES,
   ...MEMORIALS,
   ...OTHER,
