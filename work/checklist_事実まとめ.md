@@ -23,7 +23,7 @@
 - [x] dialogues/01_mobamas_card/12_新春ガール.md
 - [x] dialogues/01_mobamas_card/13_駿風のバンデット.md
 - [x] dialogues/01_mobamas_card/14_ちいさなともだち.md
-- [x] dialogues/01_mobamas_card/15_琴棋の棋聲.md
+- [x] dialogues/01_mobamas_card/15_白銀の歌声.md
 - [x] dialogues/01_mobamas_card/16_ほんわか花嫁.md
 - [x] dialogues/01_mobamas_card/17_ぽかぽかエコロジー.md
 - [x] dialogues/01_mobamas_card/18_かさなる思い出.md

@@ -59,7 +59,7 @@ const MOBAMAS_CARDS: WikiPage[] = [
   { name: '新春ガール', url: '/d/%bf%b7%bd%d5%a5%ac%a1%bc%a5%eb', category: 'mobamas_card', order: 12 },
   { name: '駿風のバンデット', url: '/d/%bd%d9%c9%f7%a4%ce%a5%d0%a5%f3%a5%c7%a5%c3%a5%c8', category: 'mobamas_card', order: 13 },
   { name: 'ちいさなともだち', url: '/d/%a4%c1%a4%a4%a4%b5%a4%ca%a4%c8%a4%e2%a4%c0%a4%c1', category: 'mobamas_card', order: 14 },
-  { name: '琴棋の棋聲', url: '/d/%c7%f2%b6%e4%a4%ce%b2%ce%c0%bc', category: 'mobamas_card', order: 15 },
+  { name: '白銀の歌声', url: '/d/%c7%f2%b6%e4%a4%ce%b2%ce%c0%bc', category: 'mobamas_card', order: 15 },
   { name: 'ほんわか花嫁', url: '/d/%a4%db%a4%f3%a4%ef%a4%ab%b2%d6%b2%c7', category: 'mobamas_card', order: 16 },
   { name: 'ぽかぽかエコロジー', url: '/d/%a4%dd%a4%ab%a4%dd%a4%ab%a5%a8%a5%b3%a5%ed%a5%b8%a1%bc', category: 'mobamas_card', order: 17 },
   { name: 'かさなる思い出', url: '/d/%a4%ab%a4%b5%a4%ca%a4%eb%bb%d7%a4%a4%bd%d0', category: 'mobamas_card', order: 18 },

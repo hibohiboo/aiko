@@ -48,7 +48,7 @@ seesaawiki の高森藍子 wiki (https://seesaawiki.jp/aiko_takamori/) から台
 | 新春ガール | `/d/%bf%b7%bd%d5%a5%ac%a1%bc%a5%eb` |
 | 駿風のバンデット | `/d/%bd%d9%c9%f7%a4%ce%a5%d0%a5%f3%a5%c7%a5%c3%a5%c8` |
 | ちいさなともだち | `/d/%a4%c1%a4%a4%a4%b5%a4%ca%a4%c8%a4%e2%a4%c0%a4%c1` |
-| 琴棋の棋聲 | `/d/%c7%f2%b6%e4%a4%ce%b2%ce%c0%bc` |
+| 白銀の歌声 | `/d/%c7%f2%b6%e4%a4%ce%b2%ce%c0%bc` |
 | ほんわか花家 | `/d/%a4%db%a4%f3%a4%ef%a4%ab%b2%d6%b2%c5` |
 | ぽかぽかエコロジー | `/d/%a4%dd%a4%ab%a4%dd%a4%ab%a5%a8%a5%b3%a5%ed%a5%b8%a1%bc` |
 | かさなる思い出 | `/d/%a4%ab%a4%b5%a4%ca%a4%eb%bb%d7%a4%a4%bd%d5` |
