@@ -113,7 +113,7 @@ p{margin:0}
 .crest span{font-size:12px;letter-spacing:.3em;color:var(--mute)}
 .crest b{display:block;font-family:var(--fd);font-weight:400;font-size:36px;line-height:1.3;color:var(--gold)}
 .row.ttl>span:nth-child(2){flex:none}
-#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,24px);width:min(440px,calc(100% - 32px));background:var(--gold);color:#221a08;border-radius:10px;padding:12px 16px;font-weight:700;font-size:14px;line-height:1.6;box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:20}
+#toast{position:fixed;left:50%;top:calc(12px + env(safe-area-inset-top,0px));transform:translate(-50%,-24px);width:min(440px,calc(100% - 32px));background:var(--gold);color:#221a08;border-radius:10px;padding:12px 16px;font-weight:700;font-size:14px;line-height:1.6;box-shadow:0 8px 24px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:20}
 #toast.on{opacity:1;transform:translate(-50%,0)}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}}
 @media (prefers-reduced-motion:no-preference){#app:not(.still) .read>.nar,#app:not(.still) .read>.say{animation:rise .5s ease backwards;animation-delay:calc(var(--i,0)*140ms)}}
@@ -802,6 +802,22 @@ q18:{0:{t:'遠くの篝火を投げ倒して騒ぎを起こし、兵をそちら
 function narr(c,sc,q){const v=(NV[q.id]||{})[q.i]||{};let s=sc.a[c.t];
  if(c.t==='w'&&v.g&&/盾|鉄壁/.test(c.n))s=v.g;else if(c.t==='r'&&v.t&&/つぶて|短剣/.test(c.n))s=v.t;
  return s.replace(/\{([^|}]+)\|([^}]*)\}/g,(m,a,b)=>c.n===a?a:b)}
+// ---------- 改善版その3 ----------
+// 最初の依頼は3場面（森の小道を、声の場面の前置きにまとめる）
+{const s0=Q0.sc.shift();Q0.sc[0].p=s0.p+'|'+Q0.sc[0].p;Q0.sc[0].x='籠に九束。最後の一束を探していると、森の奥から、か細い声が誰かを励ましているのが聞こえた。';NV.q0={0:NV.q0[1],1:NV.q0[2]}}
+// ゴーレムはDランクになったら。古竜はDランクの依頼を3つ果たしたら
+delete QS.q10.pre;QS.q12.pre=[];
+const d3=()=>Object.keys(QS).filter(k=>QS[k].r===2&&S.done[k]).length>=3;
+// 藍子と最初に子豚亭へ
+QT.q0={x:'ギルドで登録を済ませて、子豚亭へ。おかみが何も聞かずに、藍子の前へ温かい山羊乳を置いてくれた。|藍子は両手でカップを包んで、ほうっと長い息をついた。',m:{aiko:'「……あったかい。森で目が覚めてから、ずっと気を張っていたみたいです。今やっと、肩の力が抜けました。……助けてくれて、本当にありがとうございました」'}};
+MB.aiko.ep[0].x=MB.aiko.ep[0].x.replace('子豚亭の隅の卓。藍子は果実水の杯を両手で包んで、きょろきょろと店を見回している。','少し落ち着いたのか、藍子はきょろきょろと店を見回している。');
+// 古竜の前の半歩（生存本能ヴァルキュリア）
+SP.q12.find(x=>x[0]==='aiko')[2]='咆哮に、膝が勝手に折れた。藍子も同じだ。――それでも藍子は、震える足で、半歩だけ前に出た。|藍子：「優しさに、ずっと守られてきた私だから……今度は、私が守りたいんです」|藍子：「一番弱い私の……強さを、見せます……！」';
+AK.yuu.ls[0]=AK.yuu.ls[0].replace('藍子：「大人に守られるだけの私には、なりたくないって……ずっと思っていたのに」','藍子：「今度は私が守りたいって……あのとき、自分で言ったのに」');
+// ティア：昔と今
+{const e=MB.tia.ep.find(e=>e.x.includes('どちらが正しい'));e.x=e.x.replace('……どちらが正しいのじゃろうな','……今は、角を撫でられる。くすぐったくて、どうにも慣れぬ');
+ e.r[0]=['今のティアも悪くない','ティア：「悪くない、か。……ふむ。ならば、もう山を焼くのはやめておくかの。……冗談じゃ。半分は」'];
+ e.r[1]=['どちらもティアだ','ティア：「恐れられた竜も、角を触られる娘も、わらわか。……そう言われると、昔の自分も、少しだけ許せる気がするのう」']}
 const KEY='henkyo-aiko-v2';let S,saved=null,$app;
 const fresh=()=>({scr:'title',sk:{w:0,e:0,a:0,s:0,r:0,h:0},og:null,org:null,sch:null,gold:20,xp:0,fame:0,items:['potion'],gear:[],mem:[],act:[],temp:null,bond:{},mx:{},epi:{},cmp:{},cin:{},pf:{},lean:{},grow:{},sp:{},uf:{},ff:null,last:null,st:ST0(),tav:0,talk:null,who:'me',done:{},cands:[],q:null,sel:null,msg:'',rw:null,ak:{},ap:0,aend:null,ask:null,alast:null,awalk:0,sub:null,gi:0,gr:{},grw:[],gtx:''});
 const whoAmI=()=>`${ORG[S.org].n}の${JOB[S.og]}`;
@@ -924,11 +940,11 @@ function prose(s){return s.split('|').filter(Boolean).map(l=>{const m=l.match(/^
 function talkV(h,sub,lead,m,t,c,aR,aEnd,endL,rest){
  let s=`<div class="scene read"><p class="prog">${sub}</p><h2>${h}</h2>${prose(lead+t.x)}`;
  if(c.done==null)return s+`</div><p class="prog">返事の札を一枚選ぶ。${c.id==='aiko'?'返事の向きは、物語の終わりに響く。':`返事の向きで、${m.n}が次に覚える札が変わる。`}</p><div class="hand ${rest?'':'two'}">${t.r.map((r,i)=>fuda({t:m.t,a:aR,d:`data-i="${i}"`,ty:'返事',gl:'話',name:r[0],foot:LN[lean(t,i)],fc:'ok',own:bondOf(c.id)<5?'絆 +1':''})).join('')}${rest?fuda({a:aR,d:'data-i="2"',ty:'休息',gl:rest==='fire'?'火':'息',name:rest==='fire'?'黙って火の番をする':'黙って目を閉じる',foot:'HP +3',fc:'ok'}):''}</div>`;
- return s+(c.done<2?prose(`あなた：「${t.r[c.done][0]}」|`+t.r[c.done][1]):prose(rest==='fire'?`あなたは黙って薪をくべた。${m.n}も、それ以上は何も言わなかった。静かな、いい時間だった。`:`あなたは壁にもたれ、目を閉じた。${m.n}は何も言わず、隣で見張りに立ってくれた。`))+`</div><p class="msg">${c.fx}</p>`+go(aEnd,endL)}
+ return s+'<div id="ans"></div>'+(c.done<2?prose(`あなた：「${t.r[c.done][0]}」|`+t.r[c.done][1]):prose(rest==='fire'?`あなたは黙って薪をくべた。${m.n}も、それ以上は何も言わなかった。静かな、いい時間だった。`:`あなたは壁にもたれ、目を閉じた。${m.n}は何も言わず、隣で見張りに立ってくれた。`))+`</div><p class="msg">${c.fx}</p>`+go(aEnd,endL)}
 function eveV(c){
  let s=`<div class="scene read"><p class="prog">辺境を覆う影</p><h2>決戦前夜</h2>${prose(EVE.x+'|'+S.act.map(id=>`${MB[id].n}：${MB[id].eve}`).join('|'))}`;
  if(c.done==null)return s+`</div><p class="prog">仲間に返す言葉を選ぶ</p><div class="hand">${EVE.r.map((r,i)=>fuda({a:'campR',d:`data-i="${i}"`,ty:'誓い',gl:'誓',name:r[0],x:r[2]})).join('')}</div>`;
- return s+prose(`あなた：「${EVE.r[c.done][0]}」|`+EVE.r[c.done][1])+`</div><p class="msg">${c.fx}</p>`+go('campEnd','夜明けを待つ')}
+ return s+'<div id="ans"></div>'+prose(`あなた：「${EVE.r[c.done][0]}」|`+EVE.r[c.done][1])+`</div><p class="msg">${c.fx}</p>`+go('campEnd','夜明けを待つ')}
 function gfuda(k,a,i,foot,dis){const g=GR[k];return fuda({t:g.t,a,d:`data-i="${i}"`,ty:'装備',gl:g.t?'':'輪',name:g.n,x:g.x,foot,dis})}
 const V={
 title(){return `<section class="title"><p class="eyebrow">札で進むゲームブック　陽だまりの章</p><h1>辺境ギルドの<br>札使い</h1><p class="sub">異世界から来た少女と歩く、冒険者暮らし</p>
@@ -938,7 +954,7 @@ ${COL.length?`<p class="sub">これまでの旅で集めた称号　${COL.length
 og(){return `<div class="head"><h2>得意な技</h2><p>受付嬢が登録用紙を差し出す。まず、いちばん自信のある技を書き入れる（Lv2で開始）。</p></div><div class="hand two">${TK.map(t=>fuda({t,a:'og',d:`data-t="${t}"`,name:JOB[t],x:MAIN[t],foot:`${T[t].n} Lv2`})).join('')}</div>`},
 org(){return `<div class="head"><h2>あなたの生まれ</h2><p>次の欄は「出身」。${JOB[S.og]}のあなたは、どこで育ったのだろう。</p></div><div class="hand">${Object.entries(ORG).map(([k,o])=>fuda({a:'org',d:`data-o="${k}"`,ty:'出身',gl:'郷',name:o.n,x:o.x})).join('')}</div>`},
 og2(){const o=ORG[S.org];return `<div class="head"><h2>もうひとつの縁</h2><p>${o.x}　そこで、誰かに教わったことがある（+1Lv）。得意と同じ系統を選べば、さらに伸びる。このあとは経験値札がたまるたび、得意を2回、こちらを1回の順に、自動で札を覚えていく。</p></div><div class="hand two">${TK.map(t=>fuda({t,a:'og2',d:`data-t="${t}"`,name:`${T[t].n} +1`,x:o.y[t]})).join('')}</div>`},
-guild(){const ri=rankI(),qs=Object.entries(QS).filter(([id,Q])=>(Q.rep||!S.done[id])&&(!Q.pre||Q.pre.every(k=>S.done[k]))&&(id!=='q1'||S.done.q0)&&(!Q.need||S.mem.includes(Q.need)));
+guild(){const ri=rankI(),qs=Object.entries(QS).filter(([id,Q])=>(Q.rep||!S.done[id])&&(!Q.pre||Q.pre.every(k=>S.done[k]))&&(id!=='q1'||S.done.q0)&&(!Q.need||S.mem.includes(Q.need))&&(id!=='q12'||d3()));
  const ug=qs.find(([id,Q])=>(id==='q12'||id==='q18')&&Q.pre&&Q.r<=ri&&!S.uf[id]&&1+Math.min(3,S.mem.length+(S.temp?1:0))>=Q.min),open=ug?[ug]:qs.filter(([,Q])=>Q.r<=ri),lock=ug?[]:qs.filter(([,Q])=>Q.r===ri+1),loose=S.gear.filter(g=>!g.w).length;
  const say=ug?URG[ug[0]]:S.aend?AEND_SAY():!Object.keys(S.done).length?ORG[S.org].hi+'受付のミレアです。初めての方には、マルタお婆さんの薬草摘みをお勧めしています。師匠への挨拶の貼り紙も、見ておいてくださいね」':S.done.q18?'「Aランク冒険者が受付に並ぶと、新人さんが緊張するんですよ。……でも、来てくれると嬉しいです」':S.tav&&S.mem.length?'「お仲間が、子豚亭に席を取ったそうですよ。顔を出してあげてください」':loose?'「まだ誰も身につけていない装備がありますね。『仲間と装備』のチラシからどうぞ」':[S.og,S.sub].some(t=>!S.gr[t])?'「師匠への挨拶は、もう済ませましたか？　顔を覚えてもらうと、札が増えるたびに稽古をつけてもらえますよ」':ri===5?'「Aランク昇格、おめでとうございます。この街で三組目です。……南の空が少し暗いの、気づいていますか」':ri===4?'「竜を連れた冒険者なんて前代未聞ですよ。Bランクの依頼は、辺境の外からも届きます」':ri===3?'「Cランク、おめでとうございます。街でも指折りの腕前ですよ。……最近、北の霊峰の雪解けが早いのが、少し気になりますけど」':open.length<=1?'「受けられる依頼が少ないですね。仲間を増やすか、名声を上げましょう」':'「おかえりなさい。新しい貼り紙、出ていますよ」';
  const fl=([id,Q],locked)=>{const n=sizeFor(Q),short=!locked&&n<Q.min;return `<button class="flyer ${locked?'lock':''}" ${st()} data-a="quest" data-id="${id}" ${locked?'disabled':''}><span class="stamp">${RK[Q.r]}</span><span class="fl-k">${Q.k}${S.done[id]?'・常設':''}</span><span class="fl-t">${Q.n}</span><span class="fl-x">${Q.x}</span><span class="fl-m"><span class="tag">${reqL(Q)}</span><span class="tag">${rwL(Q.rw)}</span>${locked?`<span class="tag need">${RK[Q.r]}ランクから</span>`:short?`<span class="tag need">あと${Q.min-n}人必要</span>`:''}</span></button>`};
@@ -1011,7 +1027,7 @@ school(){const t=S.sch,s=SCH[t],l=S.sk[t];return hud()+`<div class="scene read">
 grow(){const g=S.grw[0],s=SCH[g.t],hi={2:1,4:2,6:3}[g.l],txt=g.l===7?MAS[g.t]:(hi?`${s.who}：${s.hi[hi]}|`:'')+GSC[g.t][g.l-2];
  return hud()+`<div class="scene read"><p class="prog">師匠の稽古　${T[g.t].n} Lv${g.l}${g.l===7?'　免許皆伝':''}</p><h2>${s.n}</h2>${prose(txt)}</div><p class="msg">札「${SK[g.t][g.l-1]}」を覚えた。${g.m||''}</p>${go('grown',S.grw.length>1?'次の稽古へ':'稽古を終える')}`}});
 function save(){if(S.scr==='title')return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
-function render(keep){_i=0;if(S.og&&!S.org)S.org='town';if(S.og&&!S.sub)S.sub=S.og;S.st=S.st||ST0();for(const k of['cin','pf','lean','grow','sp','uf','ak','gr'])S[k]=S[k]||{};if(!V[S.scr])S.scr=S.og?'guild':'title';const cur=S;let html=V[S.scr]();S=cur;$app.classList.toggle('still',!!keep);$app.innerHTML=html;if(!keep)window.scrollTo(0,0);save()}
+function render(keep){_i=0;if(S.og&&!S.org)S.org='town';if(S.og&&!S.sub)S.sub=S.og;S.st=S.st||ST0();for(const k of['cin','pf','lean','grow','sp','uf','ak','gr'])S[k]=S[k]||{};if(!V[S.scr])S.scr=S.og?'guild':'title';const cur=S;let html=V[S.scr]();S=cur;$app.classList.toggle('still',!!keep);$app.innerHTML=html;const an=!keep&&$app.querySelector&&$app.querySelector('#ans');if(an){$app.classList.add('still');window.scrollTo(0,Math.max(0,an.getBoundingClientRect().top+window.scrollY-72))}else if(!keep)window.scrollTo(0,0);save()}
 function start(data){$app=document.getElementById('app');
  try{COL=JSON.parse(localStorage.getItem(TKEY))||[]}catch(e){}if(data&&data.S)S=data.S;else{try{const j=localStorage.getItem(KEY);if(j)saved=JSON.parse(j)}catch(e){}S=fresh()}
  $app.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b||b.disabled)return;S.msg='';const keep=A[b.dataset.a](b.dataset);if(S.msg)toast(S.msg);render(keep===true)});
