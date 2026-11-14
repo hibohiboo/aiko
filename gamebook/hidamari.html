@@ -908,7 +908,7 @@ const A={
  org(d){S.org=d.o;S.scr='og2'},
  og2(d){S.sk[d.t]++;S.sub=d.t;enterGuild()},
  quest(d){S.sel=d.id;S.scr='quest';S.msg=''},
- back(){enterGuildKeep()},
+ back(){if(S.grw&&S.grw.length&&(S.scr==='talk'||S.scr==='tavern')){S.gaf=1;S.scr='grow';return}enterGuildKeep()},
  toggle(d){const i=S.act.indexOf(d.id);if(i>=0)S.act.splice(i,1);else if(S.act.length+(S.temp?1:0)<3)S.act.push(d.id);return true},
  accept(){const Q=QS[S.sel],solo=Q.max===1,max=maxHp(Q);
   S.q={id:S.sel,i:0,solo,hand:buildHand(solo),max,hp:max,buff:0,bonus:0,res:null,note:'',bn:0,eve:0,cr:0,camp:Q.eve&&S.act.length?{kind:'eve',done:null}:null,
@@ -930,8 +930,8 @@ const A={
   if(i===2){S.st.rest++;const b=q.hp;q.hp=Math.min(q.max,q.hp+3);c.fx=`静かに体を休めた。HPが${q.hp-b}回復した。`}
   else{S.st.chat++;const k=lean(t,i);addLean(c.id,k);c.fx=addBond(c.id)+(LITE?'':`　今回は「${LN[k]}」返事だった。`);card(c.id)}},
  campEnd(){S.q.camp=null},
- home(){if(S.scr==='reward'&&S.grw&&S.grw.length){S.scr='grow';return}const won=S.scr==='reward';if(won&&S.rw&&S.rw.id==='q18'){S.scr=S.mem.includes('aiko')?'parting':'ending';return}S.rw=null;enterGuild();if(won&&S.mem.length&&S.tav){if(S.mem.includes('aiko'))A.talk({id:'aiko'});else S.scr='tavern'}},
- shop(){S.scr='shop';S.msg=''},school(d){const t=d.t,s=SCH[t],l=S.sk[t];S.sch=t;S.scr='school';S.msg='';if(!S.gr[t]){S.gr[t]=1;S.gtx=`${s.who}：${GHI[t]}|あなたは名乗り、これから世話になります、と頭を下げた。`;if(l>=7&&!S.gear.some(g=>g.k==='m'+t)){S.gtx+='|'+MAS[t];S.msg=giveM(t)}}else S.gtx=`${s.who}：${s.hi[l<3?1:l<5?2:l<7?3:4]}`},grown(){S.grw.shift();if(!S.grw.length){S.scr='reward';return A.home()}},recruit(){S.scr='recruit';S.msg=''},status(){S.scr='status';S.msg=''},
+ home(){if(S.scr==='reward'&&S.grw&&S.grw.length&&!(S.mem.length&&S.tav&&S.rw.id!=='q18')){S.scr='grow';return}const won=S.scr==='reward';if(won&&S.rw&&S.rw.id==='q18'){S.scr=S.mem.includes('aiko')?'parting':'ending';return}S.rw=null;enterGuild();if(won&&S.mem.length&&S.tav){if(S.mem.includes('aiko'))A.talk({id:'aiko'});else S.scr='tavern'}},
+ shop(){S.scr='shop';S.msg=''},school(d){const t=d.t,s=SCH[t],l=S.sk[t];S.sch=t;S.scr='school';S.msg='';if(!S.gr[t]){S.gr[t]=1;S.gtx=`${s.who}：${GHI[t]}|あなたは名乗り、これから世話になります、と頭を下げた。`;if(l>=7&&!S.gear.some(g=>g.k==='m'+t)){S.gtx+='|'+MAS[t];S.msg=giveM(t)}}else S.gtx=`${s.who}：${s.hi[l<3?1:l<5?2:l<7?3:4]}`},grown(){S.grw.shift();if(!S.grw.length){if(S.gaf){S.gaf=0;return enterGuild()}S.scr='reward';return A.home()}},recruit(){S.scr='recruit';S.msg=''},status(){S.scr='status';S.msg=''},
  tavern(){if(S.tav===1&&S.mem.includes('aiko'))return A.talk({id:'aiko'});S.scr='tavern';S.msg=''},equip(){S.scr='equip';S.msg='';S.who='me'},
  buy(d){const it=IT[d.id];if(S.gold<it.c||S.items.length>=6)return true;S.gold-=it.c;S.items.push(d.id);S.msg=`「${it.n}」を買った（−${it.c}G・残り${S.gold}G）。次の依頼から手札に入る。`;return true},
  buyg(d){const g=GR[d.k];if(S.gold<g.c)return true;S.gold-=g.c;S.gear.push({k:d.k,w:null});S.msg=`「${g.n}」を買った（−${g.c}G・残り${S.gold}G）。掲示板の「仲間と装備」で身につけよう。`;return true},
@@ -1044,7 +1044,7 @@ aschool(){const k=S.ask,a=AK[k],l=S.ak[k]||0,c=acost(k),rq=areq(k),just=S.alast=
 Object.assign(V,{
 school(){const t=S.sch,s=SCH[t],l=S.sk[t];return hud()+`<div class="scene read"><p class="prog">${T[t].n} Lv${l}</p><h2>${s.n}</h2>${prose(S.gtx||'')}</div>${msg()}${LITE?'':`<p class="prog">経験値札がたまると、得意な技（${T[S.og].n}）を2回、もうひとつの縁（${T[S.sub].n}）を1回の順に、自動で札を覚える。挨拶を済ませた師匠は、Lv7の免許皆伝まで、そのたびに稽古をつけてくれる。</p>`}${go('back','掲示板に戻る',{alt:1})}`},
 grow(){const g=S.grw[0],s=SCH[g.t],hi={2:1,4:2,6:3}[g.l],txt=g.l===7?MAS[g.t]:(hi?`${s.who}：${s.hi[hi]}|`:'')+GSC[g.t][g.l-2];
- return hud()+`<div class="scene read"><p class="prog">師匠の稽古　${T[g.t].n} Lv${g.l}${g.l===7?'　免許皆伝':''}</p><h2>${s.n}</h2>${prose(txt)}</div><p class="msg">札「${SK[g.t][g.l-1]}」を覚えた。${g.m||''}</p>${go('grown',S.grw.length>1?'次の稽古へ':'稽古を終える')}`}});
+ return hud()+`<div class="scene read"><p class="prog">${S.gaf?'打ち上げの翌朝。':''}師匠の稽古　${T[g.t].n} Lv${g.l}${g.l===7?'　免許皆伝':''}</p><h2>${s.n}</h2>${prose(txt)}</div><p class="msg">札「${SK[g.t][g.l-1]}」を覚えた。${g.m||''}</p>${go('grown',S.grw.length>1?'次の稽古へ':'稽古を終える')}`}});
 function save(){if(S.scr==='title')return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function render(keep){_i=0;if(S.og&&!S.org)S.org='town';if(S.og&&!S.sub)S.sub=S.og;S.st=S.st||ST0();for(const k of['cin','pf','lean','grow','sp','uf','ak','gr'])S[k]=S[k]||{};if(!V[S.scr])S.scr=S.og?'guild':'title';const cur=S;let html=V[S.scr]();S=cur;$app.classList.toggle('still',!!keep);$app.innerHTML=html;const an=!keep&&$app.querySelector&&$app.querySelector('#ans');if(an){$app.classList.add('still');window.scrollTo(0,Math.max(0,an.getBoundingClientRect().top+window.scrollY-72))}else if(!keep)window.scrollTo(0,0);save()}
 function start(data){$app=document.getElementById('app');
