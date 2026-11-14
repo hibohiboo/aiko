@@ -33,7 +33,8 @@ while(steps++<5000){
   R();const ri=rankI();
   const qs=Object.entries(QS).filter(([id,Q])=>(Q.rep||!S.done[id])&&(!Q.pre||Q.pre.every(k=>S.done[k]))&&Q.r<=ri&&sizeFor(Q)>=Q.min&&(id!=='q12'||d3())&&(id!=='q1'||S.done.q0)&&(!Q.need||S.act.includes(Q.need)));
   const ug=qs.find(([id,Q])=>Q.pre&&!S.uf[id]);if(S.q12at==null&&qs.some(([id])=>id==='q12'))S.q12at=Object.keys(S.done).filter(k=>QS[k].r===2).join('/');if(S.q10at==null&&qs.some(([id])=>id==='q10'))S.q10at=RK[ri];if(S.q0at==null&&S.done.q0)S.q0at=Object.keys(S.done).length;
-  let pick=ug||qs.find(([id])=>id!=='q1'&&!(P.late&&id==='q0'&&Object.keys(S.done).length<P.late))||qs.find(([id])=>id!=='q1')||qs[0];
+  const fr=([id,Q])=>id!=='q1'&&!(Q.rep&&S.done[id]); // 何度でも受けられる依頼は、初回だけ選ぶ
+  let pick=ug||qs.find(x=>fr(x)&&!(P.late&&x[0]==='q0'&&Object.keys(S.done).length<P.late))||qs.find(fr)||qs[0];
   if(!pick){if(S.temp==null&&S.gold>=40){A.recruit();R();A.hire({i:S.cands[0]});A.back();continue}console.log('STUCK',ri,S.fame,S.mem);break}
   A.quest({id:pick[0]});R();A.accept();
  }
