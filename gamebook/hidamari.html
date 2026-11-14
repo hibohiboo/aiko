@@ -824,7 +824,7 @@ const LITE=(typeof location!=='undefined'&&/github\.io$/.test(location.hostname)
 // ユーザーの修正：セラとの場面
 {const e=SP.q4.find(x=>x[0]==='aiko');e[2]=e[2].replace('藍子：「見習いの、魔女です。……なんて♪」','藍子：「ええと……見習いの、癒しの魔女です。……なんて♪」')}
 // 元のカード名に寄せすぎた名前を、この世界の言葉に
-{const RN={'ヒーリングヴォイス':'癒しの歌声','ハッピー・フィールド':'陽だまりの結界','ちょいワルの早業':'盗賊の早業','生存本能':'守り抜く誓い'};
+{const RN={'ヒーリングヴォイス':'癒しの手','ハッピー・フィールド':'陽だまりの結界','ちょいワルの早業':'盗賊の早業','生存本能':'守り抜く誓い'};
  for(const k in AK)AK[k].card=AK[k].card.map(n=>RN[n]||n);
  for(const o in RN){AKN[RN[o]]=AKN[o];delete AKN[o]}}
 Object.assign(ATT,{maj:'陽だまりの魔女',sei:'おひさまの洗濯番',odo:'時忘れの踊り子',dou:'魔法雑貨店の店主',yuu:'陽だまりの戦乙女'});
@@ -835,6 +835,8 @@ for(const k in GHI)GHI[k]=GHI[k].replace(/札が増えるたびに/g,'技がひ�
 Q0.sc[2].p='狼が去ると、少女は小鳥を抱き直した。自分の手が光っているのに気づいて、目を丸くする。|少女：「えっ……私の手、光って……？　ま、魔法……!?」|あなたは、少女の手のひらをのぞきこんだ。神殿の癒し手が祈るときの光と、よく似ている。|あなた：「癒しの光だ。この世界では、生まれつき持っている者もいる」|少女：「この世界……？　でも私、魔法なんて、使ったこと一度も……」|腕の中で、小鳥の胸がかすかに上下している。さっきより、浅い。|少女は小鳥を見つめて、きゅっと唇を結んだ。|少女：「……どうすればいいか、教えてもらえますか？」|あなた：「その子が元気になったところを、思い浮かべればいい。癒し手は、そう言っていた」|少女は目を閉じて、小鳥をそっと胸に寄せた。手のひらの光が、ほんの少し強くなる。|少女：「……自信はないけど、やってみます。みんなを笑顔に、幸せな気持ちにする魔法……それなら、いつも私がやろうとしていることと、同じだから」';
 // 子豚亭：はじめて行く夜だけ、店の紹介
 const PUBX='「踊る子豚亭」は、ギルドの斜向かいにある酒場だ。軒先の看板では、子豚がなぜか片足を上げて踊っている。|依頼を終えた冒険者は、ここで打ち上げをするのが習わしになっている。安い麦酒と、おかみの煮込みと、その日の手柄話。仲間の身の上話を聞くのも、たいていはこの店の隅の卓だ。';
+AKN['癒しの手']='藍子が、傷ついた仲間の肩に手のひらを当てた。あの日、小鳥を救ったのと同じ淡い光。こわばっていた手足に力が戻り、その一拍で、道が開けた。';
+AK.maj.ls[0]='青い小鳥を救った、手のひらの光。藍子の、はじまりの魔法。';
 const KEY='henkyo-aiko-v2';let S,saved=null,$app;
 const fresh=()=>({scr:'title',sk:{w:0,e:0,a:0,s:0,r:0,h:0},og:null,org:null,sch:null,gold:20,xp:0,fame:0,items:['potion'],gear:[],mem:[],act:[],temp:null,bond:{},mx:{},epi:{},cmp:{},cin:{},pf:{},lean:{},grow:{},sp:{},uf:{},ff:null,last:null,st:ST0(),tav:0,talk:null,who:'me',done:{},cands:[],q:null,sel:null,msg:'',rw:null,ak:{},ap:0,aend:null,ask:null,alast:null,awalk:0,sub:null,gi:0,gr:{},grw:[],gtx:''});
 const whoAmI=()=>`${ORG[S.org].n}の${JOB[S.og]}`;
@@ -894,7 +896,7 @@ function clearQuest(){const q=S.q,Q=QS[q.id],r=Q.rw,first=!S.done[q.id],before=r
  if(!q.solo){for(const id of S.act){const b=mLv(id);S.mx[id]=(S.mx[id]||0)+r.xp;for(let l=b+1;l<=mLv(id);l++){let tx='すべての札 +1';if(id==='aiko'){if(l%2===0){tx='旅に慣れてきた（見習い帖の頁 +1）';S.ap++}}else if(l%2===0){const i=l/2-1,ln=S.lean[id]||[0,0],k=ln[1]>ln[0]?'b':'a',gw=S.grow[id]=S.grow[id]||[];gw[i]=k;const a=k==='b'?MB[id].alt[i]:MB[id].c[i+2];tx=`新しい札「${a[0]}」`+(k==='b'?`（${T[a[2]].n}。寄り添ってきたから覚えた）`:'')}got.push(['仲間の成長',`${MB[id].n} Lv${l}：${tx}`])}}
   if(S.act.length){const al=AQL[q.id],id=S.act.includes('aiko')&&al&&Math.random()<.6?'aiko':S.act[Math.random()*S.act.length|0];say=[MB[id].n,id==='aiko'&&al?al.af:MB[id].ln.af[Math.random()*2|0]]}
   S.temp=null}
- if(first&&r.mem){const m=MB[r.mem];S.mem.push(r.mem);if(S.act.length<3)S.act.push(r.mem);got.push(['仲間',`${m.n}（${m.j}・${T[m.t].n}）`]);if(r.mem==='aiko'){S.ak.maj=1;got.push(['藍子の技能','魔女 Lv1「癒しの歌声」']);got.push(['掲示板','「藍子の見習い帖」が増えた'])}}
+ if(first&&r.mem){const m=MB[r.mem];S.mem.push(r.mem);if(S.act.length<3)S.act.push(r.mem);got.push(['仲間',`${m.n}（${m.j}・${T[m.t].n}）`]);if(r.mem==='aiko'){S.ak.maj=1;got.push(['藍子の技能','魔女 Lv1「癒しの手」']);got.push(['掲示板','「藍子の見習い帖」が増えた'])}}
  if(S.mem.length)S.tav=1;
  S.done[q.id]=(S.done[q.id]||0)+1;
  S.last={id:q.id,p:q.solo?[]:[...S.act]};
