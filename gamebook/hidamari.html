@@ -574,9 +574,9 @@ h:['施療院の朝は、湯を沸かすことから始まる。|老神官：「
  '泣き止まない子どもの手当てを任された。|老神官：「傷は小さい。大きいのは、怖さのほうです。そちらを先に癒しておあげなさい」|歌をひとつ歌ってやると、子どもは泣き止んだ。傷は、そのあいだに塞がっていた。',SCH.h.ok[1],
  '夜半、施療院の戸が叩かれた。崩れた足場の下敷きになった職人が、三人。|老神官：「私は奥の方を。あなたは手前の二人を。……できますね」|問いではなかった。夜明けには、三人とも静かな寝息を立てていた。老神官は、震えるあなたの手に、温かい茶を持たせてくれた。']};
 const giveM=t=>{const k='m'+t,on=gearOf('me').length<2;S.gear.push({k,w:on?'me':null});return `免許皆伝の証に「${GR[k].n}」を受け取った（${GR[k].x}）。${on?'':'持ち物に入れた。'}`};
-// 経験値札がたまったら、得意・得意・もうひとつ の順に自動で札を覚える
-function autoGrow(got){S.grw=[];for(let n=0;n<30;n++){let t=(S.gi||0)%3<2?S.og:S.sub,c=trainCost(t);if(!c){t=t===S.og?S.sub:S.og;c=trainCost(t);if(!c)break}
- if(S.xp<c.xp)break;S.xp-=c.xp;S.sk[t]++;S.gi=(S.gi||0)+1;const l=S.sk[t];got.push(['成長',`${T[t].n} Lv${l}：新しい札「${SK[t][l-1]}」`]);
+// 経験値札がたまったら自動で札を覚える。もうひとつの縁がLv3になるまでは得意と交互、そのあとは得意・得意・もうひとつの順
+function autoGrow(got){S.grw=[];for(let n=0;n<30;n++){const early=S.og!==S.sub&&S.sk[S.sub]<3;let t=early?((S.gi||0)%2?S.sub:S.og):((S.gl||0)%3<2?S.og:S.sub),c=trainCost(t);if(!c){t=t===S.og?S.sub:S.og;c=trainCost(t);if(!c)break}
+ if(S.xp<c.xp)break;S.xp-=c.xp;S.sk[t]++;if(early)S.gi=(S.gi||0)+1;else S.gl=(S.gl||0)+1;const l=S.sk[t];got.push(['成長',`${T[t].n} Lv${l}：新しい札「${SK[t][l-1]}」`]);
  if(S.gr[t]&&l<=7){const g={t,l};if(l===7)g.m=giveM(t);S.grw.push(g)}}}
 // ガルド：ふだんの掛け声では、前の仲間の話をしない
 // 古竜の小休止は、巣に踏み込む前に
@@ -915,7 +915,7 @@ ${COL.length?`<p class="sub">これまでの旅で集めた称号　${COL.length
 <div class="stack">${saved?go('cont','続きから',{s:`ランク${RK[(S=saved,rankI())]}・名声${saved.fame}`})+go('new','最初から始める',{alt:1}):go('new','ギルドの扉をくぐる')}</div></section>`},
 og(){return `<div class="head"><h2>得意な技</h2><p>受付嬢が登録用紙を差し出す。まず、いちばん自信のある技を書き入れる（Lv2で開始）。</p></div><div class="hand two">${TK.map(t=>fuda({t,a:'og',d:`data-t="${t}"`,name:JOB[t],x:MAIN[t],foot:`${T[t].n} Lv2`})).join('')}</div>`},
 org(){return `<div class="head"><h2>あなたの生まれ</h2><p>次の欄は「出身」。${JOB[S.og]}のあなたは、どこで育ったのだろう。</p></div><div class="hand">${Object.entries(ORG).map(([k,o])=>fuda({a:'org',d:`data-o="${k}"`,ty:'出身',gl:'郷',name:o.n,x:o.x})).join('')}</div>`},
-og2(){const o=ORG[S.org];return `<div class="head"><h2>もうひとつの縁</h2><p>${o.x}　そこで、誰かに教わったことがある（+1Lv）。得意と同じ系統を選べば、さらに伸びる。${LITE?'このあとは、依頼をこなすたびに腕が上がっていく。':'このあとは経験値札がたまるたび、得意を2回、こちらを1回の順に、自動で札を覚えていく。'}</p></div><div class="hand two">${TK.map(t=>fuda({t,a:'og2',d:`data-t="${t}"`,name:`${T[t].n} +1`,x:o.y[t]})).join('')}</div>`},
+og2(){const o=ORG[S.org];return `<div class="head"><h2>もうひとつの縁</h2><p>${o.x}　そこで、誰かに教わったことがある（+1Lv）。得意と同じ系統を選べば、さらに伸びる。${LITE?'このあとは、依頼をこなすたびに腕が上がっていく。':'このあとは経験値札がたまるたび、自動で札を覚えていく。こちらがLv3になるまでは得意と交互に、そのあとは得意を2回、こちらを1回の順に。'}</p></div><div class="hand two">${TK.map(t=>fuda({t,a:'og2',d:`data-t="${t}"`,name:`${T[t].n} +1`,x:o.y[t]})).join('')}</div>`},
 guild(){const ri=rankI(),qs=Object.entries(QS).filter(([id,Q])=>(Q.rep||!S.done[id])&&(!Q.pre||Q.pre.every(k=>S.done[k]))&&(id!=='q1'||S.done.q0)&&(!Q.need||S.mem.includes(Q.need))&&(id!=='q12'||d3()));
  const ug=qs.find(([id,Q])=>(id==='q12'||id==='q18')&&Q.pre&&Q.r<=ri&&!S.uf[id]&&1+Math.min(3,S.mem.length+(S.temp?1:0))>=Q.min),open=ug?[ug]:qs.filter(([,Q])=>Q.r<=ri),lock=ug?[]:qs.filter(([,Q])=>Q.r===ri+1),loose=S.gear.filter(g=>!g.w).length;
  const say=ug?URG[ug[0]]:S.aend?AEND_SAY():!Object.keys(S.done).length?ORG[S.org].hi+'受付のミレアです。初めての方には、マルタお婆さんの薬草摘みをお勧めしています。師匠への挨拶の貼り紙も、見ておいてくださいね」':S.done.q18?'「Aランク冒険者が受付に並ぶと、新人さんが緊張するんですよ。……でも、来てくれると嬉しいです」':!LITE&&S.tav&&S.mem.length?'「お仲間が、子豚亭に席を取ったそうですよ。顔を出してあげてください」':loose?'「まだ誰も身につけていない装備がありますね。『仲間と装備』のチラシからどうぞ」':[S.og,S.sub].some(t=>!S.gr[t])?'「師匠への挨拶は、もう済ませましたか？　顔を覚えてもらうと、新しい技を覚えるたびに、稽古をつけてもらえますよ」':ri===5?'「Aランク昇格、おめでとうございます。この街で三組目です。……南の空が少し暗いの、気づいていますか」':ri===4?'「竜を連れた冒険者なんて前代未聞ですよ。Bランクの依頼は、辺境の外からも届きます」':ri===3?'「Cランク、おめでとうございます。街でも指折りの腕前ですよ。……最近、北の霊峰の雪解けが早いのが、少し気になりますけど」':open.length<=1?'「受けられる依頼が少ないですね。仲間を増やすか、名声を上げましょう」':'「おかえりなさい。新しい貼り紙、出ていますよ」';
@@ -981,7 +981,7 @@ ending(){if(!S.aend)return V.ending0();const e=S.aend,b=bondOf('aiko'),sk=e.sk,b
  return `<section class="title"><p class="eyebrow">終章</p><h1>${e.k==='ret'?'光の<br>向こうへ':'陽だまりの<br>街で'}</h1></section><div class="scene read">${prose(body.join('|'))}</div>${go('recap','旅をふりかえる',{s:'実績と称号、冒険者気質診断'})}`},
 aschool(){const k=S.ask,a=AK[k],l=S.ak[k]||0,c=acost(k),rq=areq(k),just=S.alast===k,txt=just?a.ls[l-1]:l>=3?a.ls[2]:a.hi[l];
  return hud()+`<div class="scene read"><p class="prog">藍子の見習い帖　${a.n}${l?' Lv'+l:''}</p><h2>${a.at}</h2>${prose(txt)}</div>${msg()}${!just&&c!=null?`<div class="hand two">${fuda({t:a.t,a:'alearn',name:`Lv${l} → ${l+1}`,x:`藍子が覚える札：${a.card[l]}（${a.any?'どの場面でも適性・':''}突破力${a.p[l]}）`,foot:rq||`見習い帖の頁 ${c}枚`,fc:rq?'bad':'',dis:!!rq||S.ap<c})}</div>`:''}${LITE?'':`<p class="prog">見習い帖の頁は、藍子を連れて依頼を果たすか、子豚亭で藍子と語らうとたまる（いま${S.ap}枚）。どの技能を伸ばしたかで、物語の結末が変わる。</p>`}${go('back','掲示板に戻る',{alt:1})}`},
-school(){const t=S.sch,s=SCH[t],l=S.sk[t];return hud()+`<div class="scene read"><p class="prog">${T[t].n} Lv${l}</p><h2>${s.n}</h2>${prose(S.gtx||'')}</div>${msg()}${LITE?'':`<p class="prog">経験値札がたまると、得意な技（${T[S.og].n}）を2回、もうひとつの縁（${T[S.sub].n}）を1回の順に、自動で札を覚える。挨拶を済ませた師匠は、Lv7の免許皆伝まで、そのたびに稽古をつけてくれる。</p>`}${go('back','掲示板に戻る',{alt:1})}`},
+school(){const t=S.sch,s=SCH[t],l=S.sk[t];return hud()+`<div class="scene read"><p class="prog">${T[t].n} Lv${l}</p><h2>${s.n}</h2>${prose(S.gtx||'')}</div>${msg()}${LITE?'':`<p class="prog">経験値札がたまると、自動で札を覚える。もうひとつの縁（${T[S.sub].n}）がLv3になるまでは得意な技（${T[S.og].n}）と交互に、そのあとは得意を2回、もうひとつの縁を1回の順に。挨拶を済ませた師匠は、Lv7の免許皆伝まで、そのたびに稽古をつけてくれる。</p>`}${go('back','掲示板に戻る',{alt:1})}`},
 grow(){const g=S.grw[0],s=SCH[g.t],hi={2:1,4:2,6:3}[g.l],txt=g.l===7?MAS[g.t]:(hi?`${s.who}：${s.hi[hi]}|`:'')+GSC[g.t][g.l-2];
  return hud()+`<div class="scene read"><p class="prog">${S.gaf?'打ち上げの翌朝。':''}師匠の稽古　${T[g.t].n} Lv${g.l}${g.l===7?'　免許皆伝':''}</p><h2>${s.n}</h2>${prose(txt)}</div><p class="msg">札「${SK[g.t][g.l-1]}」を覚えた。${g.m||''}</p>${go('grown',S.grw.length>1?'次の稽古へ':'稽古を終える')}`}
 };
