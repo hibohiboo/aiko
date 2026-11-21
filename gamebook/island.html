@@ -565,13 +565,20 @@ C('rocks','lookup',{i:'⛰️',t:'崖を見上げる',s:'上には何がある�
 C('rocks','climb',{i:'🧗',t:'崖をよじ登る',s:'ロープなしで',c:[7,10],tags:['risk','explore'],w:1.5,req:s=>s.places.hill&&!owns('rope')&&!s.flags.climbed,run:s=>{if(P(.45)){s.flags.climbed=1;return{goto:'hill',t:'「下は見ない、下は見ない……」\n指をかけ、足をかけ、息を止めて体を引き上げた。\n崖の上に出た！　膝がまだ震えている。でも、手がかりはもう覚えた。'}}return{d:{hp:-18},hurt:'足をすべらせて落ちた',cause:'転落',know:'santen',t:firstHurt('climb',['岩の出っぱりに指をかけて、体を引き上げる。\n「下は見ない、下は見ない……」\n半分ほど登ったところで、足をかけた岩が、ぼろりと崩れた。','とっさに、見てしまった。下を。\n足がすくむ。指先から、力が抜けていく。','岩場に叩きつけられた。\n腰から背中へ、じんと重い痛みが広がる。\nしばらく、声も出なかった。','「両手両足のうち三つで体を支えて、動かすのは一つずつ。足をかける前に、岩を確かめる」\n名人のおばあさんに教わった登り方を、今さら思い出す。\n縄があれば。せめて、もっとゆっくり登っていれば。'],'半分ほど登ったところで、うっかり下を見てしまった。\n足がすくんで、手がすべる。岩場に落ちて、したたかに腰を打った。\n「縄があれば……」')}}});
 // ---- stream ----
 C('stream','drinkraw',{i:'🤲',t:'小川の水をそのまま飲む',s:'澄んで見える',c:[1,0],tags:['risk'],run:s=>{if(P(.4))return{d:{water:30,hp:-10,food:-6},hurt:'お腹をこわした',know:'boil',cause:'生水',t:firstHurt('rawwater',['澄んだ水を両手ですくって、ごくごく飲んだ。\n冷たくて、おいしい。','夕方になって、お腹がきりきりと痛みだした。\n何度も茂みに駆けこんで、そのたびに体から水が抜けていく。\n額に脂汗。足に力が入らない。','「澄んで見えても、生水は危ないのであります」\n亜季さんの声。……ちゃんと、言ってたのに。\nお腹をこわすと、飲んだ以上に水を失ってしまう。水は、沸かしてから。'],'冷たい水を、ごくごく飲んだ。\n夕方になって、ひどい腹痛がやってきた。澄んで見えても、生水は危ない。')};return{d:{water:35},t:'冷たくて、体のすみずみまで染みわたる。'}}});
-C('stream','fetch',{i:'svg:wshell',t:'水を汲む',s:'殻・魔法瓶・土器に汲む',c:[2,4],tags:['safe'],dis:s=>!inv('shell')&&!inv('flask')&&!POT.some(k=>inv(k))&&'空の器を持っていない',run:s=>{
+// 水を汲む（小川・地底湖）
+const noVessel=s=>!inv('shell')&&!inv('flask')&&!POT.some(k=>inv(k))&&'空の器を持っていない';
+C('stream','fetch',{i:'svg:wshell',t:'水を汲む',s:'殻・魔法瓶・土器に汲む',c:[2,4],tags:['safe'],dis:noVessel,run:s=>fetchWater(s,'stream')});
+C('cave','lakefetch',{i:'svg:wshell',t:'地底湖の水を汲む',s:'殻・魔法瓶・土器に汲む',c:[2,3],tags:['safe'],dis:noVessel,run:s=>fetchWater(s,'lake')});
+function fetchWater(s,where){
   const n=inv('shell'),fl=inv('flask'),get={},parts=[];
-  if(n){get.shell=-n;get.wshell=n;parts.push('ヤシの殻'+n+'つ')}
+  if(n){get.shell=-n;get.wshell=n;parts.push('ヤシの殻')}
   if(fl){get.flask=-fl;get.wflask=fl;parts.push('魔法瓶')}
   const pk=POT.find(k=>inv(k));
   if(pk){if(pk!=='wpot'){get[pk]=-1;get.wpot=1}s.potW=s.flags.sealed?3:1;parts.push(s.flags.sealed?'土器（3杯分）':'土器')}
-  return{get,t:'持ってきた'+parts.join('と')+'に、水を汲んだ。こぼさないように葉でふたをする。'+(pk&&!s.flags.sealed?'\n……土器の底から、じわりと水がしみ出してくる。一杯分しか持ちそうにない。':'')+(known('boil')?'\n野営地で沸かしてから飲もう。':'')}}});
+  const leak=pk&&!s.flags.sealed?'\n……土器の底から、じわりと水がしみ出してくる。一杯分しか持ちそうにない。':'';
+  if(where==='lake')return{get,t:'松明を岩のすき間に立てかけて、地底湖のほとりにしゃがむ。\n持ってきた'+parts.join('と')+'を、しんと冷えた水にそっと沈めた。\nこぼさないように葉でふたをする。'+leak+'\nこのまま飲んでもよさそうなくらい澄んでいるけれど、持ち歩くあいだに何が入るかわからない。'+(known('boil')?'念のため、野営地で沸かしてから飲もう。':'')};
+  return{get,t:'持ってきた'+parts.join('と')+'に、水を汲んだ。こぼさないように葉でふたをする。'+leak+(known('boil')?'\n野営地で沸かしてから飲もう。':'')};
+}
 C('stream','clay',{i:'🟤',t:'粘土を掘る',s:'焼けば器になる',c:[4,7],tags:['craft'],run:s=>({get:{clay:2},t:'川岸のきめこまかい粘土を、両手ですくい取った。\nひんやりして、肇ちゃんのおじいさんの工房と同じ匂いがする。'})});
 C('stream','handfish',{i:'🐟',t:'魚を手づかみする',s:'なかなか難しい',c:[5,8],tags:['risk'],req:s=>!inv('rod'),run:s=>P(.35)?{get:{fish:1},t:'石の下に手を差しこんで、魚をつかんだ！'}:{d:{water:4},t:'水しぶきを浴びただけだった。'}});
 C('stream','rodfish',{i:'🎣',t:'釣り糸を垂らす',s:'釣り竿を持ってきた',c:[3,5],tags:['safe'],req:s=>inv('rod'),run:s=>P(.85)?{get:{fish:ri(1,2)},t:'しずかに待っていると、貝殻の針に銀色の魚がかかった。\n魚は、しずかな人のところに来る。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}});
@@ -705,7 +712,7 @@ const busy=()=>!!(S.result||S.think||S.work||S.phase!=='play');
 
 // 水と食べものを手に入れる案（海水を飲む・知らない実やキノコは入れない）
 const LOWNEED=50;
-const FIND={water:['puddle','fetch','drinkraw','lake','fallen','palm'],food:['shells','tide','fruit','fallen','dig','eggs','rcrab','swim','handfish','rodfish','nest','seaweed']};
+const FIND={water:['puddle','fetch','lakefetch','drinkraw','lake','fallen','palm'],food:['shells','tide','fruit','fallen','dig','eggs','rcrab','swim','handfish','rodfish','nest','seaweed']};
 function needNote(){
   const here=k=>Object.values(CARDS).some(c=>c.p===S.place&&FIND[k].includes(c.id));
   let x='';
