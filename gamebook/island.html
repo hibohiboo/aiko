@@ -347,7 +347,6 @@ const K={
   akuni:['灰汁で繊維をとる','ツルや木の皮を灰汁で煮たり、熱い灰に埋めて蒸したりすると、かたい部分がやわらかくなる。水の中でしごくと繊維だけが残り、細くて丈夫な糸になる。藤布や葛布も、こうして作られてきた。','村のおばあちゃん'],
   herbtea:['野草のお茶','ヨモギやドクダミのような身近な葉を、昔から干したり煎じたりしてお茶にしてきた。知っている葉だけを使う。','村のおばあちゃん'],
   greenflash:['グリーンフラッシュ','空気が澄んだ日、太陽が水平線に沈む瞬間に、上のふちが一瞬だけ緑に光ることがある。','未央ちゃん'],
-  floatglass:['ガラスの浮き玉','昔の漁網には、ガラスの浮き玉が使われていた。網から外れて、何年も海を漂うことがある。','漁師のおじいさん'],
   hikarigoke:['ヒカリゴケ','地球のヒカリゴケは自分では光らない。レンズのような細胞が、入ってきたわずかな光を返して光って見える。','鍾乳洞の回'],
   groundwater:['地下水','岩や砂を通ってきた地下水は濁りが少ないことが多い。ただ、それだけで安全とは限らない。','井戸掘りの回'],
   polaris:['北極星','北極星はほぼ真北の空にあって、ほとんど動かない。北斗七星やカシオペヤ座から探せる。','星空キャンプの回'],
@@ -422,7 +421,6 @@ const CL={
   crab:'脚が10本で、ハサミが3本あるカニさんがいた。',
   bird:'目が四つ、尾羽が二股の青い鳥がいた。',
   noplanes:'何日たっても、空を飛行機ひとつ横切らなかった。',
-  float:'流れ着いたガラス玉の紙には、どこの国のものでもない文字。',
   fogwall:'島のまわりは、どの方角も霧の壁。水平線が見えなかった。',
   stars:'北極星も、知っている星座も、どこにもなかった。',
   moss:'洞窟の苔は、光のない場所で自分から光っていた。',
@@ -463,7 +461,7 @@ function sceneText(s){
     case 'ruins': return '苔むした石の柱の輪。真ん中に、古い石の門が立っている。';
   }
 }
-const clueN=s=>Object.keys(s.clues).length;
+const clueN=s=>Object.keys(s.clues).filter(c=>CL[c]).length;  // 古い記録に残った、もうない違和感は数えない
 const known=k=>!!((S&&S.know[k])||META.know[k]);
 
 /* ----- inventory ----- */
@@ -529,7 +527,6 @@ C('beach','puddle',{i:'💧',t:'岩のくぼみの雨水を探す',s:'浜の端�
 C('beach','driftwood',{i:'🪵',t:'流木を集める',s:'乾いた流木を拾う',c:[4,7],tags:['craft'],run:s=>({get:{wood:2+(P(.3)?1:0),...(P(.2)?{stone:1}:{})},t:'白く乾いた流木を、両腕いっぱいに抱えた。\n……重い。茜ちゃんなら、この倍は持てそう。'})});
 C('beach','flotsam',{i:'👀',t:'漂着物を調べる',s:'波打ち際に何が流れ着いているか',c:[3,6],tags:['observe'],w:1.4,run:s=>{
   if(!s.clues.noplastic)return{clue:'noplastic',know:'beachcomb',get:{wood:1},t:['波打ち際を、端から端まで歩いて調べた。\n流木。ちぎれた海藻。割れた貝殻。ヤシの実の殻。軽石。\n使えそうなのは、手ごろな流木が一本くらい。',...ep('beach'),'ペットボトルのキャップひとつ、お菓子の袋の切れはしひとつ、落ちていない。\n「……どうして？」']};
-  if(s.day>=3&&!s.clues.float&&P(.45))return{clue:'float',know:'floatglass',t:['波間で、何かが緑色に光った。\n拾い上げると、手のひらほどのガラス玉だった。中に、丸めた紙が入っている。\n漁師のおじいさんの倉庫で見た、漁網の浮き玉に似ている。','石で割って、紙を広げた。\nインクで文字が書かれている。……どこの国の文字だろう。一文字も読めない。\n角ばった記号が、右から左へ並んでいるようにも見えた。']};
   const r=R();if(r<.4)return{get:{coconut:1},t:'波に転がされていたヤシの実を見つけた。'};if(r<.75)return{get:{leaf:2},t:'打ち上げられたヤシの葉が使えそうだ。'};return{get:{wood:1,twig:1},t:'目ぼしいものはない。小さな流木と枝を拾った。'}}});
 C('beach','horn',{i:'🐚',t:'大きな巻き貝を吹いてみる',s:'両手で抱えるほどの巻き貝',c:[1,2],tags:['observe'],once:1,w:1.5,run:s=>({d:{hp:6},t:['波打ち際に、両手で抱えるほどの巻き貝が転がっていた。\n先っぽが欠けて、穴があいている。\n……芳乃ちゃんの、ほら貝みたい。','エフェメラのみんなで集まった日、芳乃ちゃんがほら貝を見事に鳴らしてくれたことがあります。\n「ぶおおー」\n「藍子さんもー、いかがでしてー？」\n私が吹いたら、すうっと息のもれる音しか出なくて。まゆちゃんと智絵里ちゃんが、くすくす笑っていました。','息を吸って、思いきり吹いてみる。\n……ぷすー。\n「ふふっ。やっぱり、だめですね」\nでも肩の力が抜けて、ちょっとだけ元気が出た。']})});
 C('beach','shells',{i:'🐚',t:'波打ち際で貝を探す',s:'砂を掘って貝をとる',c:[3,6],tags:['safe'],run:s=>({get:{clam:ri(1,2)},t:'引き波のあとに残る小さな穴。指で掘ると、貝が出てきた。'})});
@@ -1127,7 +1124,7 @@ function openSheet(name,opener){
     h+='<p class="hint" style="text-align:left;margin-top:12px">遠い場所ほど満腹と水分を使う。道は 野営地・浜辺 → 森の入口 → 小川、浜辺 → 岩場 とつながっている。</p>';
   }else if(name==='know'){
     const tab=UI.noteTab||'know';
-    const clues=Object.assign({},META.clues||{},(S&&S.clues)||{});const cn=Object.keys(clues).length;
+    const clues=Object.assign({},META.clues||{},(S&&S.clues)||{});const cn=Object.keys(clues).filter(c=>CL[c]).length;
     const n=Object.keys(K).filter(known).length;
     const eps=Object.keys(EP).filter(e=>META.eps&&META.eps[e]).sort((a,b)=>parseInt(EP[a][0].slice(1))-parseInt(EP[b][0].slice(1)));
     const album=S?S.album:Object.keys(PHOTO).filter(p=>META.photos[p]);
