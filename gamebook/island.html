@@ -1132,7 +1132,7 @@ function cardHTML(c,o={}){
 function renderNav(){
   const n=document.getElementById('nav');if(!n)return;
   const nw=Object.keys(UI.newPlaces).filter(p=>p!==S.place).length;
-  n.innerHTML=`<button data-s="bag"><span>${ic('svg:sack')}</span>リュック ${packN()}/${cap()}</button><button data-s="know"><span>📓</span>手帳</button><button data-s="move" ${busy()?'disabled':''}><span>👣</span>移動する${nw?`<i class="badge">${nw}</i>`:''}</button>`;
+  n.innerHTML=`<button data-s="bag"><span>${ic('svg:sack')}</span>リュック ${packN()}/${cap()}</button><button data-s="know"><span>📓</span>手帳</button><button data-s="move" ${busy()||!ORDER.some(p=>S.places[p]&&p!==S.place)?'disabled':''}><span>👣</span>移動する${nw?`<i class="badge">${nw}</i>`:''}</button>`;
   n.querySelectorAll('button').forEach(b=>b.onclick=e=>{UI.bagMsg='';UI.bagKn=null;openSheet(b.dataset.s,e.currentTarget)});
 }
 let sheetOpener=null;
