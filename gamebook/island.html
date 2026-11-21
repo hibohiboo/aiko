@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>藍子の漂流日記</title>
+<style>
+:root{
+  --paper:#f3ead3; --paper2:#ebdfc2; --ink:#2a2216; --muted:#76684f; --line:#d3c39f;
+  --hp:#c23f35; --food:#b87a12; --water:#2a73ad; --ok:#2f6b4c; --warn:#b5541b;
+  --night:#121a30; --night2:#1d2747;
+  --serif:"Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
+  --sans:"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#d9cba8;color:var(--ink);font-family:var(--sans);-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+#app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;background:var(--paper);position:relative;display:flex;flex-direction:column}
+
+/* ---------- HUD ---------- */
+.hud{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 14px 10px}
+.hud-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.day{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:.02em}
+.pips{display:flex;gap:4px}
+.pip{font-size:12px;padding:2px 7px;border:1px solid var(--line);border-radius:4px;color:var(--muted)}
+.pip.done{background:var(--paper2);color:#a89a7d;text-decoration:line-through}
+.pip.now{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700}
+.hud-place{margin-left:auto;font-size:13px;color:var(--muted)}
+.gauges{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.g{position:relative}
+.g-head{display:flex;align-items:baseline;gap:4px;font-size:12px;color:var(--muted)}
+.g-head b{font-size:18px;color:var(--ink);font-variant-numeric:tabular-nums;margin-left:auto}
+.g-state{font-size:11px;font-weight:700;color:#fff;background:var(--warn);border-radius:3px;padding:0 4px;display:none}
+.g.low .g-state{display:inline-block}
+.bar{position:relative;height:9px;border-radius:5px;background:#e2d5b6;overflow:hidden;margin-top:3px;border:1px solid transparent}
+.g.low .bar{border-color:var(--warn)}
+.bar i{position:absolute;inset:0 auto 0 0;border-radius:5px}
+.bar .ghost{background:repeating-linear-gradient(135deg,#0003 0 3px,#0001 3px 6px);transition:width .45s ease .35s}
+.bar .fill{transition:width .2s ease}
+.g.hp .fill{background:var(--hp)} .g.food .fill{background:var(--food)} .g.water .fill{background:var(--water)}
+.float{position:absolute;right:0;top:-4px;font-size:13px;font-weight:800;pointer-events:none;animation:floatUp 1.1s ease forwards}
+.float.neg{color:var(--hp)} .float.pos{color:var(--ok)}
+@keyframes floatUp{0%{opacity:0;transform:translateY(6px)}15%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-14px)}}
+
+/* ---------- places ---------- */
+.places{display:flex;gap:6px;overflow-x:auto;padding:10px 14px 4px;scrollbar-width:none}
+.places::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;display:flex;align-items:center;gap:4px;padding:7px 11px;border-radius:18px;border:1px solid var(--line);background:#fbf6e9;font-size:13px;cursor:pointer;white-space:nowrap}
+.chip.here{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700}
+.chip.locked{background:transparent;color:#9b8d72;border-style:dashed}
+.chip.newp{box-shadow:0 0 0 2px var(--ok) inset}
+.move-note{padding:0 14px;font-size:11px;color:var(--muted);min-height:16px}
+.move-note.err{color:var(--warn);font-weight:700}
+
+/* ---------- scene ---------- */
+main{flex:1;padding:6px 14px 96px}
+.scene{font-family:var(--serif);font-size:15px;line-height:1.85;margin:6px 0 12px}
+.scene .pname{font-family:var(--sans);font-size:12px;color:var(--muted);display:block;margin-bottom:2px}
+
+.cards{display:flex;flex-direction:column;gap:9px}
+.card{display:grid;grid-template-columns:44px 1fr;gap:4px 10px;align-items:start;text-align:left;width:100%;padding:12px 12px 11px;border-radius:10px;border:1px solid var(--line);background:#fffaf0;box-shadow:0 2px 0 #cdbd97;cursor:pointer;transition:transform .08s,box-shadow .08s}
+.card:active:not(.off){transform:translateY(2px);box-shadow:0 0 0 #cdbd97}
+.card .ci{font-size:28px;line-height:44px;text-align:center;background:var(--paper2);border-radius:8px;grid-row:span 2}
+.card .ct{font-weight:700;font-size:15px}
+.card .cs{font-size:12px;color:var(--muted);margin-top:1px}
+.costs{display:flex;flex-wrap:wrap;gap:4px;grid-column:2}
+.cost{font-size:11px;padding:1px 6px;border-radius:3px;background:var(--paper2);font-variant-numeric:tabular-nums}
+.cost.f{color:#7d5208} .cost.w{color:#1c5585}
+.cost.need{background:var(--ok);color:#fff}
+.note{grid-column:1/-1;font-size:12px;border-radius:5px;padding:4px 7px;margin-top:4px}
+.note.warn{background:#f8e1c9;color:#7a3810}
+.note.danger{background:#f4d3cf;color:#7c1f17;font-weight:700}
+.card.warn{border-color:#d9a06b}
+.card.off{background:#ece4cf;box-shadow:none;cursor:not-allowed;opacity:.85}
+.card.off .ct,.card.off .ci{filter:grayscale(1);opacity:.55}
+.card.off .note{background:#ddd3bb;color:#4d4434}
+.card.deal{animation:deal .28s ease both}
+@keyframes deal{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+
+.result{border:1px solid var(--line);background:#fffaf0;border-radius:10px;padding:14px;animation:deal .25s ease both}
+.result .story{font-family:var(--serif);line-height:1.9;font-size:15px;margin:0 0 8px;white-space:pre-line}
+.result .extra{font-size:13px;color:var(--hp);font-weight:700;margin:4px 0}
+.gets{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0 4px}
+.get{font-size:12px;padding:3px 8px;border-radius:12px;background:var(--paper2)}
+.get.neg{background:#f4d3cf;color:#7c1f17}
+.get.pos{background:#d8e8d6;color:#1e4a33}
+.get.know{background:#28344f;color:#f3ead3;cursor:pointer}
+.get.clue{background:#5a3d6b;color:#f6ecff;cursor:pointer}
+.get.place{background:var(--ok);color:#fff}
+.btn{display:block;width:100%;padding:13px;border-radius:9px;border:0;background:var(--ink);color:var(--paper);font-weight:700;font-size:15px;cursor:pointer;margin-top:12px}
+.btn.sub{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{background:#cbbd9c;color:#7f7258;cursor:not-allowed}
+
+/* ---------- bottom nav ---------- */
+nav.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;display:grid;grid-template-columns:repeat(4,1fr);background:#efe4c8;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:6}
+nav.bottom button{background:none;border:0;padding:8px 2px 9px;font-size:11px;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;position:relative}
+nav.bottom button span{font-size:20px}
+.badge{position:absolute;top:4px;left:calc(50% + 8px);background:var(--hp);color:#fff;font-size:10px;font-weight:700;border-radius:8px;padding:0 5px;min-width:16px}
+.bump{animation:bump .35s}
+@keyframes bump{40%{transform:scale(1.18)}}
+
+/* ---------- sheet ---------- */
+.veil{position:fixed;inset:0;background:#0007;z-index:20;animation:fade .2s}
+@keyframes fade{from{opacity:0}}
+.sheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%);width:100%;max-width:520px;max-height:82vh;max-height:82dvh;overflow:auto;background:var(--paper);border-radius:14px 14px 0 0;z-index:21;padding:14px 14px calc(20px + env(safe-area-inset-bottom));animation:up .24s ease}
+@keyframes up{from{transform:translate(-50%,40px);opacity:.4}}
+.sheet h2{font-family:var(--serif);font-size:18px;margin:0 0 10px;display:flex;align-items:center}
+.sheet h2 small{font-family:var(--sans);font-size:12px;color:var(--muted);margin-left:8px;font-weight:400}
+.close{margin-left:auto;background:none;border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:13px;cursor:pointer}
+.sec{font-size:12px;color:var(--muted);margin:14px 0 6px;font-weight:700}
+.row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.row .ri{font-size:22px;width:30px;text-align:center}
+.row .rn{flex:1;font-size:14px}
+.row .rn small{display:block;color:var(--muted);font-size:11px}
+.mini{border:1px solid var(--ink);background:#fffaf0;border-radius:6px;padding:6px 9px;font-size:12px;cursor:pointer;white-space:nowrap}
+.mini[disabled]{border-color:#b9ab8c;color:#9b8d72;cursor:not-allowed;background:transparent}
+.mats{display:flex;flex-wrap:wrap;gap:4px;margin-top:3px}
+.mat{font-size:11px;padding:1px 6px;border-radius:3px;background:var(--paper2)}
+.mat.short{background:#f4d3cf;color:#7c1f17;font-weight:700}
+.mat.ok{background:#d8e8d6;color:#1e4a33}
+.matlist{display:flex;flex-wrap:wrap;gap:6px}
+.msg{background:#fffaf0;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:6px}
+.kn{padding:10px 0;border-bottom:1px dashed var(--line)}
+.kn b{font-size:14px}
+.kn p{margin:3px 0 0;font-size:13px;line-height:1.7;color:#4a3f2d}
+.kn.unk b{color:#a99b7f;letter-spacing:.2em}
+.newtag{font-size:10px;background:var(--ok);color:#fff;border-radius:3px;padding:0 4px;margin-left:6px;vertical-align:2px}
+.clue{font-family:var(--serif);padding:10px 0;border-bottom:1px dashed var(--line);font-size:14px;line-height:1.7}
+.clue.unk{color:#a99b7f}
+
+/* ---------- night ---------- */
+.nightwrap{background:linear-gradient(var(--night),var(--night2));color:#e6e1f0;flex:1;padding:28px 18px 40px;min-height:100vh;min-height:100dvh}
+.nightwrap h2{font-family:var(--serif);font-size:22px;margin:0 0 4px}
+.nightwrap .sky{font-size:30px;letter-spacing:10px;margin:8px 0 16px}
+.nightwrap p{font-family:var(--serif);line-height:1.95;white-space:pre-line}
+.nightwrap .ledger{background:#ffffff10;border:1px solid #ffffff24;border-radius:10px;padding:10px 12px;margin:16px 0;font-size:13px}
+.ledger div{display:flex;justify-content:space-between;padding:3px 0}
+.ledger .neg{color:#ff9b8f} .ledger .pos{color:#9fe0b3}
+.nightwrap .btn{background:#e6e1f0;color:var(--night)}
+.nightwrap .get.clue{display:inline-block}
+
+/* ---------- title / result ---------- */
+.title{padding:60px 22px 40px;text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center}
+.title h1{font-family:var(--serif);font-size:40px;margin:0 0 6px;letter-spacing:.12em}
+.title .wave{font-size:13px;color:var(--muted);letter-spacing:.4em;margin-bottom:34px}
+.title .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:26px 0 6px}
+.title .meta div{background:#fffaf0;border:1px solid var(--line);border-radius:8px;padding:8px 4px;font-size:11px;color:var(--muted)}
+.title .meta b{display:block;font-size:18px;color:var(--ink)}
+.howto{text-align:left;font-size:12.5px;line-height:1.8;color:#4a3f2d;background:#fffaf0;border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:16px}
+.res{padding:26px 16px 40px}
+.res .kind{font-size:12px;letter-spacing:.3em;color:var(--muted)}
+.res h1{font-family:var(--serif);font-size:28px;margin:4px 0 10px}
+.res .story{font-family:var(--serif);line-height:1.95;font-size:15px;white-space:pre-line}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0}
+.stats div{background:#fffaf0;border:1px solid var(--line);border-radius:8px;padding:10px 4px;text-align:center;font-size:11px;color:var(--muted)}
+.stats b{display:block;font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums}
+.stats .big{grid-column:1/-1}
+.stats .big b{font-size:34px}
+.persona{background:var(--ink);color:var(--paper);border-radius:12px;padding:16px;margin:14px 0}
+.persona .lbl{font-size:11px;letter-spacing:.2em;opacity:.7}
+.persona h3{font-family:var(--serif);font-size:21px;margin:4px 0 6px}
+.persona p{font-size:13px;line-height:1.8;margin:0 0 10px;opacity:.9}
+.tagbar{display:grid;grid-template-columns:64px 1fr 26px;align-items:center;gap:8px;font-size:12px;margin:5px 0}
+.tagbar .tb{height:7px;border-radius:4px;background:#ffffff22;overflow:hidden}
+.tagbar .tb i{display:block;height:100%;background:var(--paper);border-radius:4px;transition:width .8s ease}
+.tagbar.top{font-weight:700}
+.tagbar.top .tb i{background:#f2c56b}
+
+.sec small{font-weight:400;margin-left:6px}
+.empty{border:1.5px dashed var(--line);border-radius:10px;padding:16px;text-align:center;color:#a99b7f;font-size:13px}
+.thinkhead{font-weight:700;font-size:15px;margin:4px 0 10px}
+.thinkhead small{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+.btn.think{margin-top:14px}
+.hint{font-size:12px;color:var(--muted);text-align:center;margin:8px 0 0}
+.card.fresh{border-color:var(--ok);box-shadow:0 2px 0 var(--ok)}
+.card.incoming{border:2px solid var(--ok);cursor:default}
+.swaprow{display:flex;gap:8px;align-items:stretch}
+.swaprow .card{flex:1;cursor:default}
+.mini.drop{align-self:center;border-color:var(--hp);color:var(--hp)}
+.cost.once{background:#e3d6f0;color:#4b2f66}
+.note.info{background:#e4ecf3;color:#1c4568}
+.get.idea{background:#f2c56b;color:#3d2a00;cursor:pointer}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s!important;animation-delay:0s!important;transition-duration:.001s!important}
+}
+nav.bottom.one{grid-template-columns:1fr}
+nav.bottom.two{grid-template-columns:1fr 1fr}
+nav.bottom.two button{flex-direction:row;justify-content:center;gap:6px;font-size:14px;padding:12px 4px 13px}
+nav.bottom.two button span{font-size:20px}
+nav.bottom.two button[disabled]{opacity:.4}
+nav.bottom.two .badge{top:6px;left:auto;right:18%}
+nav.bottom.one button{flex-direction:row;justify-content:center;gap:8px;font-size:14px;padding:12px 4px 13px}
+nav.bottom.one button span{font-size:20px}
+.journal{font-family:var(--serif);font-size:14px;line-height:1.8;color:#5a4a30;border-left:3px solid var(--line);padding:2px 0 2px 10px;margin:8px 0 4px;white-space:pre-line}
+.kbox{background:#28344f;color:#f3ead3;border-radius:9px;padding:10px 12px;margin:10px 0 2px;animation:deal .3s ease both}
+.kbox .klbl{font-size:11px;opacity:.75;letter-spacing:.1em}
+.kbox b{font-size:14px}
+.kbox p{font-size:12.5px;line-height:1.75;margin:4px 0 0;opacity:.92}
+.kbox.old{background:#3a4560;padding:7px 12px}
+.nightwrap .kbox{background:#ffffff14;border:1px solid #ffffff26}
+.pager{display:flex;align-items:center;gap:12px;margin-top:6px}
+.pager span{font-size:12px;color:var(--muted);white-space:nowrap}
+.pager .btn{margin-top:0}
+.page.turn{animation:turn .32s ease both}
+@keyframes turn{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+.result .story{min-height:5.7em}
+.cards.fixed{margin-bottom:14px}
+.card.story{border:2px solid #c99a3a;background:#fff6dc;box-shadow:0 2px 0 #c99a3a}
+.card.story .ci{background:#f6e2b0}
+.card.camp{border-color:#9db39f;background:#f4f8ef;box-shadow:0 2px 0 #9db39f}
+.get.lost{background:#e9dccb;color:#6b4a1e;border:1px dashed #b08a55}
+.res .clue{font-size:13px}
+.moon2{display:inline-block;font-size:.68em;margin-left:6px;filter:hue-rotate(-45deg) saturate(2.5) brightness(.9);vertical-align:4px}
+
+.move-note{display:none;min-height:0;margin:8px 14px 0;padding:7px 10px;border-radius:7px;background:#fffaf0;border:1px solid var(--line);font-size:12px;white-space:pre-line}
+.move-note.on{display:block}
+.row.lockrow .rn{color:#9b8d72}
+.tabs{display:flex;gap:6px;margin-bottom:8px}
+.tab{flex:1;padding:8px;border-radius:7px;border:1px solid var(--line);background:#fffaf0;font-size:13px;cursor:pointer}
+.tab.on{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700}
+.pip i{font-style:normal;margin-right:3px;font-size:12px}
+.pip.done i{filter:grayscale(1);opacity:.6}
+
+.ic{width:1em;height:1em;display:inline-block;vertical-align:-.14em}
+.card .ci .ic{width:30px;height:30px;vertical-align:middle}
+.ic2{position:relative;display:inline-block;line-height:1}
+.ic2 b{position:absolute;right:-.28em;bottom:-.18em;font-size:.55em;font-weight:400}
+.pip i .ic{width:13px;height:13px;vertical-align:-2px}
+.pip.done i .ic{filter:grayscale(1);opacity:.55}
+nav.bottom.two button span .ic{width:22px;height:22px}
+
+/* ---------- 藍子版 ---------- */
+.ep{background:#f6ecd2;border:1px solid #d9c08a;border-left:4px solid #c99a3a;border-radius:8px;padding:10px 12px;margin:2px 0 8px;animation:deal .3s ease both}
+.ep .eph{font-size:11.5px;font-weight:700;color:#8a6420;letter-spacing:.04em;margin-bottom:4px}
+.ep p{font-family:var(--serif);font-size:14px;line-height:1.85;margin:0;white-space:pre-line;color:#4a3b22}
+.result .ep{min-height:5.7em}
+.snap{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:10px;padding:10px;border-radius:9px;border:1.5px dashed #8a6420;background:#fff6dc;color:#5a4214;font-weight:700;font-size:14px;cursor:pointer}
+.snap small{font-weight:400;font-size:11px;color:#8a6420}
+div.snap.done{cursor:default;border-style:solid;font-weight:400;font-size:12.5px;background:#f1e8d0}
+.album{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:12px;margin:6px 0 4px}
+.ph{margin:0;background:#fffdf7;padding:7px 7px 9px;border-radius:3px;box-shadow:0 2px 6px #0002;transform:rotate(-1deg)}
+.ph:nth-child(even){transform:rotate(1.2deg)}
+.phi{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:44px;background:linear-gradient(160deg,#cfe0e8,#e9dcbc);border-radius:2px}
+.phi .ic{width:44px;height:44px}
+.ph figcaption{font-family:var(--serif);font-size:11.5px;line-height:1.55;margin-top:6px;color:#4a3f2d}
+.nightwrap .ep{background:#ffffff12;border-color:#ffffff30;border-left-color:#c99a3a}
+.nightwrap .ep p{color:#e6e1f0}
+.nightwrap .ep .eph{color:#f2c56b}
+.nightwrap .snap{background:#ffffff14;color:#f3ead3;border-color:#f2c56b;margin-bottom:6px}
+.nightwrap .snap small{color:#f2c56b}
+nav.bottom.three{grid-template-columns:repeat(3,1fr)}
+nav.bottom.three button{flex-direction:row;justify-content:center;gap:5px;font-size:13px;padding:12px 2px 13px}
+nav.bottom.three button span{font-size:19px}
+nav.bottom.three button span .ic{width:20px;height:20px}
+nav.bottom.three button[disabled]{opacity:.4}
+nav.bottom.three .badge{top:5px;left:auto;right:6%}
+.tabs{flex-wrap:wrap}
+.tab{min-width:0;padding:7px 4px;font-size:12.5px}
+.tab small{display:block;font-size:10.5px;opacity:.75;font-weight:400}
+.kn .src{display:inline-block;margin-left:6px;font-size:10.5px;color:#8a6420;background:#f6ecd2;border-radius:3px;padding:0 5px;vertical-align:1px}
+.title .kick{font-size:12px;letter-spacing:.3em;color:var(--muted);margin-bottom:8px}
+.title h1{font-size:32px;letter-spacing:.08em}
+.title a.back{display:block;margin-top:18px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+/* ================= utilities ================= */
+const R=Math.random, P=p=>R()<p, ri=(a,b)=>a+Math.floor(R()*(b-a+1));
+const clamp=v=>Math.max(0,Math.min(100,v));
+const store={
+  get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+  del(k){try{localStorage.removeItem(k)}catch(e){}}
+};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const SLOTS=['朝','昼','夕'];
+const SLOT_I=['svg:morning','svg:noon','svg:evening'];
+const SVGI={"morning": "<rect y=\"15\" width=\"24\" height=\"9\" rx=\"1\" fill=\"#4a90c2\"/><path d=\"M5 15a7 7 0 0 1 14 0z\" fill=\"#f6c445\"/><path d=\"M12 2.5v3M4.5 6.5l2 2M19.5 6.5l-2 2\" stroke=\"#f6c445\" stroke-width=\"2\" stroke-linecap=\"round\"/>", "noon": "<circle cx=\"12\" cy=\"12\" r=\"5\" fill=\"#f4b02c\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1\" stroke=\"#f4b02c\" stroke-width=\"2\" stroke-linecap=\"round\"/>", "evening": "<rect y=\"14\" width=\"24\" height=\"10\" rx=\"1\" fill=\"#34507a\"/><path d=\"M4 14a8 8 0 0 1 16 0z\" fill=\"#e5672e\"/><path d=\"M7 17.5h10M9.5 20.5h5\" stroke=\"#e5672e\" stroke-width=\"1.8\" stroke-linecap=\"round\"/>", "twig": "<path d=\"M3.5 20.5L20 4.5M9.5 14.5L6 7.5M13.5 10.5l6 .5M16 8l-1-4.5\" stroke=\"#8a5a2b\" stroke-width=\"2.4\" stroke-linecap=\"round\" fill=\"none\"/>", "shell": "<path d=\"M2.5 10.5h19a9.5 8.5 0 0 1-19 0z\" fill=\"#7a4a24\"/><path d=\"M3.5 10.5h17\" stroke=\"#e9dcc0\" stroke-width=\"2\" stroke-linecap=\"round\"/><path d=\"M7 14.5c1 1.5 2.5 2.4 4 2.7\" stroke=\"#5c3416\" stroke-width=\"1.2\" fill=\"none\" stroke-linecap=\"round\"/>", "wshell": "<path d=\"M2.5 10.5h19a9.5 8.5 0 0 1-19 0z\" fill=\"#7a4a24\"/><ellipse cx=\"12\" cy=\"10.8\" rx=\"8.5\" ry=\"2\" fill=\"#4a9ad4\"/><path d=\"M7 14.5c1 1.5 2.5 2.4 4 2.7\" stroke=\"#5c3416\" stroke-width=\"1.2\" fill=\"none\" stroke-linecap=\"round\"/>", "bshell": "<path d=\"M2.5 12.5h19a9.5 8 0 0 1-19 0z\" fill=\"#7a4a24\"/><ellipse cx=\"12\" cy=\"12.8\" rx=\"8.5\" ry=\"2\" fill=\"#7fc0ea\"/><path d=\"M8.5 8.5c-1.2-1.6.8-2.6-.3-4.5M12 8.5c-1.2-1.6.8-2.6-.3-4.5M15.5 8.5c-1.2-1.6.8-2.6-.3-4.5\" stroke=\"#9aa6b2\" stroke-width=\"1.5\" fill=\"none\" stroke-linecap=\"round\"/>", "knife": "<path d=\"M4 20.5l6.5-6.5\" stroke=\"#8a5a2b\" stroke-width=\"3.2\" stroke-linecap=\"round\"/><path d=\"M9.5 14.5L19.5 3l-2.5 10z\" fill=\"#4b5260\"/><path d=\"M14 9.5l3-3\" stroke=\"#7d8594\" stroke-width=\"1\"/><path d=\"M8.5 13.2l2.6 2.6\" stroke=\"#d2b47a\" stroke-width=\"2.2\"/>", "torch": "<path d=\"M12 22.5V11.5\" stroke=\"#8a5a2b\" stroke-width=\"3.2\" stroke-linecap=\"round\"/><rect x=\"9.6\" y=\"9.5\" width=\"4.8\" height=\"3.2\" rx=\"1\" fill=\"#c9a86a\"/><path d=\"M12 1.5c3.4 3 4.4 5.4 2.4 8.2H9.6C7.6 6.9 8.6 4.5 12 1.5z\" fill=\"#f08a24\"/><path d=\"M12 4.6c1.6 1.6 2 3.2 1.1 5.1h-2.2c-.9-1.9-.5-3.5 1.1-5.1z\" fill=\"#ffd166\"/>", "sack": "<path d=\"M8.5 6.5h7l-1.2 2.6c4 2 5.7 5.8 5.7 9a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3c0-3.2 1.7-7 5.7-9z\" fill=\"#b08a55\"/><path d=\"M9 7.2h6\" stroke=\"#6b4a1e\" stroke-width=\"1.8\" stroke-linecap=\"round\"/><path d=\"M9.5 3.5l2.5 3 2.5-3\" stroke=\"#6b4a1e\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M8 14c2 1 6 1 8 0\" stroke=\"#8d6a3c\" stroke-width=\"1.2\" fill=\"none\"/>", "work": "<path d=\"M5 21l8.5-8.5\" stroke=\"#8a5a2b\" stroke-width=\"3.2\" stroke-linecap=\"round\"/><path d=\"M10.5 6.5L15.8 2l6.2 6.2-4.5 5.3z\" fill=\"#6b7280\"/><path d=\"M12.2 9.8l2.4 2.4\" stroke=\"#d2b47a\" stroke-width=\"2.6\"/>", "seaweed": "<path d=\"M7 22.5c-3-5 3-8 0-13s1-6.5 1-6.5M13 22.5c3-4.5-2-7.5 1-11.5s-1-7-1-7M18.5 22.5c2-3.5-1-5.5 1-8.5\" stroke=\"#3f8a4e\" stroke-width=\"2.4\" fill=\"none\" stroke-linecap=\"round\"/>", "flask": "<rect x=\"7\" y=\"5.5\" width=\"10\" height=\"16.5\" rx=\"2.5\" fill=\"#d9dde3\"/><rect x=\"8.5\" y=\"2\" width=\"7\" height=\"4\" rx=\"1.2\" fill=\"#8a5a2b\"/><path d=\"M7 10.5h10\" stroke=\"#b7bfca\" stroke-width=\"1.4\"/><path d=\"M10 14c0 1.6 4 1.6 4 0\" stroke=\"#c99a6b\" stroke-width=\"1.6\" fill=\"none\" stroke-linecap=\"round\"/>", "tablet": "<path d=\"M5 4.5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2V21H5z\" fill=\"#8d8f86\"/><path d=\"M8 7h3M13 7h3M8 11h8M8 15h2.5M12.5 15H16\" stroke=\"#53554e\" stroke-width=\"1.7\" stroke-linecap=\"round\"/><path d=\"M3.5 21.5h17\" stroke=\"#6b6d66\" stroke-width=\"2\" stroke-linecap=\"round\"/>"};
+// アイコン：絵文字 / 'svg:名前'（自作） / '絵文字+🔥'（焼いたもの）
+function ic(x){if(!x)return'';if(x.startsWith('svg:'))return`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${SVGI[x.slice(4)]}</svg>`;if(x.includes('+')){const[a,b]=x.split('+');return`<span class="ic2">${a}<b>${b}</b></span>`}return x}
+const pages=t=>[].concat(t||'');
+
+/* ================= data ================= */
+const ITEMS={
+  wood:['流木','🪵'], twig:['枯れ枝','svg:twig'], vine:['ツル','🌿'], stone:['石','🪨'], leaf:['ヤシの葉','🍃'], clay:['粘土','🟤'],
+  herb:['香りのいい葉','🌱'], flower:['白い小花','🌼'],
+  shard:['青い石のかけら','🔷'], shell:['ヤシの殻','svg:shell'],
+  coconut:['ヤシの実','🥥'], fruit:['木の実','🫐'], clam:['貝','🐚'], fish:['魚','🐟'], crab:['カニ','🦀'], egg:['海鳥の卵','🥚'],
+  wshell:['殻に汲んだ水','svg:wshell'], bshell:['殻の湯冷まし','svg:bshell'], rain:['雨水','🌧️'],
+  gfish:['焼き魚','🐟+🔥'], gcrab:['焼きガニ','🦀+🔥'], gclam:['焼き貝','🐚+🔥'], gegg:['焼き卵','🥚+🔥'],
+  thermos:['魔法瓶のミルクティー','svg:flask'], tea:['葉っぱのお茶','🍵'],
+  knife:['石ナイフ','svg:knife'], rope:['ロープ','🪢'], torch:['松明','svg:torch'], pot:['土器','🏺'], rod:['釣り竿','🎣'],
+  wpot:['土器に汲んだ水','🏺+💧'], bpot:['土器の湯冷まし','🏺+♨️']
+};
+const CARRY=['knife','rope','torch','pot','rod'];  // 背負って運ぶ道具（1つ1枠）
+const MATS=['wood','twig','vine','stone','leaf','clay','herb','flower'];   // 野営地に着くと下ろす
+const KEYI=['shard'];                                       // 数に入らない
+const EDIBLE=['thermos','tea','coconut','fruit','gfish','gcrab','gclam','gegg','bpot','bshell','rain','wpot','wshell','fish','clam','egg','crab'];
+const COOK={fish:'gfish',crab:'gcrab',clam:'gclam',egg:'gegg',wshell:'bshell',wpot:'bpot'};
+const POT=['pot','wpot','bpot'];  // 土器は水が入っていても土器
+const TOOLS={knife:['石ナイフ','svg:knife'],rope:['ロープ','🪢'],basket:['背負いかご','🧺'],torch:['松明','svg:torch'],pot:['土器','🏺'],rod:['釣り竿','🎣'],catcher:['雨水だめ','🏺+🌧️'],raft:['いかだ','🛶'],crown:['花かんむり','🌼']};
+// 移動：道でつながった場所。野営地と浜辺はすぐそこ（0）
+const EDGES=[['camp','beach',0],['beach','forest',1],['beach','rocks',1],['forest','stream',1],['rocks','hill',1],['rocks','cave',1],['stream','ruins',1]];
+function dist(a,b){const D={};D[a]=0;const q=[a];while(q.length){q.sort((x,y)=>D[x]-D[y]);const u=q.shift();for(const[x,y,w]of EDGES){const v=x===u?y:y===u?x:null;if(v&&(D[v]==null||D[u]+w<D[v])){D[v]=D[u]+w;q.push(v)}}}return D[b]??3}
+const moveCost=(a,b)=>{const d=dist(a,b);return{d,food:d,water:d*2}};
+const SHELTER=['岩陰の砂の上','ヤシの葉の寝床','屋根のある小屋','高床の家'];
+
+// 教わったこと：[題, 中身, 教えてくれた人・回（空なら藍子のメモ）]
+const K={
+  rule3:['3の法則','人が耐えられるのは、空気なしで約3分、水なしで約3日、食べ物なしで約3週間といわれる。だから、まず水を確保する。','亜季さん'],
+  beachcomb:['ビーチコーミング','浜の漂着物を調べると、海流の向きや、その先にある土地の手がかりが分かる。日本の海岸に流れ着くごみは、数でいえば大半がプラスチックだ。','浜のお掃除の回'],
+  seawater:['海水は飲めない','海水の塩分を体の外へ出すには、飲んだ量より多くの水が要る。飲むほど喉が渇いていく。','亜季さん'],
+  rain:['雨水','雨水は比較的きれいな水。ただし、受ける葉や器が汚れていると意味がない。','フミさん'],
+  coconut:['ヤシの実の水','若いヤシの実の中の水はほぼ無菌で、カリウムなどの電解質も含む。','南の島スペシャル'],
+  boil:['煮沸','水を沸騰させて1分ほど保つと、多くの細菌・ウイルス・寄生虫を不活化できる。','亜季さん'],
+  bowdrill:['弓きり式の火起こし','弓の弦を木の錐に巻いて往復させると、手でもむより速く長く回せて、摩擦の熱がたまりやすい。','亜季さん'],
+  driftwood:['流木の炎','海水の塩分を吸った流木を燃やすと、炎が黄色や青緑に色づくことがある。','辰じい'],
+  ground:['地面は体温を奪う','冷えた地面にじかに寝ると、熱がどんどん逃げていく。寝床は地面から体を離すのが基本。','木島の棟梁'],
+  tidepool:['潮だまり','潮が引いたあと岩のくぼみに残る水たまりには、取り残された小魚やカニや貝が集まる。地球のカニの脚は、ハサミを入れて10本。','辰じい'],
+  pottery:['野焼きの土器','粘土はよく乾かしてから、600〜800℃ほどで焼くと、水に溶けない土器になる。','土井先生'],
+  mushroom:['知らないキノコは食べない','毒キノコと食べられるキノコはよく似ていて、詳しい人でも間違えることがある。','山歩きのサトさん'],
+  unknownplant:['見知らぬ植物','食べられるか分からない植物は、少しだけ肌や唇に当てて様子を見るところから。それでも危険はゼロにならない。','山歩きのサトさん'],
+  shellpoison:['貝は火を通す','貝は傷みやすく、生で食べるとお腹をこわしやすい。火を通すのが基本。','辰じい'],
+  jelly:['クラゲに刺されたら','真水で洗うと、残った針が刺激されて毒が出ることがある。海水でそっと洗い流す。','辰じい'],
+  followdown:['水は低いほうへ','谷や地面のくぼみに沿って進むと、沢や川に出やすい。','山歩きのサトさん'],
+  conchoidal:['貝殻状断口','黒曜石やチャートのような石は、割ると貝殻のような曲面で割れて、鋭い刃ができる。','石川先生'],
+  rope:['撚り（より）','繊維を同じ向きにねじり、それを逆向きに撚り合わせると、ほどけにくい強い縄になる。','フミさん'],
+  herbtea:['野草のお茶','ヨモギやドクダミのような身近な葉を、昔から干したり煎じたりしてお茶にしてきた。知っている葉だけを使う。','フミさん'],
+  greenflash:['グリーンフラッシュ','空気が澄んだ日、太陽が水平線に沈む瞬間に、上のふちが一瞬だけ緑に光ることがある。','未央ちゃん'],
+  floatglass:['ガラスの浮き玉','昔の漁網には、ガラスの浮き玉が使われていた。網から外れて、何年も海を漂うことがある。','辰じい'],
+  hikarigoke:['ヒカリゴケ','地球のヒカリゴケは自分では光らない。レンズのような細胞が、入ってきたわずかな光を返して光って見える。','鍾乳洞の回'],
+  groundwater:['地下水','岩や砂を通ってきた地下水は濁りが少ないことが多い。ただ、それだけで安全とは限らない。','井戸掘りの回'],
+  polaris:['北極星','北極星はほぼ真北の空にあって、ほとんど動かない。北斗七星やカシオペヤ座から探せる。','星空キャンプの回'],
+  smoke:['狼煙の色','乾いた薪は煙が少ない。青い葉や生木をくべると白い煙が増えて、遠くから見えやすい。','亜季さん'],
+  rosetta:['ロゼッタストーン','同じ内容が3種類の文字で刻まれていたことが、古代エジプトの文字を読み解く手がかりになった。','博物館の回'],
+  moon:['月はひとつ','地球の衛星は月ひとつだけ。満ち欠けはおよそ29.5日でひとめぐりする。','']
+};
+
+// ポジパDASHの回想。新しいことをしたとき、新しいものを作ったときに一度だけ挟まる
+const EP={
+  aki:['第1回「サバイバルの心得」','番組の第1回は、亜季さんの講義から始まりました。\n「よいですか、ポジパ分隊！　人は空気がなければ3分、水がなければ3日、食べ物がなければ3週間であります！」\n茜ちゃんは「3週間も食べないなんて無理です！」って本気で青ざめていて、未央ちゃんは「軍曹、質問！　おやつは何日ですか！」って。\n亜季さんは笑って、「まずは水。それから、ぐっすり眠れる場所。焦らないことが、いちばんの装備であります」\n\n……焦らない。それなら、得意です。'],
+  camp:['第2回「ポジパ島、上陸！」','初めて島に上陸した日、茜ちゃんは真っ先に波打ち際へ走っていって、「ここに建てましょう！　海が目の前です！」って。\n亜季さんが、砂に残った海藻の線を指さしました。\n「茜殿、あの線まで潮が来るのであります。拠点は、満ち潮の届かない、風をよけられる場所に！」\n三人で何度も浜を往復して……結局、崖の下に決まったんです。\n\nあのときの崖に、ちょっとだけ似ています。'],
+  flash:['第3回「夕日を待つ」','「グリーンフラッシュって知ってる？　見たら幸せになれるんだって！」\n未央ちゃんがそう言うから、三人で堤防に並んで、夕日が沈むのを待ちました。\n茜ちゃんはずっと「まだですか！」、未央ちゃんはずっとスマホを構えて。\n結局見えなかったけれど、帰り道、未央ちゃんが「三人で見たかったね」って。\n\n……見えましたよ、未央ちゃん。今は、ひとりだけど。'],
+  cook:['第4回「ポジパ島ごはん」','島でとれたものだけで、ごはんを作った回。\n茜ちゃんがとってきた貝と、未央ちゃんが釣った小さな魚と、私が摘んだ野草。\n焼いた石の上で、じゅうじゅう焼くんです。\n「カレー粉があれば完璧なのに！」って茜ちゃん。\nカレー粉はなかったけど……三人で食べたあのごはんが、いちばんおいしかった気がします。'],
+  fire:['第5回「火を起こせ！」','火起こしの回では、私だけ、いつまでたっても煙が出なくて。\n茜ちゃんは三十秒で「ボンバーーッ！」って火をつけて、未央ちゃんも負けじと汗だくで……。\n「藍子殿は、力ではなく道具に頼るのであります」\n亜季さんが、ひもと枝で小さな弓を作ってくれました。\nその日の放送の最後に映っていたのは、やっと点いた小さな火を見て、泣きそうになっている私の顔でした。'],
+  tide:['第6回「潮だまりの生きもの」','漁師の辰じいに連れられて、潮の引いた磯を歩いた回。\n「カニはな、ハサミも入れて脚が十本だ」\n茜ちゃんはカニを追いかけて岩の上ですべって、未央ちゃんはそれを撮って、私は……カニさんに「こんにちは」って言っていました。\n辰じいに「カニに挨拶する子は初めて見た」って笑われました。'],
+  bed:['第7回「ふかふかの寝床」','木島の棟梁に、寝床の作り方を教わった回。\n「地面に寝るとな、体の熱を土に持っていかれる。まずは体を浮かせるんだ」\n未央ちゃんは葉っぱを山のように積んで、ダイブして、そのまま埋まっていました。\n茜ちゃんは五分で眠っていました。\n私は……みんなの寝顔を撮っていたら、スタッフさんに「藍子ちゃんも寝て」って言われちゃいました。'],
+  beach:['第8回「浜のお掃除」','番組で、浜辺のごみ拾いをしたことがあります。\nペットボトル、お菓子の袋、どこかの国の文字が書かれたボトル……。\n「浜を見れば、海のつながりが分かるんだ」と辰じい。\n拾っても拾っても終わらなくて、でも、きれいになった浜はとても気持ちよくて。\n\nだから、わかるんです。この浜は、きれいすぎる。'],
+  knife:['第9回「石器時代に挑戦」','考古学の石川先生が持ってきてくれた、黒くてつやつやした石。\n「こう、角を狙って、迷わず打つ」\n未央ちゃんが一発で割って、「見て見て！　刃物だよ、これ！」って大はしゃぎ。\n私はこわごわ打つから、ちっとも割れなくて。\n先生が「迷わず、ね」って笑っていたの、今ならわかる気がします。'],
+  forest:['第10回「山の水をさがせ」','山歩きの名人、サトさんと沢を探した回。\n「水は低いほうへ流れる。迷ったら、谷へ下りなさい」\n未央ちゃんと茜ちゃんがあちこち走り回るあいだ、私は地面の傾きをずっと見ていました。\n「藍子ちゃんは、山歩きに向いてるね。足もとをよく見てる」\nいつものお散歩で、足もとのお花ばかり見ていたおかげかもしれません。'],
+  rope:['第11回「縄をなう」','島のおばあちゃん、フミさんに教わった縄ない。\n手のひらで藁をこすり合わせると、くるくると縄が伸びていくんです。\n「藍子ちゃんは、ゆっくりだけど目がそろってるねえ。いい縄になるよ」\nその縄は、今もポジパ島の小屋の柱に巻いてあります。\n……フミさん、元気かな。'],
+  rod:['第12回「港の朝」','辰じいの船に乗せてもらった、早朝の回。\n「魚は、しずかな人のところに来る」\nそう言われて、私だけたくさん釣れちゃったんです。\n茜ちゃんは糸を垂らしたまま「まだですか！　まだですか！」って叫んでいて、一匹も釣れませんでした。\n帰りの船で、辰じいがこっそり「お嬢ちゃん、漁師になれるぞ」って。'],
+  well:['第13回「井戸を掘る」','ポジパ島で、井戸を掘った回があります。\n掘っても掘っても土ばかりで、三日目。茜ちゃんのスコップの先から水がしみ出してきたときは、三人で泥だらけになって抱き合いました。\n「土や岩を通ってきた水は、にごりが少ないんだ」とサトさん。\nもちろん、そのあとちゃんと調べてから飲んだんですよ。'],
+  basket:['第14回「背負いかごで山へ」','フミさんの家の納屋には、古い背負いかごがたくさん吊るしてありました。\n「昔は、これひとつで山へ行って、なんでも持って帰ってきたのよ」\n三人でおそろいのかごを編んで、山菜採りに出かけた日。\n茜ちゃんのかごは山盛りで、未央ちゃんのかごは半分がお菓子で、私のかごには、きれいな葉っぱとお花が入っていました。'],
+  tea:['第15回「野草のお茶」','フミさんの縁側で、ヨモギとドクダミを干してお茶にした回。\n「知ってる葉っぱだけね。知らない葉っぱは、お茶にしない」\nフミさんは私のお茶をひと口飲んで、「藍子ちゃん、淹れるのが上手ねえ」って。\nお茶を淹れるのだけは、ちょっと自信があるんです。\n茜ちゃんは「にがーーい！」って叫んで、二杯おかわりしていました。'],
+  pot:['第16回「土器を焼こう」','陶芸家の土井先生と、粘土をこねて土器を作った回。\n粘土をひも状にして、くるくると巻き上げていくんです。\n未央ちゃんのはなぜか傾いていて、茜ちゃんのは力が入りすぎてぺちゃんこ。\n私のは、のんびり作っていたら乾きすぎて、ひびが入ってしまいました。\n「割れたら、また作ればいいの。土はなくならないからね」\n先生の言葉が、今はとても心強いです。'],
+  stars:['第17回「星空キャンプ」','ポジパ島でキャンプをした夜、ガイドさんが星の探し方を教えてくれました。\n「ひしゃくの形の北斗七星。その先を五つぶん伸ばすと、北極星」\n茜ちゃんは三秒で寝ていて、未央ちゃんと私だけで、夜中まで星を数えました。\n「あーちゃん、あれ流れ星！」\nお願いごとを言いそびれて、二人で笑いました。'],
+  hut:['第18回「屋根をふく」','木島の棟梁と、ポジパ島に初めて小屋を建てた回。\n屋根の葉は、下から順に、うろこみたいに重ねていくんです。\n「上から重ねると、雨が中へ入っちまう。何事も下からだ」\n完成した夜、ちょうど雨が降って、三人で屋根の下で雨音を聞きました。\n未央ちゃんが「……なんか、いいね」って小さく言って、茜ちゃんも、めずらしく静かにうなずいていました。'],
+  crown:['第19回「島の花畑」','ポジパ島の原っぱにシロツメクサが咲いた日、撮影の合間に花かんむりを三つ編みました。\n小さいころ、よく作っていたんです。\n茜ちゃんにかぶせたら、「お姫様ですかっ！？」って、顔を真っ赤にして。\n未央ちゃんは自分で編もうとして、なぜか首飾りになっていました。\nその日の放送の最後は、花かんむりの三人でした。'],
+  cave:['第20回「鍾乳洞探検」','鍾乳洞の探検で、ガイドさんが松明に火をつけてくれました。\n炎がゆれるたびに、岩の影が生きているみたいに動くんです。\n茜ちゃんは「探検隊ですね！」と先頭を歩いて、天井に頭をぶつけていました。\n私はちょっとこわくて……未央ちゃんの服のすそを、ずっとつかんでいました。\n\n今は、つかむすそがありません。'],
+  catcher:['第21回「雨の恵み」','フミさんの家の軒下には、雨どいから水をためる大きな甕がありました。\n「雨はね、空からのいただきもの。畑にも、洗濯にも使うのよ」\n未央ちゃんが甕をのぞきこんで、「メダカがいる！」って。\nフミさんは「ボウフラを食べてくれるの」と笑っていました。'],
+  smoke:['第22回「のろしを上げろ」','亜季さんに、狼煙の上げ方を教わった回。\n「青い葉をくべると、白い煙がもくもく出るのであります！」\n未央ちゃんがくべすぎて、三人とも煙に巻かれてけほけほ。\n向こう岸のスタッフさんから「見えたよー！」って手を振ってもらったとき、なんだかすごく嬉しかったんです。\n\n……今は、誰か見てくれているでしょうか。'],
+  raft:['第23回「いかだで海へ」','流木と竹でいかだを作って、海に出た回。\n茜ちゃんが全力で漕いで、未央ちゃんが「あかねちん、右！　右！」って叫んで、いかだはぐるぐる回りました。\n回るのが苦手な私は、すっかり目が回ってしまって……。\n最後は辰じいの船に引っぱってもらって帰りました。\nびしょぬれのまま三人で笑ったあの回が、いちばん好きな放送です。'],
+  museum:['第24回「文字の博物館」','雨の日の特別編で、博物館に行きました。\n同じことが三つの文字で書かれた石があって、それが昔の文字を読み解く鍵になったんだそうです。\n未央ちゃんが「じゃあ私たちも、三人で同じこと書いたら解読してもらえる？」って。\n三人で「ポジパ参上」って書いて、学芸員さんに笑われました。'],
+  house:['第25回「高床の家、完成！」','一年がかりの高床の家。最後の床板を渡したのは、三人いっしょでした。\n茜ちゃんが「せーのっ！」って言って、未央ちゃんが「ポジパDASH〜！」って叫んで、私はちょっと遅れて「……だっしゅ」。\nそのずれ方が、なぜか番組でいちばん人気の場面になってしまいました。\n棟梁が床をこんこんと叩いて、「いい家だ」と言ってくれたこと。ずっと忘れません。']
+};
+function ep(id){if(!S||S.seen['ep:'+id])return[];S.seen['ep:'+id]=1;S.eps.push(id);META.eps=META.eps||{};META.eps[id]=1;return[{ep:EP[id][0],t:EP[id][1]}]}
+
+// トイカメラで撮れる瞬間：[絵, 藍子のひとこと]
+const PHOTO={
+  camp:['🛖','はじめてのおうち。岩のひさしの下。'],
+  fire:['🔥','はじめての火。ちょっとだけ青緑色。'],
+  bed:['🛏️','ヤシの葉のベッド。ふかふか。'],
+  crab:['🦀','ハサミが三本のカニさん。ピースしてるみたい。'],
+  bird:['🐦','目が四つの、青い鳥さん。'],
+  sora:['🐦','ソラ。私の肩が、お気に入りの場所。'],
+  flash:['🌅','グリーンフラッシュ。未央ちゃんに見せたい。'],
+  cook:['🐟','焼きたて。ポジパ島ごはんの味がする。'],
+  pot:['🏺','はじめての土器。今度は、ひびなし。'],
+  tea:['🍵','葉っぱのお茶。湯気が、ふわり。'],
+  crown:['🌼','花かんむり。茜ちゃんと未央ちゃんの分も、いつか。'],
+  hut:['🛖','屋根のある小屋。雨の音がやさしい。'],
+  house:['🏠','高床の家。ポジパ島の家に、ちょっと似てる。'],
+  overlook:['🏝️','崖の上から。島は、思ったより小さい。'],
+  stars:['🌌','知らない星座。……ちゃんと写ってるかな。'],
+  moss:['✨','光る苔。暗くて、写らないかもしれない。'],
+  mural:['🖐️','洞窟の壁画。ふたつの月と、石の門。'],
+  moons:['🌕','ふたつの月。'],
+  gate:['🌀','石の門。この向こうに、帰り道。']
+};
+const FILM=12;
+
+const CL={
+  noplastic:'浜には流木と海藻と貝殻ばかり。プラスチックのかけらが、ひとつも流れ着いていなかった。',
+  moons:'夜空に、月がふたつ昇った。',
+  crab:'脚が10本で、ハサミが3本あるカニさんがいた。',
+  bird:'目が四つ、尾羽が二股の青い鳥がいた。',
+  noplanes:'何日たっても、空を飛行機ひとつ横切らなかった。',
+  float:'流れ着いたガラス玉の紙には、どこの国のものでもない文字。',
+  fogwall:'島のまわりは、どの方角も霧の壁。水平線が見えなかった。',
+  stars:'北極星も、知っている星座も、どこにもなかった。',
+  moss:'洞窟の苔は、光のない場所で自分から光っていた。',
+  mural:'洞窟の壁画――ふたつの月、石の門、舟で流れ着く人たち。',
+  loop:'いかだで霧を抜けると、元の浜辺に戻っていた。',
+  script:'石板の文字は、地球のどの文字にも似ていなかった。'
+};
+const NCL=Object.keys(CL).length;
+
+const PLACES={
+  camp:{n:'野営地',i:'🛖'},
+  beach:{n:'浜辺',i:'🌊'},
+  forest:{n:'森の入口',i:'🌴'},
+  rocks:{n:'岩場',i:'🪨'},
+  stream:{n:'小川',i:'🏞️'},
+  hill:{n:'崖の上',i:'⛰️',lock:s=>!(inv('rope')||s.flags.climbed)&&(owns('rope')?'ロープを背負っていない':'登る手段がない')},
+  cave:{n:'洞窟',i:'🕳️',lock:s=>!inv('torch')&&(owns('torch')?'松明を背負っていない':'真っ暗で進めない')},
+  ruins:{n:'霧の奥',i:'🏛️',lock:s=>clueN(s)<4&&'霧が深くて進めない'}
+};
+const ORDER=['camp','beach','forest','rocks','stream','hill','cave','ruins'];
+const ARRIVE={
+  hill:['岩の手がかりをたどって、崖に体を預けた。\n「下は見ない、下は見ない……」\n一歩ずつ、手と足を交互に。風が背中を押してくる。','崖の上に出ると、急に視界が開けた。\n眼下に、歩いてきた浜辺と森が広がっている。\n「わぁ……」\n高いところは苦手だけど、この景色は好きかもしれない。'],
+  cave:['松明を高く掲げて、割れ目に体をすべりこませた。\nひんやりした空気。足音が、どこまでも奥へ響いていく。\n「……お、おじゃまします」','炎の届くところだけ、濡れた岩壁が橙色に浮かび上がる。\n奥のほうで、何かがぼんやりと青く光っていた。'],
+  ruins:['霧のなかを、手さぐりで進んだ。\n何度目かの坂を登りきったとき、ふいに霧が薄くなった。','苔むした石の柱が、輪になって並んでいる。\n人の手で切り出された石だ。その真ん中に、ひときわ大きな石の門が立っていた。\n\n門の向こうには、何もない。ただの霧。\n……ポジパ島で私がくぐった岩のアーチに、形がよく似ていた。']
+};
+function sceneText(s){
+  switch(s.place){
+    case 'camp': return ['崖の岩陰の寝場所。流木を立てかけた風よけがある。','岩陰に、ヤシの葉を厚く敷いた寝床がある。','流木の柱にヤシの葉をふいた小屋。雨音が心地いい。','高床の家。潮風が床下を抜けていく。'][s.shelter]+(s.fire?'焚き火がぱちぱちとはぜている。':'火はまだない。')+(s.flags.birdFriend?'ソラが流木の上で羽をつくろっている。':'');
+    case 'beach': return '白い砂浜がどこまでも続く。打ち寄せる波が、流木と海藻を置いていく。';
+    case 'forest': return 'ヤシと見慣れない広葉樹が入りまじる森の入口。鳥の声がすぐ近くで聞こえる。';
+    case 'rocks': return '黒い岩が重なる岬。潮が引くと足場が広がる。';
+    case 'stream': return '森の奥を流れる澄んだ小川。川底の粘土が足の裏にやわらかい。';
+    case 'hill': return '島でいちばん高い場所。風が強くて、遠くまで見渡せる。足もとには白い小花。';
+    case 'cave': return '松明の火が濡れた岩壁を照らす。奥から水の滴る音が響いてくる。';
+    case 'ruins': return '苔むした石の柱の輪。真ん中に、古い石の門が立っている。';
+  }
+}
+const clueN=s=>Object.keys(s.clues).length;
+const known=k=>!!((S&&S.know[k])||META.know[k]);
+
+/* ----- inventory ----- */
+const atCamp=()=>S.place==='camp';
+const inv=k=>S.inv[k]||0;
+const have=k=>inv(k)+(atCamp()?(S.store[k]||0):0);
+const cap=()=>S.tools.basket?14:8;
+const owns=t=>t==='pot'?POT.some(k=>inv(k)+(S.store[k]||0)>0):CARRY.includes(t)?inv(t)+(S.store[t]||0)>0:!!S.tools[t];
+const tool=t=>t==='pot'?POT.some(k=>have(k)>0):CARRY.includes(t)?have(t)>0:!!S.tools[t];
+const packN=()=>Object.entries(S.inv).filter(([k])=>!KEYI.includes(k)).reduce((a,[,n])=>a+n,0);
+
+/* ----- cards ----- */
+const CARDS={};
+function C(p,id,o){o.p=p;o.id=id;o.w=o.w||1;CARDS[id]=o}
+// ---- fixed (story / camp work) ----
+C('beach','findcamp',{fixed:1,story:1,i:'🌙',t:'寝られる場所を探す',s:'日が暮れる前に',c:[3,5],tags:['explore'],once:1,req:s=>!s.places.camp,run:s=>({discover:['camp'],photo:'camp',t:[
+  '砂浜を歩いて、風をしのげる場所を探した。\n平らな浜がどこまでも続いていて、身を隠せるものがない。\nお日さまが、少しずつ傾いていく。',
+  '浜の外れで、崖が海に張り出しているところを見つけた。\n岩がひさしのように突き出して、その下だけ砂が乾いている。\n満ち潮の海藻の線は、ずっと手前で止まっていた。',
+  ...ep('camp'),
+  '「……うん。ここにしましょう」\n流木を何本か拾ってきて岩に立てかけると、小さなお部屋みたいになった。\n\n今夜から、ここが野営地。拾ったものも、ここに置いておける。']})});
+C('camp','work',{fixed:1,i:'svg:work',t:'作業をする',s:'道具や住まいを作る',c:[2,4],tags:['craft'],work:1});
+C('camp','cook',{fixed:1,i:'🐟+🔥',t:'焚き火で料理する',s:'焼けるものをまとめて焼く',c:[2,3],tags:['safe'],req:s=>s.fire,dis:s=>!Object.keys(COOK).some(k=>have(k)&&(k!=='wshell'||tool('pot')))&&'焼けるものがない',run:s=>{
+  const get={},done=[];for(const[k,to]of Object.entries(COOK)){if(k==='wshell'&&!tool('pot'))continue;if(k==='wpot'&&!have('wpot'))continue;const n=have(k);if(n){get[k]=-n;get[to]=(get[to]||0)+n;done.push(ITEMS[k][0]+'×'+n)}}
+  const food=done.filter(x=>!/水/.test(x)),water=get.bshell||get.bpot;
+  const t=(food.length?'焚き火に平たい石をのせて、'+food.join('、')+'を順に焼いた。\n香ばしい匂いが岩陰に満ちる。「いただきます」':'')+(water?(food.length?'\n':'')+'汲んできた水は土器に移して、ぐらぐらと沸かしてから冷ました。':'');
+  return{get,know:water?'boil':null,photo:food.length?'cook':null,t:food.length?[t,...ep('cook')]:t}}});
+C('ruins','gate',{fixed:1,story:1,i:'🌀',t:'門にかけらをはめる',s:'青い石のかけら 3/3',c:[0,0],tags:['observe'],req:s=>inv('shard')>=3,run:s=>({choice:1,photo:'gate',t:[
+  '門の柱の三つのくぼみに、青いかけらをひとつずつはめていく。\n最後のひとつがかちりと収まった瞬間、足もとの石が低くうなった。',
+  '門の内側の霧が、ゆっくりと渦を巻きはじめる。\n渦の奥に、灯りが見えた。\nロケのテント。朝ごはんの湯気。浜辺を走りまわる、ふたつの人影。\n「……未央ちゃん。茜ちゃん」',
+  'ふり返る。\n霧の切れ間から、ふたつの月が昇りはじめた島が見える。\n岩陰の野営地。焚き火の煙。'+(s.flags.birdFriend?'\n肩の上で、ソラが小さく鳴いた。':'')+'\n\n門は、そう長くは開いていないだろう。']})});
+// ---- camp ----
+C('camp','rest',{i:'😴',t:'横になって休む',s:'体力を回復する',c:[3,5],tags:['safe'],run:s=>({d:{hp:10+s.shelter*4},t:s.shelter?'寝床に体を沈めると、こわばっていた手足がほどけていく。\nのんびりするのは、得意なんです。':'岩陰の砂の上で目を閉じる。少しだけ体が楽になった。'})});
+C('camp','tidy',{i:'🧺',t:'野営地のまわりを片づける',s:'枯れ枝やヤシの葉が集まる',c:[4,6],tags:['craft'],run:s=>({get:{twig:ri(1,2),leaf:ri(1,2)},t:'散らばった枝と葉を集めて、寝場所のまわりを整えた。\nお部屋がきれいだと、気持ちまで落ち着く。'})});
+C('camp','warm',{i:'🔥',t:'焚き火で体を温める',s:'体力を回復する',c:[2,4],tags:['safe'],req:s=>s.fire,run:s=>({d:{hp:12},t:'火の前で膝を抱える。揺れる炎を見ていると、不思議と心が落ち着いた。\n事務所のストーブの前で、みんなでおしゃべりした冬を思い出す。'})});
+C('camp','sing',{i:'🎵',t:'歌を口ずさむ',s:'ひとりの夕方は、少しさびしいから',c:[1,2],tags:['safe'],run:s=>{const n=(s.flags.sang||0);s.flags.sang=n+1;
+  const t=['流木に腰かけて、小さな声で歌った。\nポジパの三人で歌った、元気な曲。ひとりで歌うと、ちょっとゆっくりになる。','波の音に合わせて、ゆったりした曲を歌った。\nライブでこの曲を歌うと、客席のペンライトが波みたいに揺れるんです。','鼻歌まじりに、曲の振りをなぞってみた。\n……レッスン、ずいぶん休んじゃってる。帰ったら、トレーナーさんに怒られちゃうかな。'][n%3];
+  return{d:{hp:6},t:t+(s.flags.birdFriend?'\nソラが、合いの手みたいにピィと鳴いた。':'')}}});
+C('camp','diary',{i:'📓',t:'日記を読み返す',s:'引っかかっていることがある',c:[2,4],tags:['observe'],req:s=>clueN(s)>=2,run:s=>{const n=clueN(s);let t;
+  if(n<4)t='この島に来てからの日記を、一日ずつ読み返す。\nうまく言葉にできないけれど、何かがずっと引っかかっている。\nもう少し、島のあちこちをお散歩してみよう。';
+  else if(n<7)t='引っかかっていたことを、砂の上に指で書き出してみた。\nひとつひとつは小さなこと。でも、並べてみると――\n……ここは本当に、地図に載っている島なのかな。'+(s.places.ruins?'':'\n水の流れてくる先、小川の上流が気になる。');
+  else t='書き出した線が、ひとつの答えを指している。\nここは、元いた世界とは違う場所。\n私がくぐった岩のアーチ。帰り道があるとすれば、霧の奥の石の門しかない。';
+  return{d:{hp:4},t}}});
+// ---- beach ----
+C('beach','toforest',{i:'🌴',t:'森のほうへ行ってみる',s:'浜の奥に木々が見える',c:[3,5],tags:['explore'],once:1,w:3,req:s=>!s.places.forest,run:s=>({discover:['forest'],t:'砂浜を背に歩くと、ヤシの木立の向こうに深い森が広がっていた。\n湿った土の匂い。頭の上で、鳥がにぎやかに鳴いている。\n「こんにちは。少し、おじゃましますね」\n木の実がありそうだ。'})});
+C('beach','cape',{i:'👣',t:'岬のほうへ歩く',s:'浜の端まで行ってみる',c:[5,8],tags:['explore'],once:1,w:2,req:s=>!s.places.rocks,run:s=>({discover:['rocks'],t:'砂浜が途切れて、黒い岩場が始まった。\n潮が引いたあとの岩のくぼみに、水が光っている。石もごろごろしている。\n寄り道は、お散歩のいちばんの楽しみです。'})});
+C('beach','puddle',{i:'💧',t:'岩のくぼみの雨水を探す',s:'浜の端の岩に水がたまっているかも',c:[2,4],tags:['safe'],w:1.3,run:s=>P(.65)?{d:{water:18},know:'rain',t:'岩のくぼみに、ゆうべの雨がたまっていた。\n顔を近づけて、しずかにすする。真水だ。'}:{t:'くぼみは乾いていた。白い塩の結晶が残っているだけ。'}});
+C('beach','driftwood',{i:'🪵',t:'流木を集める',s:'乾いた流木を拾う',c:[4,7],tags:['craft'],run:s=>({get:{wood:2+(P(.3)?1:0),...(P(.2)?{stone:1}:{})},t:'白く乾いた流木を、両腕いっぱいに抱えた。\n……重い。茜ちゃんなら、この倍は持てそう。'})});
+C('beach','flotsam',{i:'👀',t:'漂着物を調べる',s:'波打ち際に何が流れ着いているか',c:[3,6],tags:['observe'],w:1.4,run:s=>{
+  if(!s.clues.noplastic)return{clue:'noplastic',know:'beachcomb',get:{wood:1},t:['波打ち際を、端から端まで歩いて調べた。\n流木。ちぎれた海藻。割れた貝殻。ヤシの実の殻。軽石。\n使えそうなのは、手ごろな流木が一本くらい。',...ep('beach'),'ペットボトルのキャップひとつ、お菓子の袋の切れはしひとつ、落ちていない。\n「……どうして？」']};
+  if(s.day>=3&&!s.clues.float&&P(.45))return{clue:'float',know:'floatglass',t:['波間で、何かが緑色に光った。\n拾い上げると、手のひらほどのガラス玉だった。中に、丸めた紙が入っている。\n辰じいの倉庫で見た、漁網の浮き玉に似ている。','石で割って、紙を広げた。\nインクで文字が書かれている。……どこの国の文字だろう。一文字も読めない。\n角ばった記号が、右から左へ並んでいるようにも見えた。']};
+  const r=R();if(r<.4)return{get:{coconut:1},t:'波に転がされていたヤシの実を見つけた。'};if(r<.75)return{get:{leaf:2},t:'打ち上げられたヤシの葉が使えそうだ。'};return{get:{wood:1,twig:1},t:'目ぼしいものはない。小さな流木と枝を拾った。'}}});
+C('beach','shells',{i:'🐚',t:'波打ち際で貝を探す',s:'砂を掘って貝をとる',c:[3,6],tags:['safe'],run:s=>({get:{clam:ri(1,2)},t:'引き波のあとに残る小さな穴。指で掘ると、貝が出てきた。'})});
+C('beach','tide',{i:'🦀',t:'潮だまりをのぞく',s:'取り残された生き物を探す',c:[4,7],tags:['observe','explore'],run:s=>{
+  if(!s.clues.crab)return{clue:'crab',know:'tidepool',get:{crab:1},photo:'crab',t:['潮だまりの底に、カニさんがいた。\n「こんにちは。……ちょっとだけ、ごめんなさい」\n甲羅をつまんで持ち上げると、脚がわらわらと宙をかく。',...ep('tide'),'一本、二本……脚は10本。\nでも、ハサミが3本あった。\n「……え？」']};
+  const o={t:'',get:{}};const r=R();if(r<.5){o.get.crab=1;o.t='岩のすき間からカニを引っぱり出した。'}else if(r<.75){o.get.fish=1;o.t='逃げ場をなくした小魚を、手ですくった。'}else{o.get.clam=1;o.t='岩に貼りついた貝をはがした。'}
+  if(P(.15)){o.d={hp:-5};o.t+='\n濡れた岩で足をすべらせて、膝をすりむいた。'}return o}});
+C('beach','seawater',{i:'🌊',t:'海水を飲む',s:'目の前に水はいくらでもある',c:[0,0],tags:['risk'],dis:s=>known('seawater')&&'海水は飲むほど渇く',run:s=>({d:{water:-8,hp:-4},know:'seawater',hurt:'余計に喉が渇いた',t:'両手ですくって飲みほす。しょっぱさで、一瞬だけ喉がうるおった。\nすぐに、前よりひどい渇きがやってきた。\n……亜季さんに、あれだけ言われていたのに。'})});
+C('beach','swim',{i:'🏊',t:'海に入って魚を追う',s:'うまくいけば魚が手に入る',c:[6,9],tags:['risk'],run:s=>{const r=R();
+  if(r<.3)return{d:{hp:-12},hurt:'クラゲに刺された',know:'jelly',cause:'クラゲの毒',t:'腕に焼けるような痛み。透明なクラゲが漂っていた。\n「真水じゃなくて、海水で……」\n辰じいの言葉を思い出して、海水でそっと洗い流した。'};
+  if(r<.6)return{get:{fish:1},t:'浅瀬に追いこんだ魚を、両手でつかみ上げた！\n「や、やりました……！」'};return{d:{hp:-3},t:'魚の影は見えるのに、指先をすり抜けていく。\n泳ぎつかれて、浜でしばらく大の字になった。体力、ないんです。'}}});
+C('beach','sos',{i:'🆘',t:'砂浜にSOSを書く',s:'空から見えるように大きく',c:[5,8],tags:['safe'],run:s=>{
+  if(s.day>=3&&!s.clues.noplanes)return{clue:'noplanes',t:'流木で大きなSOSを描き直した。\nあおむけに寝ころんで、空を見上げる。\n雲がゆっくり流れていく。ほかには何も通らない。今日も。昨日も。'};
+  return{t:'流木を並べて、大きなSOSを描いた。\n最後に、すみっこに小さく「藍子」と書きたした。誰かが見つけてくれますように。'}}});
+C('beach','raft',{i:'🛶',t:'いかだで沖へ出る',s:'この島を出られるかもしれない',c:[8,14],tags:['risk','explore'],once:1,w:3,req:s=>s.tools.raft,run:s=>{s.tools.raft=0;s.flags.raftUsed=1;return{d:{hp:-8},clue:'loop',t:['流木のいかだを、波打ち際から押し出した。\nツルで作った櫂で、ひたすら沖へ漕ぐ。島がだんだん小さくなっていく。\n「まっすぐ……まっすぐ……回らないで……」','やがて、白い霧に包まれた。\n自分の手も見えない。お日さまの位置だけを頼りに、まっすぐ、まっすぐ漕ぎ続けた。','どれくらいたっただろう。霧が、ふっと晴れた。\n\n目の前にあったのは、白い砂浜。\n流木で描いた、見覚えのあるSOS。すみっこに「藍子」。','いかだは浜に乗り上げて、ばらばらにくずれた。\n「……戻ってきちゃった」']}}});
+C('beach','sunset',{i:'🌅',t:'夕日をながめる',s:'夕方だけ',c:[1,3],tags:['observe'],slot:2,run:s=>{if(!known('greenflash'))return{d:{hp:6},know:'greenflash',photo:'flash',t:['お日さまが水平線――ううん、霧の向こうに沈んでいく。\n最後の一瞬、上のふちが緑色に光った。\n「あっ……！」',...ep('flash')]};return{d:{hp:6},t:'空が茜色に染まっていく。\n茜ちゃんの色だな、と思った。今日も一日、生きのびました。'}}});
+// ---- forest ----
+C('forest','fruit',{i:'🫐',t:'木の実を採る',s:'鳥がついばんでいる実だけを選ぶ',c:[4,6],tags:['safe'],run:s=>({get:{fruit:ri(1,2)},t:'鳥がついばんでいた枝から、同じ実をもいだ。\n鳥さんが食べられるなら、きっと大丈夫。'})});
+C('forest','redberry',{i:'🔴',t:'見慣れない赤い実を食べる',s:'つやつやしておいしそう',c:[2,3],tags:['risk'],run:s=>{if(P(.45))return{d:{hp:-14,food:-5},hurt:'お腹を下した',know:'unknownplant',cause:'見知らぬ実',t:'甘い。……と思ったのもつかの間、お腹がねじれるように痛みだした。\nサトさん、ごめんなさい。'};return{d:{food:12,water:4},t:'甘ずっぱくて、みずみずしい。当たりだったみたい。'}}});
+C('forest','mushroom',{i:'🍄',t:'白いキノコを食べる',s:'香りはいい',c:[1,2],tags:['risk'],dis:s=>known('mushroom')&&'知らないキノコは食べない',run:s=>({d:{hp:-22,food:5},hurt:'手足がひどくしびれた',know:'mushroom',cause:'毒キノコ',t:'口に入れてしばらくすると、指先からしびれが広がった。\n半日、木の根もとでうずくまって過ごした。'})});
+C('forest','vines',{i:'🌿',t:'ツルを集める',s:'縄や結び目に使える',c:[4,6],tags:['craft'],run:s=>({get:{vine:2+(P(.3)?1:0)},t:'木に絡みついた丈夫なツルを、引きはがして束ねた。'})});
+C('forest','twigs',{i:'svg:twig',t:'枯れ枝とヤシの葉を拾う',s:'燃料と屋根の材料',c:[3,6],tags:['craft'],run:s=>({get:{twig:2,leaf:ri(1,2)},t:'乾いた枝と、大きなヤシの葉を集めた。'})});
+C('forest','herb',{i:'🌱',t:'いい香りの葉を摘む',s:'どこかで嗅いだことのある香り',c:[2,4],tags:['safe'],run:s=>({get:{herb:2},t:'葉をちぎって香りをかぐと、ヨモギに似たやさしい匂いがした。\nフミさんの縁側を思い出す。'+(s.recipes.tea?'':'\n……これ、お茶にできないかな。')})});
+C('forest','flowers',{i:'🌼',t:'白い小花を摘む',s:'木もれ日の原っぱに咲いている',c:[2,3],tags:['observe'],run:s=>({get:{flower:ri(2,3)},t:'原っぱに、シロツメクサに似た白い花が咲いていた。\n「ごめんね、少しだけ」\n摘んだ花を手のひらにのせると、甘い香りがした。'})});
+C('forest','palm',{i:'🌴',t:'ヤシの木に登る',s:'実と葉がまとめて手に入る',c:[6,8],tags:['risk'],run:s=>{if(P(.3))return{d:{hp:-10},get:{coconut:1},hurt:'木から落ちた',cause:'転落',t:'途中で下を見てしまって、手がすべった。背中から砂に落ちる。\n転がってきた実をひとつだけ拾った。'};return{get:{coconut:2,leaf:1},t:'下は見ないで、幹にしがみついて登りきった。\n実をふたつ落として、そろそろと降りる。……膝が笑ってる。'}}});
+C('forest','fallen',{i:'🥥',t:'落ちたヤシの実を探す',s:'木の根もとを見て回る',c:[3,5],tags:['safe'],run:s=>P(.7)?{get:{coconut:1},t:'根もとの草むらに、熟した実がひとつ落ちていた。'}:{get:{shell:1},t:'あるのは割れて乾いた殻ばかり。\nきれいに半分に割れたものをひとつ拾った。器になりそうだ。'}});
+C('forest','deep',{i:'🌳',t:'森の奥へ分け入る',s:'水の音がした気がする',c:[6,10],tags:['explore'],once:1,w:2,req:s=>!s.places.stream,run:s=>{if(known('followdown')||P(.65))return{discover:['stream'],know:'followdown',t:[(known('followdown')?'水は低いほうへ流れる。地面のくぼみを選んで、下へ、下へと進んだ。':'つる草をかき分けて進む。\n道に迷わないのは、ちょっとだけ自慢です。木の形と、曲がった回数を覚えながら歩いた。')+'\nシダが腰の高さまで茂って、空が見えなくなる。',...ep('forest'),'さらさら、と音がした。\n茂みを抜けた先に、澄んだ小川が流れていた。\n思わずかけ寄って、手を浸す。冷たい。\n……でも、このまま飲んで大丈夫かな。']};return{keep:1,d:{water:-4},know:'followdown',t:'同じ倒木の前に、三度戻ってきてしまった。今日はあきらめて引き返そう。\n次は、地面の低いほうを選んで歩いてみよう。'}}});
+C('forest','bird',{i:'🐦',t:'鳥の声をたどる',s:'鳥のいる所には実がある',c:[3,6],tags:['observe'],run:s=>{if(!s.clues.bird&&P(.6))return{clue:'bird',get:{fruit:1},photo:'bird',t:'枝の上で、青い鳥が実をついばんでいた。\n……ポジパ島で、霧の中へ飛んでいった鳥と、同じ色。\nふいに鳥がこちらを向いた。小さな顔に、黒い目が四つ並んでいる。\n二股の尾羽をひるがえして、鳥は森の奥へ飛んでいった。'};return{get:{fruit:1},t:'鳥が落とした実を拾った。「ありがとう」'}}});
+C('forest','feedbird',{i:'🐦',t:'青い鳥に木の実をわける',s:'木の実1つを持っていく',c:[2,3],tags:['observe'],w:2,req:s=>s.clues.bird&&!s.flags.birdFriend&&inv('fruit')>=1,run:s=>{const n=s.flags.birdN||0;s.flags.birdN=n+1;
+  if(n===0)return{get:{fruit:-1},t:'枝の上の青い鳥に、木の実をそっと差し出した。\n「こんにちは。お腹、すいてませんか？」\n四つの目が、じっとこちらを見る。……今日は、降りてきてくれなかった。\n実は枝の根もとに置いておいた。'};
+  if(n===1)return{get:{fruit:-1},t:'今日も木の実を差し出すと、青い鳥は枝を一本ずつ降りてきて、手のひらの実をついばんだ。\n小さなくちばしが、くすぐったい。\n「ふふっ。また明日も来ますね」'};
+  s.flags.birdFriend=1;return{get:{fruit:-1},photo:'sora',t:['呼ぶより先に、青い鳥が肩に舞い降りてきた。\n「わっ……。ふふっ、おはようございます」','「あなたに、名前をつけてもいいですか？」\n空の色をしているから――「ソラ」。\nソラは、二股の尾羽をふるわせて鳴いた。\n\nこの島で、はじめてのお友だち。']}}});
+// ---- rocks ----
+C('rocks','stones',{i:'🪨',t:'石を拾う',s:'割れば刃物になる石もある',c:[4,6],tags:['craft'],run:s=>({get:{stone:2},t:'黒くてつやのある石を選んで拾った。\n石川先生が持ってきてくれた石に、よく似ている。'})});
+C('rocks','rcrab',{i:'🦀',t:'岩陰のカニを捕る',s:'すばしっこい',c:[4,7],tags:['risk'],run:s=>{const o=P(.6)?{get:{crab:1},t:'岩の裏から、カニを引っぱり出した。'}:{t:'逃げられた。「あっ、待って……」'};if(P(.2)){o.d={hp:-4};o.t+='\n指をはさまれた。痛い……。'}return o}});
+C('rocks','seaweed',{i:'svg:seaweed',t:'海藻をかじる',s:'食べられるが、しょっぱい',c:[2,4],tags:['safe'],run:s=>({d:{food:8,water:-4},t:'岩に張りついた海藻をかじった。お腹は少し満ちたけれど、喉が渇く。'})});
+C('rocks','eggs',{i:'🥚',t:'海鳥の卵を探す',s:'岩棚の巣をのぞく',c:[4,7],tags:['explore'],run:s=>P(.5)?{get:{egg:ri(1,2)},t:'岩棚のくぼみに、斑点のある卵があった。\n「ひとつだけ、いただきますね」'}:{t:'巣は空っぽだった。'}});
+C('rocks','crack',{i:'🕳️',t:'岩の割れ目をのぞく',s:'冷たい風が吹き出している',c:[3,5],tags:['explore'],once:1,w:2,req:s=>!s.places.cave,run:s=>({discover:['cave'],t:'岩と岩のすき間から、ひんやりした風が吹き出している。\n奥は真っ暗。手を伸ばしても、何にも触れない。\n明かりがあれば、進めるかもしれない。'})});
+C('rocks','lookup',{i:'⛰️',t:'崖を見上げる',s:'上には何があるんだろう',c:[1,2],tags:['explore'],once:1,w:2.5,req:s=>!s.places.hill,run:s=>({discover:['hill'],t:'岩場の奥に、切り立った崖がそびえている。上には緑が見える。\n登れれば、島じゅうを見渡せそう。\n……高いところは、ちょっと苦手なんだけど。素手で登るには高すぎる。'})});
+C('rocks','climb',{i:'🧗',t:'崖をよじ登る',s:'ロープなしで',c:[7,10],tags:['risk','explore'],w:1.5,req:s=>s.places.hill&&!owns('rope')&&!s.flags.climbed,run:s=>{if(P(.45)){s.flags.climbed=1;return{goto:'hill',t:'「下は見ない、下は見ない……」\n指をかけ、足をかけ、息を止めて体を引き上げた。\n崖の上に出た！　膝がまだ震えている。でも、手がかりはもう覚えた。'}}return{d:{hp:-18},hurt:'足をすべらせて落ちた',cause:'転落',t:'半分ほど登ったところで、うっかり下を見てしまった。\n足がすくんで、手がすべる。岩場に落ちて、したたかに腰を打った。\n「縄があれば……」'}}});
+// ---- stream ----
+C('stream','drinkraw',{i:'🤲',t:'小川の水をそのまま飲む',s:'澄んで見える',c:[1,0],tags:['risk'],run:s=>{if(P(.4))return{d:{water:30,hp:-10,food:-6},hurt:'お腹をこわした',know:'boil',cause:'生水',t:'冷たい水を、ごくごく飲んだ。\n夕方になって、ひどい腹痛がやってきた。澄んで見えても、生水は危ない。\n亜季さん、ちゃんと言ってたのに……。'};return{d:{water:35},t:'冷たくて、体のすみずみまで染みわたる。'}}});
+C('stream','fetch',{i:'svg:wshell',t:'水を汲む',s:'持っている殻と土器に汲む',c:[2,4],tags:['safe'],dis:s=>!inv('shell')&&!POT.some(k=>inv(k))&&'空の殻も土器も持っていない',run:s=>{
+  const n=inv('shell'),get={},parts=[];
+  if(n){get.shell=-n;get.wshell=n;parts.push('ヤシの殻'+n+'つ')}
+  const pk=POT.find(k=>inv(k));
+  if(pk){if(pk!=='wpot'){get[pk]=-1;get.wpot=1}s.potW=3;parts.push('土器（3杯分）')}
+  return{get,t:'背負ってきた'+parts.join('と')+'に、水を汲んだ。こぼさないように葉でふたをする。'+(known('boil')?'\n野営地で沸かしてから飲もう。':'')}}});
+C('stream','clay',{i:'🟤',t:'粘土を掘る',s:'焼けば器になる',c:[4,7],tags:['craft'],run:s=>({get:{clay:2},t:'川岸のきめこまかい粘土を、両手ですくい取った。\nひんやりして、土井先生の工房の匂いがする。'})});
+C('stream','handfish',{i:'🐟',t:'魚を手づかみする',s:'なかなか難しい',c:[5,8],tags:['risk'],req:s=>!inv('rod'),run:s=>P(.35)?{get:{fish:1},t:'石の下に手を差しこんで、魚をつかんだ！'}:{d:{water:4},t:'水しぶきを浴びただけだった。'}});
+C('stream','rodfish',{i:'🎣',t:'釣り糸を垂らす',s:'釣り竿を持ってきた',c:[3,5],tags:['safe'],req:s=>inv('rod'),run:s=>P(.85)?{get:{fish:ri(1,2)},t:'しずかに待っていると、貝殻の針に銀色の魚がかかった。\n魚は、しずかな人のところに来る。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}});
+C('stream','wash',{i:'🫧',t:'水浴びをする',s:'汗と塩を落とす',c:[1,0],tags:['safe'],run:s=>({d:{hp:7},t:'冷たい水に体を沈める。肌に張りついていた塩が流れ落ちた。\n髪を結びなおすと、気持ちまでしゃんとする。'})});
+C('stream','upstream',{i:'🌫️',t:'上流をたどる',s:'水はどこから来るのだろう',c:[6,9],tags:['explore'],once:1,w:2,req:s=>!s.places.ruins,run:s=>{if(clueN(s)>=4)return{discover:['ruins'],t:['岩を越え、苔の斜面を登る。やがて濃い霧が立ちこめた。\nポジパ島で、私を包んだのと同じ霧。','霧の切れ間に、石の柱が並んでいるのが見えた。\n自然にできたものじゃない。誰かが、ここに立てたものだ。']};return{discover:['ruins'],t:'上流へ行くほど霧が濃くなって、足もとも見えなくなった。引き返すしかない。\nこの霧の先へ進むには、まだ何かが足りない気がする。\nこの島のことを、もっとよく知らなきゃ。'}}});
+// ---- cave ----
+C('cave','moss',{i:'✨',t:'光る苔を観察する',s:'壁がぼんやり青い',c:[2,4],tags:['observe'],once:1,w:2,run:s=>({clue:'moss',know:'hikarigoke',photo:'moss',t:['岩壁の苔が、ぼんやりと青く光っている。\n松明を背中に隠してみた。\nまっくらな中で、苔だけが青く光り続けていた。',...ep('cave'),'鍾乳洞のガイドさんは、ヒカリゴケは自分では光らないって言っていた。\n……じゃあ、この苔は？']})});
+C('cave','mural',{i:'🖐️',t:'壁画を調べる',s:'岩肌に何か描かれている',c:[3,5],tags:['observe'],once:1,w:2,run:s=>({clue:'mural',get:{shard:1},photo:'mural',t:['奥の岩壁に、赤い顔料で絵が描かれていた。\n松明を近づける。','空に、大小ふたつの円。\nその下に、柱が並ぶ石の門。\n海の上には舟。舟から降りる、小さな人の姿がいくつも。\n「私みたいに、迷いこんだ人たち……？」','絵の下のくぼみに、青い石のかけらがはめこまれていた。\nそっと外すと、かけらは手のひらでかすかに光った。']})});
+C('cave','lake',{i:'💧',t:'地底湖の水を飲む',s:'岩にこされた水',c:[1,0],tags:['safe'],run:s=>({d:{water:35},know:'groundwater',t:['しんと冷えた水。舌に何の味も残らない。',...ep('well')]})});
+C('cave','deeper',{i:'svg:torch',t:'洞窟の奥へ進む',s:'足もとに注意',c:[5,7],tags:['explore'],run:s=>{const o={get:P(.5)?{stone:2}:{clay:1},t:'奥へ進むと、粘土質の床と崩れた岩があった。使えそうなものを拾う。'};if(P(.25)){o.d={hp:-8};o.hurt='天井に頭をぶつけた';o.t+='\n低い天井に頭をぶつけた。……茜ちゃんの気持ちが、ちょっとわかった。'}else if(P(.3))o.t+='\n足もとを何かがカサカサと横切った。「ひゃっ……！」虫は、苦手です。';return o}});
+// ---- hill ----
+C('hill','overlook',{i:'🏝️',t:'島を見渡す',s:'島の形を確かめる',c:[3,6],tags:['explore','observe'],once:1,w:2,run:s=>{const o={noGo:1,clue:'fogwall',photo:'overlook',t:['島は、思っていたより小さい。歩いて一日でひと回りできそう。\n浜辺、森、岩場。自分の野営地の煙も見える。','視線を沖へ移す。\n……どの方角も、海の少し先で、白い霧が壁のように立ちのぼっている。\n空と海の境目が、どこにも見えなかった。']};if(!s.places.stream){o.discover=['stream'];o.t.push('森の中に、光る筋が見えた。小川だ。')}return o}});
+C('hill','stars',{i:'🌌',t:'星が出るのを待つ',s:'夕方だけ',c:[2,4],tags:['observe'],slot:2,once:1,w:2,run:s=>({clue:'stars',know:'polaris',photo:'stars',t:['日が沈んで、空いっぱいに星が広がった。\nこんなに星の多い空は、はじめて。',...ep('stars'),'北の空を探す。ひしゃくの形。カシオペヤのW。\n目をこらしても、どの星をつないでも、見覚えのある形にならない。\n「……未央ちゃん。北極星、どこにもないよ」']})});
+C('hill','smoke',{i:'💨',t:'狼煙を上げる',s:'枯れ枝1・ヤシの葉1を持っていく',c:[5,7],tags:['explore'],req:s=>s.fire&&inv('twig')>=1&&inv('leaf')>=1,run:s=>{const o={get:{twig:-1,leaf:-1},know:'smoke',t:['焚き火の燠を運んで、青い葉をくべた。白い煙が高く昇っていく。',...ep('smoke')]};if(!s.clues.noplanes){o.clue='noplanes';o.t.push('日が傾くまで待った。\n返事の煙も、船も、飛行機も、何も来なかった。')}else o.t.push('誰も来ない。\nそれでも、白い煙がまっすぐ昇っていくのを見ていると、少しだけ心が強くなる。');return o}});
+C('hill','nest',{i:'🪺',t:'海鳥の巣を探る',s:'崖のふちにある',c:[4,6],tags:['risk'],run:s=>{let o;if(!s.flags.nestShard){s.flags.nestShard=1;o={get:{shard:1},t:'崖のふちに腹ばいになって、巣をのぞいた。下は見ない。\n巣の中に、卵といっしょに、青く光る石のかけらがあった。\n鳥が光るものを集めてきたのかな。'}}else o=P(.6)?{get:{egg:1},t:'卵をひとつ、ゆずってもらった。'}:{t:'親鳥に追い払われた。「ご、ごめんなさい」'};if(P(.15)){o.d={hp:-5};o.t+='\n親鳥に頭をつつかれた。'}return o}});
+C('hill','breeze',{i:'🍃',t:'風に吹かれて休む',s:'体力を回復する',c:[2,4],tags:['safe'],run:s=>({d:{hp:8},t:'白い小花の咲く草の上に寝ころぶ。風の音だけが聞こえる。\nこういう時間が、私はいちばん好きです。'})});
+// ---- ruins ----
+C('ruins','tablet',{i:'svg:tablet',t:'石板の文字を調べる',s:'柱のそばに倒れている',c:[2,4],tags:['observe'],once:1,w:2,run:s=>({clue:'script',know:'rosetta',t:['石板には、三段にわたって文字が刻まれている。\n角ばった記号。丸い記号。波のような線。どの段も、見たことのない形。\n一番下の段にだけ、ふたつの円が重なる絵があった。',...ep('museum')]})});
+C('ruins','rubble',{i:'🪨',t:'がれきをどける',s:'何か埋まっているかも',c:[6,8],tags:['explore'],run:s=>{let o;if(!s.flags.rubbleShard){s.flags.rubbleShard=1;o={get:{shard:1},t:'崩れた柱の下から、青い石のかけらが出てきた。'}}else o={get:{stone:2},t:'石ばかりだ。'};if(P(.2)){o.d={hp:-6};o.t+='\n崩れた石で手を切った。'}return o}});
+C('ruins','altar',{i:'🔷',t:'門を調べる',s:'石の門に何かある',c:[2,3],tags:['observe'],req:s=>inv('shard')<3,run:s=>({t:'門の柱に、三つのくぼみがある。青い石がはまりそうな形だ。'+(inv('shard')?`\n持ってきたかけらをあててみると、ぴたりと合った。（${inv('shard')}/3）`:'')+(inv('shard')<3?'\n残りのかけらは、この島のどこかにあるはず。':'')})});
+
+/* ----- recipes (野営地の「作業をする」から) ----- */
+const RECIPES=[
+  {id:'fire',i:'🔥',t:'火を起こす',show:s=>have('wood')||have('twig'),need:{twig:2,wood:1},req:s=>!s.fire,run:s=>{const ok=known('bowdrill')?.9:.3;if(P(ok)){s.fire=1;return{know:'driftwood',made:'火',photo:'fire',t:[
+      known('bowdrill')?'ツルを弦にして、しなる枝で小さな弓を作った。\n錐に弦を一巻きして、乾いた流木の板に押し当てる。\n弓を引く。押す。引く。押す。':'乾いた流木の板に枝を立てて、両手でもみこむ。\n手のひらが熱くなって、皮がむけそうになる。それでもやめない。',
+      'やがて、板のくぼみにたまった黒い粉から、細い煙が立ちのぼった。\n息を止めて、粉を枯れ草の束に移す。\n両手で包んで、そっと、長く、息を吹きこむ。',
+      'ぼっ、と。\n手の中に、オレンジ色の火が生まれた。',
+      ...ep('fire'),
+      '急いで枯れ枝を組んで、火を移す。流木をくべると、炎が一瞬、青緑色に揺らめいた。\nぱちぱちと木のはぜる音。顔に当たる熱。\n\n「……ついた。ついたよ、亜季さん」\nこの島に来てはじめて、心の底からほっとした。']}}
+    return{get:{twig:-1},know:'bowdrill',keepMats:1,t:['乾いた流木の板に枝を立てて、両手でもみこむ。\n手のひらが熱くなって、うっすら煙が上がった。','……そこまでだった。\n腕が先に音を上げた。手のひらに水ぶくれができている。\n「握力、ないんですよね、私……」','亜季さんの声を思い出す。\n「藍子殿は、力ではなく道具に頼るのであります」\nツルを弦にした弓で錐を回せば、もっと速く、長く回せるはず。次はそうしよう。']}}},
+  {id:'bed',i:'🛏️',t:'寝床をつくる',show:s=>have('leaf'),need:{leaf:3,wood:2},req:s=>s.shelter===0,run:s=>{s.shelter=1;return{know:'ground',made:'寝床',photo:'bed',t:['流木を四角く組んで枠にして、そこへヤシの葉を何枚も重ねた。',...ep('bed'),'横になってみる。\nゆうべまで背中を冷やしていた砂の冷たさが、うそのように消えた。\n葉っぱの青い匂い。今夜はぐっすり眠れそう。']}}},
+  {id:'knife',i:'svg:knife',t:'石ナイフ',show:s=>have('stone'),need:{stone:2},req:s=>!owns('knife'),run:s=>({tool:'knife',know:'conchoidal',made:'石ナイフ',t:['石同士を打ちつける。……割れない。\n「迷わず、ね」\n息をひとつ吸って、角を狙って、迷わず打った。',...ep('knife'),'貝殻のような曲面を描いて、薄いかけらが剥がれた。\nふちに指を当てると、ひやりとするほど鋭い。']})},
+  {id:'rope',i:'🪢',t:'ロープを編む',show:s=>have('vine')||s.places.hill,need:{vine:3},req:s=>!owns('rope'),run:s=>({tool:'rope',know:'rope',made:'ロープ',t:['ツルを細く裂いて、同じ向きにねじる。それを逆向きに撚り合わせる。\nゆっくりでいい。目をそろえて。',...ep('rope'),'体重をかけても切れない縄ができた。'+(s.places.hill&&!s.flags.climbed?'\nこれで、あの崖を登れる。……登れる、はず。':'')]})},
+  {id:'basket',i:'🧺',t:'背負いかご',show:s=>have('vine')&&have('leaf')&&s.day>=2,need:{vine:3,leaf:2},req:s=>!s.tools.basket,run:s=>({tool:'basket',made:'背負いかご',t:['ツルで骨組みを作って、ヤシの葉を編みこんで背負いかごにした。',...ep('basket'),'これで一度にたくさん運べる。（背負える数 8 → 14）']})},
+  {id:'tea',i:'🍵',t:'葉っぱのお茶を淹れる',show:s=>have('herb'),need:{herb:2},tools:['pot'],fire:1,req:s=>true,run:s=>{const first=!s.flags.tea;s.flags.tea=1;return{know:'herbtea',made:first?'葉っぱのお茶':null,photo:first?'tea':null,get:{tea:2},t:first?['香りのいい葉を焚き火のそばで軽くあぶって、土器のお湯に落とした。\nふわりと、やさしい香りが立ちのぼる。',...ep('tea'),'殻の器にふたつ注いで、ひとつを岩の上に置いた。\n……つい、もうひとり分淹れちゃった。\n「ふふっ。いつものくせ、ですね」']:'香りのいい葉をあぶって、お茶を淹れた。湯気が、ふわりと岩陰に広がる。'}}},
+  {id:'crown',i:'🌼',t:'花かんむりを編む',show:s=>have('flower'),need:{flower:3,vine:1},req:s=>!s.tools.crown,run:s=>({tool:'crown',made:'花かんむり',photo:'crown',t:['白い小花の茎を、一本ずつ巻きつけながら編んでいく。\n小さいころから、何度も作ってきた。指が覚えている。',...ep('crown'),'できあがった花かんむりを、そっと頭にのせた。\n「……ふふっ。誰も見てないけど」\n水たまりに映った自分が、少しだけ笑っていた。\n（花の香りで、夜よく眠れるようになった）']})},
+  {id:'hut',i:'🛖',t:'屋根のある小屋',show:s=>s.shelter>=1,need:{wood:4,vine:2,leaf:3},tools:['knife'],req:s=>s.shelter===1,run:s=>{s.shelter=2;return{made:'小屋',photo:'hut',t:['流木の柱を四本、砂に深く突き立てる。\nツルで梁をしばって、ナイフで葉の軸を整えて、屋根を下から一枚ずつふいていく。\n「何事も、下から」',...ep('hut'),'夕方、ぱらぱらと雨が降りだした。\n屋根の下で膝を抱えて、雨の音を聞く。ひとつも、濡れない。']}}},
+  {id:'house',i:'🏠',t:'高床の家',show:s=>s.shelter>=2,need:{wood:6,vine:3,stone:2},tools:['rope','knife'],req:s=>s.shelter===2,run:s=>{s.shelter=3;return{made:'高床の家',photo:'house',t:['平たい石を土台に並べて、その上に柱を立てる。\nロープで床を高く組み上げて、流木を一本ずつ渡していく。','最後の一本を渡して、ひとりで小さく言ってみた。\n「せーの……ポジパ、DASH」',...ep('house'),'完成した床に寝ころぶと、潮風が床下を抜けていった。\n虫も、波しぶきも、もうここまでは上がってこない。\n\nここはもう、ちゃんとしたおうちです。']}}},
+  {id:'torch',i:'svg:torch',t:'松明',show:s=>s.fire&&s.places.cave,need:{twig:1,vine:1},fire:1,req:s=>!owns('torch'),run:s=>({tool:'torch',made:'松明',t:'枯れ枝の先にツルを固く巻きつけて、焚き火から火を移した。\nこれで、あの割れ目の奥へ進める。……こわいけど。'})},
+  {id:'pot',i:'🏺',t:'土器を焼く',show:s=>have('clay'),need:{clay:2,wood:1},fire:1,req:s=>!owns('pot'),run:s=>({tool:'pot',know:'pottery',made:'土器',photo:'pot',t:['粘土をこねてひも状にして、くるくると巻き上げて器の形にした。\n今度は、乾かしすぎないように。日なたで様子を見ながら乾かして、焚き火の真ん中に埋める。',...ep('pot'),'火が落ちるのを待って掘り出すと、器は赤茶色に焼きしまっていた。\n指で弾くと、こん、と澄んだ音がした。\nひびは、ひとつもない。これで、水を沸かせる。']})},
+  {id:'rod',i:'🎣',t:'釣り竿',show:s=>s.places.stream&&(have('vine')||have('clam')),need:{twig:1,vine:1,clam:1},req:s=>!owns('rod'),run:s=>({tool:'rod',made:'釣り竿',t:['貝殻を石で削って小さな針にして、ツルの糸を枝に結んだ。',...ep('rod')]})},
+  {id:'catcher',i:'🏺+🌧️',t:'雨水だめ',show:s=>owns('pot'),need:{leaf:2},tools:['pot'],req:s=>!s.tools.catcher,run:s=>({tool:'catcher',know:'rain',made:'雨水だめ',t:['ヤシの葉を漏斗のように組んで、雨水が土器に流れこむようにした。',...ep('catcher')]})},
+  {id:'raft',i:'🛶',t:'いかだ',show:s=>owns('rope')&&have('wood')>=4,need:{wood:8,vine:2},tools:['rope'],req:s=>!s.tools.raft&&!s.flags.raftUsed,run:s=>({tool:'raft',made:'いかだ',t:['流木を並べてロープでしばって、いかだを組んだ。',...ep('raft'),'浜辺から沖へ出られる。……今度は、回らないように。']})}
+];
+
+const TAGS={explore:'探索',craft:'工作',safe:'慎重',risk:'冒険',observe:'観察'};
+const PERSONA={
+  explore:['寄り道お散歩隊長','知らない道ほど歩いてみたくなる藍子。お散歩で鍛えた足が、島じゅうを地図に変えていった。'],
+  craft:['てづくりのしあわせ','手を動かして暮らしを組み立てる藍子。ひとつ作るたびに、島が少しずつおうちになっていった。'],
+  safe:['ゆるふわ生活の達人','無理をせず、確かな一歩を重ねる藍子。いちばん大事なのは、明日もちゃんと笑っていること。'],
+  risk:['ポジパ魂の持ち主','痛い目を見ても、次の一歩を踏み出す藍子。茜ちゃんの「ボンバー！」が、ちょっとうつったのかも。'],
+  observe:['小さな変化を見つける人','いつものお散歩みたいに、昨日との違いに気づく藍子。島の秘密に、いちばん近づいた。']
+};
+const PROLOGUE=['『ポジパDASH』。\nアイドルが、昔ながらの知恵を先人に教わりながら、自分たちの手で暮らしを作っていく番組です。\n私たちポジティブパッションは、もう一年、無人島「ポジパ島」に通っています。',
+  'その日は、早朝ロケでした。\n集合より少し早く着いた私は、トイカメラと魔法瓶を持って、ひとりで浜辺をお散歩していました。\n魔法瓶の中身は、ミルク多めのミルクティー。未央ちゃんと茜ちゃんの分も淹れてきたんです。',
+  '海の上に、白い霧が立ちこめていました。\n霧のなかから、青い鳥が一羽、ふわりと飛んできて、浜の岩のアーチをくぐっていきます。\n「……きれい」\n一枚撮りたくて追いかけて、私もアーチをくぐりました。',
+  '霧が、ふっと晴れました。\n\n……浜辺が、違います。\nロケのテントも、スタッフさんも、ポジパ島の小屋も、どこにもありません。\nふり返ると、くぐったはずのアーチもありませんでした。',
+  '「未央ちゃーん！　茜ちゃーん！」\n返ってくるのは、波の音だけ。\n\n深呼吸をひとつ。\n……大丈夫。番組で、たくさん教わってきたもの。\n日が暮れる前に、まずは寝られる場所を探さなきゃ。'];
+
+/* ================= state ================= */
+let META=Object.assign({know:{},best:0,endings:{},runs:0,clues:{},eps:{},photos:{}},store.get('aiko_drift_meta1')||{});
+let S=null;
+const freshUI=()=>({sheet:null,moveMsg:'',moveErr:false,bagMsg:'',lastHud:null,newPlaces:{}});
+let UI=freshUI();
+function newRun(){
+  S={v:1,day:1,slot:0,hp:100,food:80,water:80,place:'beach',inv:{thermos:1},film:FILM,album:[],seen:{},eps:[],store:{},tools:{},fire:0,shelter:0,
+    places:{beach:1},flags:{},clues:{},clueOrder:[],know:{},newKnow:{},hurt:{},once:{},
+    hand:{},thought:{},think:null,potW:0,work:false,recipes:{},justAdded:null,arrived:{},journal:'',
+    tags:{explore:0,craft:0,safe:0,risk:0,observe:0},stats:{actions:0,made:[],hurts:0,moves:0},
+    result:{intro:1,page:0,t:PROLOGUE},night:null,phase:'play',cause:''};
+  UI=freshUI();save();
+}
+function save(){if(S)store.set('aiko_drift_run1',S);store.set('aiko_drift_meta1',META)}
+
+/* ================= engine ================= */
+function learn(k){if(!k||S.know[k])return null;S.know[k]=1;const fresh=!META.know[k];META.know[k]=1;if(fresh)S.newKnow[k]=1;return{k,fresh}}
+function addClue(c){if(S.clues[c])return false;S.clues[c]=1;S.clueOrder.push(c);return true}
+function heat(){return S.slot===1?2:0}
+function costOf(c){return{food:Math.round(c[0]*.8),water:Math.round(c[1]*.7)+(c[1]>0?heat():0)}}
+
+// 増減。野営地にいるときは蓄えへ、外では背負い袋へ（上限あり）
+function gain(k,n,res){
+  if(n>0){
+    if(atCamp()){S.store[k]=(S.store[k]||0)+n;res.gets.push([k,n]);return}
+    let put=n;
+    if(!KEYI.includes(k)){const room=Math.max(0,cap()-packN());put=Math.min(n,room)}
+    if(put){S.inv[k]=inv(k)+put;res.gets.push([k,put])}
+    if(n-put>0)res.lost.push([k,n-put]);
+  }else if(n<0){
+    let need=-n;const fromPack=Math.min(need,inv(k));S.inv[k]=inv(k)-fromPack;need-=fromPack;
+    if(need&&atCamp())S.store[k]=Math.max(0,(S.store[k]||0)-need);
+    if(!S.inv[k])delete S.inv[k];if(S.store[k]===0)delete S.store[k];
+    res.gets.push([k,n]);
+  }
+}
+function apply(o,cost,tags,free){
+  const b={hp:S.hp,food:S.food,water:S.water};
+  const d=Object.assign({hp:0,food:0,water:0},o.d||{});
+  S.food=clamp(S.food-cost.food+d.food);
+  S.water=clamp(S.water-cost.water+d.water);
+  S.hp=clamp(S.hp+d.hp);
+  const extra=[];
+  if(d.hp<0)S.cause=o.cause||'けがと疲労';
+  if(!free){
+    if(S.food<=0){S.hp=clamp(S.hp-8);extra.push('空腹で力が抜ける（体力 −8）');S.cause='空腹'}
+    if(S.water<=0){S.hp=clamp(S.hp-10);extra.push('喉が焼けつくように渇く（体力 −10）');S.cause='渇き'}
+  }
+  const res={gets:[],lost:[]};
+  if(o.get)for(const[k,n]of Object.entries(o.get))if(n)gain(k,n,res);
+  if(o.tool){if(CARRY.includes(o.tool)){if(packN()<cap())S.inv[o.tool]=1;else S.store[o.tool]=1}else S.tools[o.tool]=1}
+  const kn=[];[].concat(o.know||[]).forEach(k=>{const r=learn(k);if(r)kn.push(r)});
+  [].concat(o.clue||[]).forEach(addClue);
+  const disc=[];[].concat(o.discover||[]).forEach(p=>{if(!S.places[p]){S.places[p]=1;disc.push(p);UI.newPlaces[p]=1}});
+  if(o.hurt)S.stats.hurts++;
+  if(!free){(tags||[]).forEach(t=>S.tags[t]++);S.stats.actions++}
+  const ideas=revealRecipes();
+  return{t:o.t,page:0,extra,delta:{hp:S.hp-b.hp,food:S.food-b.food,water:S.water-b.water},gets:res.gets,lost:res.lost,tool:o.tool,kn,disc,choice:o.choice,made:o.made,ideas,photo:o.photo};
+}
+const disOf=c=>c.dis?c.dis(S):null;
+const slotOff=c=>c.slot!=null&&c.slot!==S.slot&&(c.slot===2?'夕方にできる':SLOTS[c.slot]+'にできる');
+function wpick(list,n){const a=list.slice(),out=[];while(out.length<n&&a.length){const tot=a.reduce((x,c)=>x+c.w,0);let r=R()*tot,i=0;for(;i<a.length;i++){r-=a[i].w;if(r<=0)break}out.push(a.splice(Math.min(i,a.length-1),1)[0])}return out}
+const live=c=>c&&!(c.once&&S.once[c.id])&&(!c.req||c.req(S));
+function handOf(p){const h=(S.hand[p]||[]).filter(id=>live(CARDS[id]));S.hand[p]=h;return h}
+const fixedOf=p=>Object.values(CARDS).filter(c=>c.fixed&&c.p===p&&live(c));
+const tkey=()=>S.day+'-'+S.slot+'-'+S.place;
+function revealRecipes(){const out=[];RECIPES.forEach(r=>{if(!S.recipes[r.id]&&r.req(S)&&r.show(S)){S.recipes[r.id]=1;out.push(r.t)}});return out}
+const busy=()=>!!(S.result||S.think||S.work||S.phase!=='play');
+
+function think(){
+  if(busy()||S.thought[tkey()])return;
+  S.thought[tkey()]=1;
+  const h=handOf(S.place);
+  const pool=Object.values(CARDS).filter(c=>c.p===S.place&&!c.fixed&&live(c)&&!h.includes(c.id));
+  const en=pool.filter(c=>!disOf(c)),di=pool.filter(c=>disOf(c));
+  const pick=wpick(en,3);
+  if(di.length&&(pick.length<3||P(.25))){if(pick.length>=3){const j=pick.findIndex(c=>!c.once);pick.splice(j>=0?j:2,1)}pick.push(di[ri(0,di.length-1)])}
+  S.think={ids:pick.map(c=>c.id),swap:null};save();render();
+}
+function takeIdea(id){
+  const c=CARDS[id];if(disOf(c))return;
+  const h=handOf(S.place);
+  if(h.length<3){h.push(id);S.think=null;S.justAdded=id}else S.think.swap=id;
+  save();render();
+}
+function swapOut(old){const h=handOf(S.place);const i=h.indexOf(old);if(i<0)return;h[i]=S.think.swap;S.justAdded=h[i];S.think=null;save();render()}
+
+function act(c){
+  if(busy())return;
+  if(disOf(c)||slotOff(c))return;
+  if(c.work){S.work=true;save();render(false);return}
+  S.justAdded=null;
+  const o=c.run(S)||{};
+  if(o.hurt)S.hurt[c.id]=o.hurt;
+  if(c.once&&!o.keep)S.once[c.id]=1;
+  const res=apply(o,costOf(c.c),c.tags);
+  res.title=c.t;
+  res.goto=o.goto||(!o.noGo&&res.disc.find(p=>!(PLACES[p].lock&&PLACES[p].lock(S))))||null;
+  S.result=res;save();render(true);
+}
+function idle(){
+  if(busy())return;
+  const res=apply({t:'のんびり腰を下ろして、波と風の音を聞いていた。\nこういう時間も、大事です。',d:{hp:3}},{food:2,water:3},['safe']);
+  res.title='時間を過ごす';S.result=res;save();render(true);
+}
+function craftReason(r){
+  if(r.fire&&!S.fire)return'火が必要';
+  for(const t of r.tools||[])if(!tool(t))return TOOLS[t][0]+'が必要';
+  for(const[k,n]of Object.entries(r.need))if(have(k)<n)return ITEMS[k][0]+'があと'+(n-have(k));
+  return null;
+}
+function craft(r){
+  if(S.result||!S.work||craftReason(r))return;
+  S.work=false;
+  const o=r.run(S)||{};
+  const mats={};
+  if(!o.keepMats)for(const[k,n]of Object.entries(r.need))mats[k]=-n;
+  for(const[k,n]of Object.entries(o.get||{}))mats[k]=(mats[k]||0)+n;
+  o.get=mats;
+  if(o.made)S.stats.made.push(o.made);
+  const res=apply(o,costOf(CARDS.work.c),['craft']);
+  res.title=r.t;
+  S.result=res;save();render(true);
+}
+function proceed(){
+  const r=S.result;S.result=null;
+  if(r&&r.intro){save();render();return}
+  if(S.hp<=0){finish('dead');return}
+  S.slot++;S.justAdded=null;UI.moveMsg='';
+  if(r&&r.goto&&r.goto!==S.place){S.place=r.goto;delete UI.newPlaces[r.goto];UI.moveMsg=PLACES[r.goto].n+'にたどり着いた';if(r.goto==='camp'){const u=unload();if(u)UI.moveMsg+='\n'+u}}
+  if(S.slot>=3){doNight()}
+  save();render();window.scrollTo(0,0);
+}
+function move(p){
+  if(busy()||p===S.place||!S.places[p])return;
+  if(PLACES[p].lock&&PLACES[p].lock(S))return;
+  const c=moveCost(S.place,p);
+  S.food=clamp(S.food-c.food);S.water=clamp(S.water-c.water);
+  let msg=PLACES[p].n+'へ移動した'+(c.d?`（満腹 −${c.food}・水分 −${c.water}）`:'（すぐそこ）');
+  if(S.water<=0){S.hp=clamp(S.hp-6);msg+='　喉がからからだ（体力 −6）';S.cause='渇き'}
+  if(S.food<=0){S.hp=clamp(S.hp-5);msg+='　足に力が入らない（体力 −5）';S.cause='空腹'}
+  S.place=p;S.stats.moves++;delete UI.newPlaces[p];S.justAdded=null;
+  UI.moveMsg=msg;UI.moveErr=false;
+  if(p==='camp'){const u=unload();if(u)UI.moveMsg+='\n'+u}
+  closeSheet(true);
+  if(S.hp<=0){finish('dead');return}
+  UI.animHud=true;save();render(false);window.scrollTo(0,0);
+}
+function unload(){
+  const moved=[];
+  for(const k of MATS)if(inv(k)){S.store[k]=(S.store[k]||0)+inv(k);moved.push(ITEMS[k][0]+'×'+inv(k));delete S.inv[k]}
+  return moved.length?'荷物を下ろした（'+moved.join('、')+'）':'';
+}
+
+function doNight(){
+  const lines=[];let t=[],kn=[],photo=null;
+  S.food=clamp(S.food-8);S.water=clamp(S.water-10);
+  lines.push(['夜のあいだの消耗','満腹 −8 / 水分 −10','neg']);
+  const camp=!!S.places.camp;
+  if(!camp){
+    t.push('結局、寝られる場所は見つからなかった。\n波打ち際から離れた砂の上で、膝を抱えて夜を明かした。\n風が冷たい。砂が、背中から体温を奪っていく。\n「……明日は、ちゃんと探そう」');
+  }else if(S.day===1||!S.flags.firstNight){
+    S.flags.firstNight=1;
+    t.push('岩陰で丸くなって、波の音を数えた。\n見上げると、こぼれそうなほどの星。\n未央ちゃんと茜ちゃん、心配してるかな。プロデューサーさんも。\n知っている星座を探そうとして、すぐにまぶたが重くなった。');
+  }else if(S.day>=2&&!S.clues.moons){
+    addClue('moons');photo='moons';
+    t.push('夜中、まぶしさで目が覚めた。\n浜が、昼間みたいに青白く光っている。','岩陰から顔を出して、空を見上げた。\n白い月が昇っていた。\nそのすぐ隣に、もうひとつ。ひと回り小さな、赤い月が。\n\n「……え？」\n気がつくと、トイカメラを握りしめていた。');
+    const r=learn('moon');if(r)kn.push(r);
+  }else{const r=R();
+    if(r<.3){let x='夜更けに、雨が降りだした。';if(S.tools.catcher){S.store.rain=(S.store.rain||0)+2;x+='雨水だめに、水がたまっていく音がする。\n「空からの、いただきもの」';lines.push(['雨水だめ','雨水 +2（野営地）','pos'])}else if(S.shelter<2){S.hp=clamp(S.hp-4);x+='葉のすき間から雨が落ちてきて、何度も目が覚めた。';lines.push(['雨にぬれた','体力 −4','neg'])}else x+='屋根を叩く雨音を聞きながら眠った。\nポジパ島の小屋で、三人で聞いた雨の音に似ていた。';t.push(x)}
+    else if(r<.45&&!S.fire){const f=Object.keys(S.store).filter(k=>EDIBLE.includes(k)&&!['wshell','bshell','wpot','bpot','rain','tea','thermos'].includes(k));if(f.length){const k=f[ri(0,f.length-1)];S.store[k]--;if(!S.store[k])delete S.store[k];t.push('暗闇で、何かが荷物をあさる音がした。……虫じゃありませんように。\n朝になると、置いていた'+ITEMS[k][0]+'がひとつ消えていた。火があれば、近寄らなかったかな。');lines.push(['夜の訪問者',ITEMS[k][0]+' −1','neg'])}else t.push('暗闇の向こうで、何かの目が光った気がした。\n「……こ、こんばんは」')}
+    else if(r<.6)t.push('流れ星がひとつ、霧の向こうへ落ちていった。\n今度は、ちゃんと間に合った。\n「みんなのところへ、帰れますように」');
+    else{const L=['波の音を数えているうちに、眠っていた。','焚き火の燠を見ながら、事務所のみんなのことを考えた。\n今日は、レッスンの日だったはず。','風の強い夜。未央ちゃんなら「テンション上がるね！」って言いそう。','虫の声が、聞いたことのない拍子で鳴いている。\n……虫は、ちょっと苦手です。','プロデューサーさんの声を思い出そうとした。\n「藍子のペースでいいよ」\n……はい。私のペースで、がんばります。','茜ちゃんなら、今ごろ島を三周くらい走っていそう。\nそう思ったら、ひとりで笑ってしまった。'];if(S.clues.moons)L.push('ふたつの月が、岩陰の入口を照らしている。\nもう、少しだけ見慣れてきた。');t.push(L[ri(0,L.length-1)])}
+  }
+  if(camp&&S.flags.birdFriend&&t.length===1&&P(.5))t[0]+='\n\nソラが、寝床のはしっこで丸くなっている。小さな寝息。';
+  if(S.day===1){t.push(...ep('aki'));const r=learn('rule3');if(r)kn.push(r)}
+  let rec=camp?[2,8,15,25][S.shelter]+(S.fire?5:0)+(S.tools.crown?3:0):-6;
+  if(!camp||(S.shelter===0&&!S.fire&&P(.4))){if(camp)rec=-3;const r=learn('ground');if(r)kn.push(r);lines.push([camp?'岩陰の砂の上で眠った':'吹きさらしの砂の上で眠った','体力 '+rec+'（地面に体温を奪われた）','neg'])}
+  else lines.push(['眠り（'+SHELTER[S.shelter]+(S.fire?'・焚き火':'')+(S.tools.crown?'・花の香り':'')+'）','体力 '+(rec>=0?'+':'')+rec,rec>0?'pos':'']);
+  S.hp=clamp(S.hp+rec);
+  if(S.food<=0){S.hp=clamp(S.hp-12);lines.push(['空腹で眠れない','体力 −12','neg']);S.cause='空腹'}
+  if(S.water<=0){S.hp=clamp(S.hp-12);lines.push(['渇きで眠れない','体力 −12','neg']);S.cause='渇き'}
+  S.night={t,page:0,lines,kn,photo};
+  S.phase='night';
+}
+function morningLine(){
+  const d=S.day;let x;
+  if(d===7)x='島に来て一週間。岩に七本目の線を刻んだ。\n日記の一行目は、いつも同じ。「今日も、元気です」';
+  else if(d===14)x='二週間がたった。もう、波の音がしないと眠れない気がする。';
+  else if(d===21)x='三週間。手のひらの皮が、すっかり厚くなった。握力、ついたかも。';
+  else if(d===28)x='もうすぐ、ひと月。ポジパDASHなら、何回分の放送になるかな。';
+  else if(d===2)x=S.places.camp?'目を開けると、岩のひさしが見えた。……夢じゃなかった。\n「おはようございます」と、誰にともなく言ってみる。':'砂まみれで目を覚ました。……夢じゃなかった。';
+  else if(clueN(S)>=4&&S.places.ruins&&!S.flags.dreamt){S.flags.dreamt=1;x='ゆうべ、夢を見た。霧の奥で、石の門が開いている夢。\n今なら、あの霧を越えられる気がする。'}
+  else x=['潮の匂いで目が覚めた。','鳥の声がにぎやか。「おはよう」と返してみる。','朝日が、霧の壁を金色に染めている。','焚き火のあとに、まだ少しぬくもりが残っていた。','今日は、どこをお散歩しよう。','日記に、きのう見つけたものを書きこんだ。\n小さなことでも、毎日続ければ特別になる。'][ri(0,5)];
+  if(S.flags.birdFriend&&S.places.camp&&P(.35)){S.store.fruit=(S.store.fruit||0)+1;x+='\nソラが、木の実をくわえて戻ってきた。「ありがとう。いただきますね」（木の実 +1・野営地）'}
+  if(S.water<30)x+='\n喉がからから。まず水を探さないと。';
+  else if(S.food<30)x+='\nお腹が鳴っている。何か食べないと。';
+  return x;
+}
+function morning(){
+  const n=S.night;
+  if(n&&n.page<pages(n.t).length-1){n.page++;save();renderNight();return}
+  S.night=null;S.phase='play';
+  if(S.hp<=0){finish('dead');return}
+  S.day++;S.slot=0;S.place=S.places.camp?'camp':'beach';S.think=null;S.work=false;S.justAdded=null;UI.moveMsg='';
+  if(S.day>30){finish('survive');return}
+  S.journal=morningLine();
+  save();render();window.scrollTo(0,0);
+}
+function finish(kind){
+  S.phase='end';S.ending=kind;S.result=null;
+  S.daysSurvived=kind==='dead'?S.day-1:kind==='survive'?30:S.day;
+  META.best=Math.max(META.best||0,S.daysSurvived);META.runs=(META.runs||0)+1;
+  if(kind!=='dead')META.endings[kind]=1;
+  Object.keys(S.clues).forEach(c=>META.clues[c]=1);
+  store.del('aiko_drift_run1');store.set('aiko_drift_meta1',META);
+  renderResult();window.scrollTo(0,0);
+}
+
+/* ----- eat / drink (背負い袋・野営地の蓄えから。時間は進まない) ----- */
+function uses(k){
+  const o=[];
+  switch(k){
+    case 'thermos': o.push({l:'飲む',e:'水分+18 満腹+6 体力+8',fn:()=>{S.flags.milktea=1;return{d:{water:18,food:6,hp:8},get:{thermos:-1},t:'魔法瓶のふたを開けると、まだほんのりあたたかかった。\nミルク多めの、いつもの味。\n三人分淹れてきたのに、ひとりで飲んでいる。……おいしいのに、少しだけしょっぱい。\n空になった魔法瓶は、大事にしまっておこう。'}}});break;
+    case 'tea': o.push({l:'飲む',e:'水分+22 体力+8',fn:()=>({d:{water:22,hp:8},get:{tea:-1},t:'ふうふう冷ましながら、葉っぱのお茶を飲んだ。\n体の奥から、ほっとあたたかくなる。'})});break;
+    case 'coconut': if(have('stone')||have('knife'))o.push({l:'割って飲む',e:'水分+24 満腹+6',fn:()=>({d:{water:24,food:6},get:{coconut:-1,shell:1},know:'coconut',t:'殻を割ると、ほんのり甘い水があふれた。殻は器に使える。'})});
+      else o.push({l:'岩に叩きつける',e:'水分+15 満腹+4 体力−3',fn:()=>({d:{water:15,food:4,hp:-3},get:{coconut:-1},know:'coconut',t:'何度も叩きつけてようやく割れた。半分こぼれてしまった。石があれば楽なのに。'})});break;
+    case 'fruit': o.push({l:'食べる',e:'満腹+12 水分+5',fn:()=>({d:{food:12,water:5},get:{fruit:-1},t:'甘酸っぱい木の実をかじった。'})});break;
+    case 'gfish': o.push({l:'食べる',e:'満腹+26',fn:()=>({d:{food:26},get:{gfish:-1},t:'皮がぱりっと焼けた魚。脂が口に広がる。'})});break;
+    case 'gcrab': o.push({l:'食べる',e:'満腹+16',fn:()=>({d:{food:16},get:{gcrab:-1},t:'殻を割って、甘い身をほじった。'})});break;
+    case 'gclam': o.push({l:'食べる',e:'満腹+12',fn:()=>({d:{food:12},get:{gclam:-1},t:'焼けた貝の汁まですすった。'})});break;
+    case 'gegg': o.push({l:'食べる',e:'満腹+14',fn:()=>({d:{food:14},get:{gegg:-1},t:'濃い味の卵だ。'})});break;
+    case 'wpot': o.push({l:'そのまま飲む',e:'水分+24・お腹をこわすかも',warn:known('boil'),fn:()=>{const last=(S.potW||1)<=1;S.potW=Math.max(0,(S.potW||1)-1);const g=last?{wpot:-1,pot:1}:{};return P(.4)?{d:{water:12,hp:-12,food:-6},get:g,know:'boil',cause:'生水',t:'しばらくして腹がきりきり痛みだした。沸かせばよかった。'}:{d:{water:24},get:g,t:'土器から直接ごくごく飲んだ。'+(last?'土器は空になった。':'')}}});break;
+    case 'bpot': o.push({l:'飲む',e:'水分+28',fn:()=>{const last=(S.potW||1)<=1;S.potW=Math.max(0,(S.potW||1)-1);return{d:{water:28},get:last?{bpot:-1,pot:1}:{},t:'沸かして冷ました水。安心して飲める。'+(last?'土器は空になった。':'')}}});break;
+    case 'bshell': o.push({l:'飲む',e:'水分+28',fn:()=>({d:{water:28},get:{bshell:-1,shell:1},t:'沸かして冷ました水。安心して飲める。殻は空になった。'})});break;
+    case 'rain': o.push({l:'飲む',e:'水分+24',fn:()=>({d:{water:24},get:{rain:-1},t:'雨水は冷たく、やわらかい味がした。'})});break;
+    case 'wshell': o.push({l:'そのまま飲む',e:'水分+24・お腹をこわすかも',warn:known('boil'),fn:()=>P(.4)?{d:{water:12,hp:-12,food:-6},get:{wshell:-1,shell:1},know:'boil',cause:'生水',t:'しばらくして腹がきりきり痛みだした。沸かせばよかった。'}:{d:{water:24},get:{wshell:-1,shell:1},t:'ごくごく飲んだ。殻は空になった。'}});break;
+    case 'clam': o.push({l:'生で食べる',e:'満腹+7・あたるかも',warn:known('shellpoison'),fn:()=>P(.3)?{d:{food:7,hp:-9},get:{clam:-1},know:'shellpoison',cause:'食あたり',t:'生の貝にあたった。腹がしくしく痛む。'}:{d:{food:7},get:{clam:-1},t:'つるりと飲みこんだ。'}});break;
+    case 'fish': o.push({l:'生で食べる',e:'満腹+12・あたるかも',fn:()=>P(.2)?{d:{food:12,hp:-7},get:{fish:-1},cause:'食あたり',t:'生の魚で腹をこわした。'}:{d:{food:12},get:{fish:-1},t:'生のままかじりついた。'}});break;
+    case 'egg': o.push({l:'生で飲む',e:'満腹+9',fn:()=>({d:{food:9},get:{egg:-1},t:'殻に穴をあけて飲んだ。'})});break;
+    case 'crab': o.push({l:'生では食べられない',e:'野営地の焚き火で焼く',dis:'焼く必要がある',fn:()=>({})});break;
+  }
+  return o;
+}
+function useItem(k,idx){
+  const u=uses(k)[idx];if(!u||u.dis||!have(k))return;
+  const o=u.fn();const r=apply(o,{food:0,water:0},[],true);
+  const ds=[['体力',r.delta.hp],['満腹',r.delta.food],['水分',r.delta.water]].filter(x=>x[1]).map(x=>x[0]+(x[1]>0?' +':' ')+x[1]).join(' / ');
+  UI.bagMsg=o.t+(ds?'（'+ds+'）':'');UI.bagKn=r.kn;
+  save();renderHud(true);renderNav();
+  if(S.hp<=0){closeSheet();S.result={t:o.t+'\nもう、立ち上がる力が残っていない。',page:0,extra:[],delta:r.delta,gets:[],lost:[],kn:[],disc:[],ideas:[],title:'',dead:1};render();return}
+  openSheet('bag');
+}
+function carry(k,dir){
+  if(!atCamp())return;
+  if(dir>0){if((S.store[k]||0)<1)return;if(!KEYI.includes(k)&&packN()>=cap()){UI.bagMsg='背負い袋がいっぱいだ（'+packN()+'/'+cap()+'）';openSheet('bag');return}S.store[k]--;if(!S.store[k])delete S.store[k];S.inv[k]=inv(k)+1}
+  else{if(inv(k)<1)return;S.inv[k]--;if(!S.inv[k])delete S.inv[k];S.store[k]=(S.store[k]||0)+1}
+  UI.bagMsg='';save();renderNav();openSheet('bag');
+}
+
+/* ================= render ================= */
+const app=document.getElementById('app');
+function render(deal){
+  if(!S){renderTitle();return}
+  if(S.phase==='end'){renderResult();return}
+  if(S.phase==='night'){renderNight();return}
+  app.innerHTML=`<header class="hud" id="hud"></header>
+  <div class="move-note" id="mnote"></div>
+  <main id="main"></main>
+  <nav class="bottom three" id="nav"></nav>`;
+  renderHud(!!UI.animHud);UI.animHud=false;renderPlaces();renderMain(deal);renderNav();
+}
+function gHTML(cls,ic,lab,v,low){return`<div class="g ${cls}${v<=25?' low':''}" role="meter" aria-label="${lab}" aria-valuenow="${v}" aria-valuemin="0" aria-valuemax="100"><div class="g-head">${ic} ${lab} <span class="g-state">${low}</span><b>${v}</b></div><div class="bar"><i class="ghost" style="width:${v}%"></i><i class="fill" style="width:${v}%"></i></div></div>`}
+function renderHud(animate){
+  const h=document.getElementById('hud');if(!h)return;
+  const prev=UI.lastHud;
+  if(!h.firstChild)h.innerHTML=`<div class="hud-top"><span class="day" id="dayl"></span><span class="pips" id="pips"></span><span class="hud-place" id="hplace"></span></div><div class="gauges">${gHTML('hp','♥','体力',S.hp,'危険')}${gHTML('food','🍖','満腹',S.food,'空腹')}${gHTML('water','💧','水分',S.water,'渇き')}</div>`;
+  document.getElementById('dayl').textContent=S.day+'日目';
+  document.getElementById('pips').innerHTML=SLOTS.map((x,i)=>`<span class="pip ${i<S.slot?'done':i===S.slot?'now':''}"><i aria-hidden="true">${ic(SLOT_I[i])}</i>${x}</span>`).join('');
+  document.getElementById('hplace').innerHTML=ic(PLACES[S.place].i)+' '+PLACES[S.place].n;
+  [['hp',S.hp],['food',S.food],['water',S.water]].forEach(([k,v])=>{
+    const g=h.querySelector('.g.'+k);g.classList.toggle('low',v<=25);g.setAttribute('aria-valuenow',v);
+    g.querySelector('b').textContent=v;
+    const fill=g.querySelector('.fill'),ghost=g.querySelector('.ghost');
+    const old=prev?prev[k]:v;
+    if(animate&&prev&&old!==v){
+      fill.style.transition='none';ghost.style.transition='none';fill.style.width=old+'%';ghost.style.width=old+'%';void fill.offsetWidth;
+      fill.style.transition='';ghost.style.transition='';
+      requestAnimationFrame(()=>{fill.style.width=v+'%';ghost.style.width=v+'%'});
+      const fl=document.createElement('span');fl.className='float '+(v<old?'neg':'pos');fl.textContent=(v>old?'+':'')+(v-old);g.appendChild(fl);setTimeout(()=>fl.remove(),1200);
+    }else{fill.style.width=v+'%';ghost.style.width=v+'%'}
+  });
+  UI.lastHud={hp:S.hp,food:S.food,water:S.water};
+}
+function renderPlaces(){
+  const m=document.getElementById('mnote');if(!m)return;m.textContent=UI.moveMsg||'';m.className='move-note'+(UI.moveErr?' err':'')+(UI.moveMsg?' on':'');
+}
+function deltaChips(d){return[['体力','hp'],['満腹','food'],['水分','water']].filter(([,k])=>d[k]).map(([n,k])=>`<span class="get ${d[k]<0?'neg':'pos'}">${n} ${d[k]>0?'+':''}${d[k]}</span>`).join('')}
+function knBox(list){return(list||[]).map(x=>x.fresh?`<div class="kbox"><div class="klbl">${K[x.k][2]?'📺 ポジパDASHで教わったこと・'+esc(K[x.k][2]):'📓 藍子のメモ'}</div><b>${K[x.k][0]}</b><p>${K[x.k][1]}</p></div>`:`<div class="kbox old"><div class="klbl">📺 思い出した</div><b>${K[x.k][0]}</b></div>`).join('')}
+function pageHTML(p,cls){if(p&&p.ep)return`<div class="ep${cls&&/turn/.test(cls)?' page turn':''}"><div class="eph">📺 ポジパDASH ${esc(p.ep)}</div><p>${esc(p.t)}</p></div>`;return`<p class="${cls||'story'}">${esc(p)}</p>`}
+function photoHTML(id,snapped){if(!id||!PHOTO[id])return'';if(S.album.includes(id))return!snapped?'':`<div class="snap done">📷 撮った：${esc(PHOTO[id][1])}</div>`;if(S.film<=0)return'<div class="snap done">📷 フィルムが、もう残っていない</div>';return`<button class="snap" id="snap" data-ph="${id}">📷 この瞬間を撮る<small>のこり ${S.film} 枚</small></button>`}
+function bindPhoto(after){const b=document.getElementById('snap');if(b)b.onclick=()=>{const id=b.dataset.ph;if(S.album.includes(id)||S.film<=0)return;S.album.push(id);S.film--;META.photos[id]=1;const o=S.phase==='night'?S.night:S.result;if(o)o.snapped=1;save();after()}}
+function albumHTML(list){return`<div class="album">${list.map(id=>`<figure class="ph"><div class="phi">${ic(PHOTO[id][0])}</div><figcaption>${esc(PHOTO[id][1])}</figcaption></figure>`).join('')}</div>`}
+function renderMain(deal){
+  const m=document.getElementById('main');
+  const r=S.result;
+  if(r){
+    const pg=pages(r.t),pi=r.page||0,last=pi>=pg.length-1;
+    let body=pageHTML(pg[pi]);
+    let btns='';
+    if(!last){
+      btns=`<div class="pager"><span>${pi+1} / ${pg.length}</span><button class="btn" id="turn">つづき ▸</button></div>`;
+    }else{
+      body+=(r.extra||[]).map(x=>`<p class="extra">${esc(x)}</p>`).join('');
+      let chips=deltaChips(r.delta||{});
+      (r.gets||[]).forEach(([k,n])=>chips+=`<span class="get ${n<0?'neg':''}">${ic(ITEMS[k][1])} ${ITEMS[k][0]} ${n>0?'+':''}${n}</span>`);
+      (r.lost||[]).forEach(([k,n])=>chips+=`<span class="get lost">持ちきれずに置いてきた：${ITEMS[k][0]}×${n}</span>`);
+      if(r.tool)chips+=`<span class="get pos">${ic(TOOLS[r.tool][1])} ${TOOLS[r.tool][0]}を手に入れた</span>`;
+      else if(r.made)chips+=`<span class="get pos">✨ 完成：${r.made}</span>`;
+      (r.disc||[]).forEach(p=>chips+=`<span class="get place">🗺️ 新しい場所：${PLACES[p].n}</span>`);
+      (r.ideas||[]).forEach(t=>chips+=`<span class="get idea">💡 ひらめき：${t}</span>`);
+      if(chips)body+=`<div class="gets">${chips}</div>`;
+      body+=knBox(r.kn)+photoHTML(r.photo,r.snapped);
+      const nextLbl=r.intro?'はじめる':(S.hp<=0||r.dead)?'結果を見る':S.slot===2?'夜を迎える':(r.goto?PLACES[r.goto].n+'へ進む':S.slot===0?'昼へ進む':'夕方へ進む');
+      btns=r.choice?`<button class="btn" id="goHome">門をくぐる（みんなのところへ）</button>`:`<button class="btn" id="next">${nextLbl}</button>`;
+    }
+    m.innerHTML=`${r.intro?'':`<div class="scene"><span class="pname">${ic(PLACES[S.place].i)} ${PLACES[S.place].n}・${esc(r.title||'')}</span></div>`}
+      <div class="result page${pi?' turn':''}">${body}${btns}</div>`;
+    const t=document.getElementById('turn');if(t){t.onclick=()=>{r.page=pi+1;save();renderMain();};t.focus({preventScroll:true})}
+    const n=document.getElementById('next');if(n){n.onclick=()=>{if(r.dead){finish('dead');return}proceed()};n.focus({preventScroll:true})}
+    const gh=document.getElementById('goHome');if(gh)gh.onclick=()=>finish('return');
+    bindPhoto(()=>renderMain());
+    if(deal)renderHud(true);
+    return;
+  }
+  const pl=PLACES[S.place];
+  const arrive=ARRIVE[S.place]&&(!S.arrived[S.place]||S.arrived[S.place]===tkey());
+  if(arrive&&!S.arrived[S.place]){S.arrived[S.place]=tkey();save()}
+  const journal=S.slot===0&&S.journal&&!S.think&&!S.work?`<div class="journal">${esc(S.journal)}</div>`:'';
+  const head=`${journal}<div class="scene"><span class="pname">${ic(pl.i)} ${pl.n}・${ic(SLOT_I[S.slot])} ${SLOTS[S.slot]}</span>${arrive?ARRIVE[S.place].map(esc).join('<br><br>'):esc(sceneText(S))}</div>`;
+  if(S.work){
+    const list=RECIPES.filter(r=>S.recipes[r.id]&&r.req(S)).map(r=>({r,why:craftReason(r)})).sort((a,b)=>(a.why?1:0)-(b.why?1:0));
+    const co=costOf(CARDS.work.c);
+    m.innerHTML=head+`<div class="thinkhead">🔨 何を作ろう？<small>作ると時間が進む（満腹 −${co.food}・水分 −${co.water}）。材料は野営地の蓄えと背負い袋から使う。</small></div>`+
+      (list.map(({r,why})=>{const mats=Object.entries(r.need).map(([k,n])=>`<span class="mat ${have(k)>=n?'ok':'short'}">${ic(ITEMS[k][1])}${ITEMS[k][0]} ${have(k)}/${n}</span>`).join('')+(r.tools||[]).map(t=>`<span class="mat ${S.tools[t]?'ok':'short'}">${ic(TOOLS[t][1])}${TOOLS[t][0]}</span>`).join('')+(r.fire?`<span class="mat ${S.fire?'ok':'short'}">🔥火</span>`:'');
+        return`<div class="row"><span class="ri">${ic(r.i)}</span><span class="rn">${r.t}${r.id==='fire'?`<small>${known('bowdrill')?'弓きり式で成功しやすい':'うまくいくとは限らない'}</small>`:''}<div class="mats">${mats}</div></span><button class="mini" data-craft="${r.id}" ${why?'disabled':''}>${why?esc(why):'作る'}</button></div>`}).join('')||'<p class="hint" style="text-align:left">まだ、作れそうなものを思いつかない。<br>島で何かを拾ってくれば、ひらめくかもしれない。</p>')+
+      `<button class="btn sub" id="cancelwork">やめる</button>`;
+    m.querySelectorAll('[data-craft]').forEach(b=>b.onclick=()=>craft(RECIPES.find(r=>r.id===b.dataset.craft)));
+    document.getElementById('cancelwork').onclick=()=>{S.work=false;save();render(false)};
+    return;
+  }
+  if(S.think){
+    const T=S.think;
+    if(T.swap){
+      const h=handOf(S.place);
+      m.innerHTML=head+`<div class="thinkhead">手札がいっぱい。どれを手放す？</div>
+        <div class="cards">${cardHTML(CARDS[T.swap],{cls:'incoming',tag:'div'})}</div>
+        <div class="sec">いまの手札（${pl.n}）</div>
+        <div class="cards">${h.map(id=>`<div class="swaprow">${cardHTML(CARDS[id],{tag:'div'})}<button class="mini drop" data-drop="${id}">手放す</button></div>`).join('')}</div>
+        <button class="btn sub" id="back">選び直す</button>`;
+      m.querySelectorAll('[data-drop]').forEach(b=>b.onclick=()=>swapOut(b.dataset.drop));
+      document.getElementById('back').onclick=()=>{S.think.swap=null;render(false)};
+      return;
+    }
+    m.innerHTML=head+`<div class="thinkhead">💭 ${THINK[S.place]}<small>1つ選んで手札に加える（時間は進まない）</small></div>
+      <div class="cards">${T.ids.map((id,i)=>cardHTML(CARDS[id],{deal:i,idea:1})).join('')||'<p class="scene">何も思いつかない。</p>'}</div>
+      <button class="btn sub" id="skip">どれもやめておく</button>`;
+    m.querySelectorAll('.card').forEach(b=>b.onclick=()=>{if(b.classList.contains('off')){shake(b);return}takeIdea(b.dataset.id)});
+    document.getElementById('skip').onclick=()=>{S.think=null;save();render(false)};
+    return;
+  }
+  const fx=fixedOf(S.place);
+  const h=handOf(S.place);
+  const thought=S.thought[tkey()];
+  let html=h.map(id=>cardHTML(CARDS[id],{fresh:id===S.justAdded})).join('');
+  for(let i=h.length;i<3;i++)html+=`<div class="empty">空き</div>`;
+  const usable=[...fx.map(c=>c.id),...h].some(id=>!disOf(CARDS[id])&&!slotOff(CARDS[id]));
+  m.innerHTML=head+(fx.length?`<div class="cards fixed">${fx.map(c=>cardHTML(c,{cls:c.story?'story':'camp'})).join('')}</div>`:'')+
+    `<div class="sec">${pl.n}でできること <small>選ぶと時間が進む</small></div>
+    <div class="cards">${html}</div>
+    <button class="btn think ${h.length?'sub':''}" id="think" ${thought?'disabled':''}>${thought?'この時間、ここではもう考えた':'💭 '+THINK[S.place]}</button>
+    ${thought&&!usable?'<p class="hint">ほかの場所に移って考えることもできる。</p><button class="btn sub" id="idle">何もせずに時間を過ごす</button>':''}`;
+  m.querySelectorAll('button.card').forEach(b=>b.onclick=()=>{const c=CARDS[b.dataset.id];if(b.classList.contains('off')){shake(b);return}if(!c.work)m.querySelectorAll('.card').forEach(x=>x.disabled=true);act(c)});
+  document.getElementById('think').onclick=think;
+  const idl=document.getElementById('idle');if(idl)idl.onclick=idle;
+}
+const THINK={beach:'波打ち際で、何をしようか考える',forest:'森の入口で、何をしようか考える',rocks:'岩場で、何をしようか考える',stream:'小川のほとりで、何をしようか考える',camp:'野営地で、何をしようか考える',hill:'崖の上で、何をしようか考える',cave:'洞窟で、何をしようか考える',ruins:'石の門の前で、何をしようか考える'};
+function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
+function cardHTML(c,o={}){
+  const co=costOf(c.c);const dis=disOf(c);const so=!o.idea&&slotOff(c);const hurt=S.hurt[c.id];
+  let notes='';
+  if(dis)notes+=`<span class="note">🚫 ${esc(dis)}</span>`;
+  else{
+    if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 夕方にできる</span>`;
+    if(so)notes+=`<span class="note">🕒 ${esc(so)}</span>`;
+    if(hurt)notes+=`<span class="note warn">⚠ 前回：${esc(hurt)}</span>`;
+    const zf=co.food>0&&S.food-co.food<=0,zw=co.water>0&&S.water-co.water<=0;
+    if(!o.idea&&!so&&!c.work&&(zf||zw))notes+=`<span class="note danger">${zw?'💧 水分':'🍖 満腹'}が尽きる → 体力が減る</span>`;
+  }
+  let sub=c.s;
+  if(c.work){const n=RECIPES.filter(r=>S.recipes[r.id]&&r.req(S)&&!craftReason(r)).length;sub=n?`いま作れるもの：${n}`:'道具や住まいを作る'}
+  const costs=c.work?'<i class="cost">作るものを選ぶ</i>':(co.food?`<i class="cost f">満腹 −${co.food}</i>`:'')+(co.water?`<i class="cost w">水分 −${co.water}${heat()&&c.c[1]>0?'（暑さ+2）':''}</i>`:'')+(!co.food&&!co.water?'<i class="cost">消耗なし</i>':'')+(c.once&&!c.fixed?'<i class="cost once">一度きり</i>':'');
+  const off=dis||so;const tag=o.tag||'button';
+  return`<${tag} class="card ${off?'off':''} ${hurt&&!off?'warn':''} ${o.deal!=null?'deal':''} ${o.fresh?'fresh':''} ${o.cls||''}" ${o.deal!=null?`style="animation-delay:${o.deal*90}ms"`:''} data-id="${c.id}" ${off?'aria-disabled="true"':''}>
+    <span class="ci" aria-hidden="true">${ic(c.i)}</span><span><span class="ct">${esc(c.t)}</span>${o.fresh?'<span class="newtag">NEW</span>':''}<div class="cs">${esc(sub)}</div></span>
+    <span class="costs">${costs}</span>${notes}</${tag}>`;
+}
+function renderNav(){
+  const n=document.getElementById('nav');if(!n)return;
+  const nw=Object.keys(UI.newPlaces).filter(p=>p!==S.place).length;
+  n.innerHTML=`<button data-s="bag"><span>${ic('svg:sack')}</span>背負い袋 ${packN()}/${cap()}</button><button data-s="know"><span>📓</span>手帳</button><button data-s="move" ${busy()?'disabled':''}><span>👣</span>移動する${nw?`<i class="badge">${nw}</i>`:''}</button>`;
+  n.querySelectorAll('button').forEach(b=>b.onclick=e=>{UI.bagMsg='';UI.bagKn=null;openSheet(b.dataset.s,e.currentTarget)});
+}
+let sheetOpener=null;
+function openSheet(name,opener){
+  if(opener)sheetOpener=opener;
+  closeSheet(true);
+  UI.sheet=name;
+  const v=document.createElement('div');v.className='veil';v.onclick=()=>closeSheet();
+  const sh=document.createElement('div');sh.className='sheet';sh.setAttribute('role','dialog');sh.setAttribute('aria-modal','true');
+  let h='';
+  if(name==='bag'){
+    const camp=atCamp();
+    h=`<h2>背負い袋<small>${packN()}/${cap()}${camp?'・野営地には好きなだけ置ける':''}</small><button class="close">閉じる</button></h2>${UI.bagMsg?`<div class="msg">${esc(UI.bagMsg).replace(/\n/g,'<br>')}</div>${knBox(UI.bagKn)}`:''}`;
+    const row=(k,src)=>{const n=src==='pack'?inv(k):S.store[k];const us=EDIBLE.includes(k)?uses(k):[];
+      return`<div class="row"><span class="ri">${ic(ITEMS[k][1])}</span><span class="rn">${ITEMS[k][0]} ×${n}${(k==='wpot'||k==='bpot')?`<small>残り ${S.potW||0} 杯</small>`:''}</span>${us.map((u,i)=>`<button class="mini" data-use="${k}" data-i="${i}" ${u.dis?'disabled':''}>${esc(u.l)}<br><small>${esc(u.dis||u.e)}${u.warn&&!u.dis?' ⚠':''}</small></button>`).join('')}${camp&&!KEYI.includes(k)?`<button class="mini" data-carry="${k}" data-d="${src==='pack'?-1:1}">${src==='pack'?'置く':'持つ'}</button>`:''}</div>`};
+    const pk=Object.keys(S.inv);
+    h+=`<div class="sec">背負っているもの（食べる・飲むは時間を使わない）</div>`+(pk.length?pk.map(k=>row(k,'pack')).join(''):'<p class="hint" style="text-align:left">何も持っていない。</p>');
+    if(camp){const sk=Object.keys(S.store);h+=`<div class="sec">🛖 野営地の蓄え</div>`+(sk.length?sk.map(k=>row(k,'store')).join(''):'<p class="hint" style="text-align:left">まだ何も置いていない。</p>')}
+    else h+=`<p class="hint" style="text-align:left">流木や石などの素材は、野営地に戻ると自動で下ろす。</p>`;
+    const tl=Object.keys(S.tools).filter(t=>S.tools[t]&&!CARRY.includes(t));
+    h+=`<div class="sec">道具・住まい</div><div class="matlist">${tl.map(t=>`<span class="get pos">${ic(TOOLS[t][1])} ${TOOLS[t][0]}</span>`).join('')}${S.places.camp?`<span class="get">📷 トイカメラ のこり${S.film}枚</span><span class="get">${S.fire?'🔥 焚き火あり':'火なし'}</span><span class="get">🛖 ${SHELTER[S.shelter]}</span>`:'<span class="get">寝場所なし</span>'}</div>`;
+  }else if(name==='move'){
+    const here=S.place;
+    h=`<h2>どこへ行く？<button class="close">閉じる</button></h2><p class="hint" style="text-align:left;margin:-4px 0 4px">いま：${ic(PLACES[here].i)} ${PLACES[here].n}　・　移動では時間は進まない</p>`;
+    h+=ORDER.filter(p=>S.places[p]&&p!==here).map(p=>{
+      const L=PLACES[p].lock&&PLACES[p].lock(S);const c=moveCost(here,p);
+      const zero=c.water&&S.water-c.water<=0||c.food&&S.food-c.food<=0;
+      const cost=c.d?`<span class="mat">満腹 −${c.food}</span><span class="mat">水分 −${c.water}</span>`:'<span class="mat ok">すぐそこ（消耗なし）</span>';
+      return`<div class="row ${L?'lockrow':''}"><span class="ri">${L?'🔒':ic(PLACES[p].i)}</span><span class="rn">${PLACES[p].n}${UI.newPlaces[p]?'<span class="newtag">NEW</span>':''}<div class="mats">${L?`<span class="mat short">${esc(L)}</span>`:cost}${!L&&zero?'<span class="mat short">着くころに尽きる</span>':''}</div></span><button class="mini" data-go="${p}" ${L?'disabled':''}>${L?'行けない':'行く'}</button></div>`}).join('')||'<p class="hint" style="text-align:left">ほかに知っている場所はまだない。</p>';
+    h+='<p class="hint" style="text-align:left;margin-top:12px">遠い場所ほど満腹と水分を使う。道は 野営地・浜辺 → 森の入口 → 小川、浜辺 → 岩場 とつながっている。</p>';
+  }else if(name==='know'){
+    const tab=UI.noteTab||'know';
+    const clues=Object.assign({},META.clues||{},(S&&S.clues)||{});const cn=Object.keys(clues).length;
+    const n=Object.keys(K).filter(known).length;
+    const eps=Object.keys(EP).filter(e=>META.eps&&META.eps[e]);
+    const album=S?S.album:Object.keys(PHOTO).filter(p=>META.photos[p]);
+    h=`<h2>手帳<button class="close">閉じる</button></h2><div class="tabs">`+[['know','教わったこと',n+'/'+Object.keys(K).length],['ep','DASHの思い出',eps.length+'/'+Object.keys(EP).length],['album','アルバム',S?album.length+'/'+FILM:album.length+'枚'],...(cn?[['clue','島の違和感',cn+'/'+NCL]]:[])].map(([k,l,c])=>`<button class="tab ${tab===k?'on':''}" data-tab="${k}">${l}<small>${c}</small></button>`).join('')+'</div>';
+    if(tab==='clue'&&cn)h+=Object.keys(CL).map(c=>clues[c]?`<div class="clue">${CL[c]}</div>`:'<div class="clue unk">？？？</div>').join('');
+    else if(tab==='ep')h+=eps.length?eps.map(e=>`<div class="ep"><div class="eph">📺 ポジパDASH ${esc(EP[e][0])}</div><p>${esc(EP[e][1])}</p></div>`).join(''):'<p class="hint" style="text-align:left">島で新しいことをすると、ポジパDASHで教わったことを思い出す。</p>';
+    else if(tab==='album')h+=(S?'':'<p class="hint" style="text-align:left;margin-top:0">これまでに撮った写真</p>')+(album.length?albumHTML(album):'<p class="hint" style="text-align:left">まだ一枚も撮っていない。トイカメラのフィルムは '+FILM+' 枚。</p>');
+    else h+=Object.entries(K).map(([k,[t,b,src]])=>known(k)?`<div class="kn"><b>${t}</b>${src?`<small class="src">${esc(src)}</small>`:''}<p>${b}</p></div>`:'<div class="kn unk"><b>？？？</b></div>').join('');
+  }
+  sh.innerHTML=h;
+  app.appendChild(v);app.appendChild(sh);
+  sh.querySelector('.close').onclick=()=>closeSheet();
+  sh.querySelectorAll('[data-use]').forEach(b=>b.onclick=()=>useItem(b.dataset.use,+b.dataset.i));
+  sh.querySelectorAll('[data-carry]').forEach(b=>b.onclick=()=>carry(b.dataset.carry,+b.dataset.d));
+  sh.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>move(b.dataset.go));
+  sh.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{UI.noteTab=b.dataset.tab;openSheet('know')});
+  sh.querySelector('.close').focus({preventScroll:true});
+}
+function closeSheet(silent){
+  document.querySelectorAll('.veil,.sheet').forEach(e=>e.remove());
+  UI.sheet=null;
+  if(!silent&&S&&S.phase==='play'){renderNav();const b=document.querySelector('[data-s="bag"]');if(b)b.focus({preventScroll:true})}
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&UI.sheet)closeSheet()});
+
+function renderNight(){
+  const n=S.night,pg=pages(n.t),pi=n.page||0,last=pi>=pg.length-1;
+  app.innerHTML=`<div class="nightwrap"><h2>${S.day}日目の夜</h2><div class="sky" aria-hidden="true">🌕${S.clues.moons?'<span class="moon2">🌕</span>':''}　✦ ✧</div>
+  ${pageHTML(pg[pi],'page'+(pi?' turn':''))}
+  ${last?`${knBox(n.kn)}${photoHTML(n.photo,n.snapped)}<div class="ledger">${n.lines.map(([a,b,c])=>`<div><span>${a}</span><span class="${c}">${b}</span></div>`).join('')}
+  <div style="border-top:1px solid #ffffff30;margin-top:6px;padding-top:6px"><span>朝の状態</span><span>♥ ${S.hp}　🍖 ${S.food}　💧 ${S.water}</span></div></div>`:''}
+  <button class="btn" id="morn">${!last?'つづき ▸':S.hp<=0?'結果を見る':S.day>=30?'三十日目の朝へ':'朝を迎える'}</button></div>`;
+  const b=document.getElementById('morn');b.onclick=morning;b.focus({preventScroll:true});bindPhoto(renderNight);
+}
+function renderTitle(){
+  const run=store.get('aiko_drift_run1');
+  const ne=Object.keys(META.eps||{}).length;
+  app.innerHTML=`<div class="title"><div class="kick">ポジパDASH 番外編</div><h1>藍子の漂流日記</h1><div class="wave">〜〜〜　〜〜　〜〜〜</div>
+  ${run&&run.phase!=='end'?`<button class="btn" id="cont">つづきから（${run.day}日目・${SLOTS[run.slot]||'夜'}）</button><button class="btn sub" id="start">はじめから</button>`:'<button class="btn" id="start">はじめる</button>'}
+  <div class="meta"><div><b>${META.best||0}日</b>最長の日数</div><div><b>${Object.keys(META.endings||{}).length}/2</b>エンディング</div><div><b>${ne}/${Object.keys(EP).length}</b>DASHの思い出</div></div>
+  ${ne||META.runs?'<button class="btn sub" id="notebook">📓 手帳を見る</button>':''}
+  <div class="howto">・高森藍子が、番組『ポジパDASH』で教わった知恵を頼りに、ひとりで島を生きのびる。<br>・「考える」と案が3つ浮かぶ。1つ選んで、その場所の手札（3枚まで）に加える。<br>・手札の行動を選ぶと時間が進む（1日に朝・昼・夕の3回）。<br>・行動すると満腹と水分が減る。どちらかが0になると体力が減り、0で終わり。<br>・移動には満腹と水分を使う。遠い場所ほど多く減る。<br>・作ることと火で焼くことは、野営地でしかできない。<br>・新しいことをすると、番組の思い出がよみがえる。<br>・トイカメラのフィルムは${FILM}枚。残したい瞬間を選んで撮ろう。</div>
+  <a class="back" href="index.html">← お話の一覧へ</a></div>`;
+  document.getElementById('start').onclick=()=>{if(run&&run.phase!=='end'&&!confirmReset())return;newRun();render()};
+  const c=document.getElementById('cont');if(c)c.onclick=()=>{S=run;UI=freshUI();render()};
+  const nb=document.getElementById('notebook');if(nb)nb.onclick=()=>{UI.noteTab='ep';openSheet('know')};
+}
+let resetArmed=false;
+function confirmReset(){if(resetArmed)return true;resetArmed=true;const b=document.getElementById('start');b.textContent='もう一度押すと、今の記録を消してはじめる';setTimeout(()=>{resetArmed=false;if(b.isConnected)b.textContent='はじめから'},3500);return false}
+
+function renderResult(){
+  const k=S.ending;
+  const bird=S.flags.birdFriend,al=S.album;
+  const E={
+    dead:['GAME OVER','力尽きる',`砂の上に倒れこんだ。\n波の音が、少しずつ遠くなっていく……\n\n「あーちゃーん！」\nどこかで、未央ちゃんの声が聞こえた気がした。\n\n原因：${S.cause||'疲労'}`],
+    return:['ENDING','おかえりなさい','門をくぐった瞬間、ふたつの月の光が背中で重なった。\n霧が渦を巻いて、潮の匂いが変わる。'+(bird?'\n\n肩の上で、ソラが小さく鳴いた。ふり向くと、青い羽が一枚、霧の向こうへ舞っていった。\n「……またね、ソラ」':'')+'\n\n目を開けると、ポジパ島の浜辺だった。\n岩のアーチ。ロケのテント。朝ごはんの匂い。\n\n「あーちゃん！　どこ行ってたの、もう！」\n「藍子ちゃーーん！　探しましたよーっ！！」\n走ってくる未央ちゃんと茜ちゃん。その後ろで、プロデューサーさんが、ほっとしたように笑っていた。\n\n私がいなくなっていたのは、ほんの一時間だったそうです。\n\n「……ただいま。あのね、聞いてほしいお話が、たくさんあるんです」'+(al.includes('moons')?'\n\n後日、トイカメラの写真を現像したら、ふたつの月がちゃんと写っていました。\n三人で、しばらく何も言えませんでした。':al.length?'\n\n後日、トイカメラの写真を現像して、三人で一枚ずつ眺めました。\n「これ、どこ？」って聞かれて、私は「ないしょです」って笑いました。':'')],
+    survive:['ENDING','三十日目の朝','三十日目の朝。\n水の探し方も、火の起こし方も、もう体が覚えている。\n今日も、日記の最初に書く。\n「未央ちゃん、茜ちゃん、プロデューサーさんへ。私は元気です」\n\n霧の向こうに帰り道があると信じて、今日もゆっくり、浜辺をお散歩する。'+(bird?'\n肩の上には、ソラ。':'')]
+  }[k];
+  const tg=S.tags,max=Math.max(...Object.values(tg));
+  const top=Object.keys(tg).sort((a,b)=>tg[b]-tg[a])[0];
+  const per=max>0?PERSONA[top]:['まだ何者でもない藍子','次の島では、どんな藍子になるだろう。'];
+  const placesN=Object.keys(S.places).length;
+  app.innerHTML=`<div class="res"><div class="kind">${E[0]}</div><h1>${E[1]}</h1><p class="story">${esc(E[2])}</p>
+  <div class="stats"><div class="big"><b>${S.daysSurvived}日</b>島で過ごした日数</div>
+  <div><b>${S.stats.actions}</b>行動</div><div><b>${placesN}/8</b>見つけた場所</div><div><b>${S.stats.made.length}</b>作ったもの</div>
+  <div><b>${S.eps.length}</b>DASHの思い出</div><div><b>${clueN(S)}/${NCL}</b>気づいた違和感</div><div><b>${S.stats.hurts}</b>痛い目</div></div>
+  <div class="persona"><div class="lbl">今回の藍子は</div><h3>${per[0]}</h3><p>${per[1]}</p>
+  ${Object.keys(TAGS).map(t=>`<div class="tagbar ${t===top&&max>0?'top':''}"><span>${TAGS[t]}</span><span class="tb"><i style="width:0" data-w="${max?Math.round(tg[t]/max*100):0}"></i></span><span>${tg[t]}</span></div>`).join('')}</div>
+  <div class="sec">トイカメラの写真 ${al.length}/${FILM}</div>
+  ${al.length?albumHTML(al):'<p class="hint" style="text-align:left">一枚も撮らなかった。</p>'}
+  ${S.eps.length?`<div class="sec">思い出したポジパDASH</div><div class="matlist">${S.eps.map(e=>`<span class="get know">📺 ${esc(EP[e][0])}</span>`).join('')}</div>`:''}
+  <div class="sec">この島の違和感 ${clueN(S)}/${NCL}</div>
+  ${Object.keys(CL).map(c=>S.clues[c]?`<div class="clue">✔ ${CL[c]}</div>`:`<div class="clue unk">${META.clues[c]?'（前の島で気づいた）'+CL[c]:'？？？'}</div>`).join('')}
+  ${S.stats.made.length?`<div class="sec">作ったもの</div><div class="matlist">${S.stats.made.map(x=>`<span class="get">${esc(x)}</span>`).join('')}</div>`:''}
+  ${Object.keys(S.newKnow).length?`<div class="sec">今回はじめて教わったことを思い出した</div><div class="matlist">${Object.keys(S.newKnow).map(x=>`<span class="get know">📺 ${K[x][0]}</span>`).join('')}</div>`:''}
+  <button class="btn" id="again">もう一度、島へ</button><button class="btn sub" id="totitle">タイトルへ</button></div>`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>app.querySelectorAll('.tb i').forEach(i=>i.style.width=i.dataset.w+'%')));
+  document.getElementById('again').onclick=()=>{newRun();render()};
+  document.getElementById('totitle').onclick=()=>{S=null;render()};
+}
+
+render();
+
+</script>
+</body>
+</html>
