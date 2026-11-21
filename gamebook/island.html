@@ -293,7 +293,7 @@ const ITEMS={
   shard:['青い石のかけら','🔷'], shell:['ヤシの殻','svg:shell'],
   coconut:['ヤシの実','🥥'], fruit:['木の実','🫐'], clam:['貝','🐚'], fish:['魚','🐟'], crab:['カニ','🦀'], egg:['海鳥の卵','🥚'],
   wshell:['殻に汲んだ水','svg:wshell'], bshell:['殻の湯冷まし','svg:bshell'], rain:['雨水','🌧️'],
-  gfish:['焼き魚','🐟+🔥'], gcrab:['焼きガニ','🦀+🔥'], gclam:['焼き貝','🐚+🔥'], gegg:['焼き卵','🥚+🔥'],
+  gfish:['焼き魚','🐟+🔥'], gcrab:['焼きガニ','🦀+🔥'], gclam:['焼き貝','🐚+🔥'], gegg:['目玉焼き','🍳'],
   thermos:['魔法瓶のミルクティー','svg:flask'], flask:['空の魔法瓶','svg:flask'], wflask:['魔法瓶に汲んだ水','svg:flask+💧'], bflask:['魔法瓶の湯冷まし','svg:flask+♨️'],
   imo:['野生の芋','🥔'], gimo:['焼き芋','🍠'], salt:['手作りの塩','🧂'], tea:['葉っぱのお茶','🍵'],
   knife:['石ナイフ','svg:knife'], rope:['ロープ','🪢'], torch:['松明','svg:torch'], pot:['土器','🏺'], rod:['釣り竿','🎣'],
@@ -472,11 +472,26 @@ C('beach','findcamp',{fixed:1,story:1,i:'🌙',t:'寝られる場所を探す',s
   ...ep('camp'),
   '「……うん。ここにしましょう」\n流木を何本か拾ってきて岩に立てかけると、小さなお部屋みたいになった。\n\n今夜から、ここが野営地。拾ったものも、ここに置いておける。']})});
 C('camp','work',{fixed:1,i:'svg:work',t:'作業をする',s:'道具や住まいを作る',c:[2,4],tags:['craft'],work:1});
+// 焼き方：[はじめて焼くとき, 二回目から]
+const COOKT={
+  fish:['小枝の皮をむいて、魚の口から尾のほうへ、波を縫うように刺していく。\n焚き火のまわりの砂に、斜めに立てて並べた。\n「遠火の強火じゃ」\n漁師のおじいさんの声を思い出して、炎から少し離す。近すぎると、皮だけ焦げて中は生のままになってしまう。\nじりじり、と脂が落ちて、炎がぱっと跳ねる。くるりと返して、もう半分。\n皮がきつね色にふくらんできたら、焼きあがり。','魚は小枝に刺して、遠火でじっくり焼いた。'],
+  crab:['焚き火の燠を少しよけて、平たい石を熱しておく。\nカニさんは、甲羅を下にして石の上へ。\n「……ごめんなさい。いただきます」\n黒っぽかった甲羅が、みるみるうちに赤く染まっていく。\n殻のすき間から、しゅわしゅわと潮の香りの湯気が上がった。','カニは甲羅を下にして、焼いた石の上で赤くなるまで焼いた。'],
+  clam:['貝は、口を上にして燠の上に並べる。\n「貝はね、ひっくり返さないの。おいしいおつゆがこぼれちゃうから」\n島のおばあちゃんに教わったとおり、じっと待つ。\nぱかっ。ぱかっ。\nひとつずつ口を開いていく貝の中で、おつゆがふつふつと煮立っていた。','貝は口を上にして燠に並べ、ぱかっと開くまで待った。'],
+  egg:['平たい石を焚き火にのせて、よく熱する。\n真ん中を少しくぼませておくと、白身が流れていかない。\n手をかざして、じんわり熱が伝わってくるくらいになったら――\n卵を石のかどでこつんと割って、そっと落とす。\nじゅっ。\n白身のふちがちりちりと、レースみたいに焼けていく。黄身は、まんまるのまま。\n「……ふふっ。目玉焼きだ」\nフライパンのかわりに、島の石。','卵は、焼いた石の上で目玉焼きにした。'],
+  imo:['芋は大きな葉で包んで、焚き火の下の、熱い灰の中に埋めた。\n「焼き芋はね、炎じゃなくて、灰でじっくり焼くのよ」\n島のおばあちゃんの言葉を思い出しながら、のんびり待つ。\n枝でつついて掘り出すと、葉っぱは真っ黒。\nそっと開くと、ほっくりした湯気が立ちのぼった。','芋は葉で包んで、熱い灰に埋めて焼いた。']
+};
 C('camp','cook',{fixed:1,i:'🐟+🔥',t:'焚き火で料理する',s:'焼けるものをまとめて焼く',c:[2,3],tags:['safe'],req:s=>s.fire,dis:s=>!Object.keys(COOK).some(k=>have(k)&&((k!=='wshell'&&k!=='wflask')||tool('pot')))&&'焼けるものがない',run:s=>{
-  const get={},done=[];for(const[k,to]of Object.entries(COOK)){if((k==='wshell'||k==='wflask')&&!tool('pot'))continue;if(k==='wpot'&&!have('wpot'))continue;const n=have(k);if(n){get[k]=-n;get[to]=(get[to]||0)+n;done.push(ITEMS[k][0]+'×'+n)}}
-  const food=done.filter(x=>!/水/.test(x)),water=get.bshell||get.bpot||get.bflask,salt=food.length&&have('salt')>0;if(salt)get.salt=-1;
-  const t=(food.length?'焚き火に平たい石をのせて、'+food.join('、')+'を順に焼いた。\n香ばしい匂いが岩陰に満ちる。'+(salt?'\n仕上げに、手作りの塩をひとつまみ。':'')+'「いただきます」\n食べ終わった器は、灰をまぶしてこすり洗い。':'')+(water?(food.length?'\n':'')+'汲んできた水は土器に移して、ぐらぐらと沸かしてから冷ました。':'');
-  return{get,d:{hp:salt?5:0},know:[water?'boil':null,food.length?'ash':null],photo:food.length?'cook':null,t:food.length?[t,...ep('cook')]:t}}});
+  const get={},foods=[];let water=0;
+  for(const[k,to]of Object.entries(COOK)){if((k==='wshell'||k==='wflask')&&!tool('pot'))continue;const n=have(k);if(!n)continue;get[k]=-n;get[to]=(get[to]||0)+n;if(COOKT[k])foods.push(k);else water=1}
+  const salt=foods.length&&have('salt')>0;if(salt)get.salt=-1;
+  const first=foods.filter(k=>!s.seen['cook:'+k]),again=foods.filter(k=>s.seen['cook:'+k]);
+  first.forEach(k=>s.seen['cook:'+k]=1);
+  const t=first.map(k=>COOKT[k][0]);
+  if(again.length)t.push((first.length?'ほかのものも、いつものように焼いた。\n':'')+again.map(k=>COOKT[k][1]).join('\n'));
+  if(foods.length)t.push('香ばしい匂いが、岩陰いっぱいに満ちる。'+(salt?'\n仕上げに、手作りの塩をひとつまみ。':'')+'\n焼きあがったものを、大きな葉っぱのお皿に並べた。\n使った石や器は、あとで灰をまぶしてこすり洗いしよう。');
+  if(water)t.push('汲んできた水は土器に移して、ぐらぐらと沸かしてから冷ました。');
+  if(foods.length)t.push(...ep('cook'));
+  return{get,d:{hp:salt?5:0},know:[water?'boil':null,foods.length?'ash':null],photo:foods.length?'cook':null,t}}});
 C('ruins','gate',{fixed:1,story:1,i:'🌀',t:'門にかけらをはめる',s:'青い石のかけら 3/3',c:[0,0],tags:['observe'],req:s=>inv('shard')>=3,run:s=>({choice:1,photo:'gate',t:[
   '門の柱の三つのくぼみに、青いかけらをひとつずつはめていく。\n最後のひとつがかちりと収まった瞬間、足もとの石が低くうなった。',
   '門の内側の霧が、ゆっくりと渦を巻きはじめる。\n渦の奥に、灯りが見えた。\nロケのテント。朝ごはんの湯気。浜辺を走りまわる、ふたつの人影。\n「……未央ちゃん。茜ちゃん」',
@@ -852,6 +867,8 @@ function finish(kind){
 }
 
 /* ----- eat / drink (リュック・野営地の蓄えから。時間は進まない) ----- */
+// はじめて食べるときだけ、描写を厚くする
+function firstEat(k,a,b){if(S.seen['eat:'+k])return b;S.seen['eat:'+k]=1;return a}
 function uses(k){
   const o=[];
   switch(k){
@@ -859,16 +876,16 @@ function uses(k){
     case 'tea': o.push({l:'飲む',e:'水分+22 体力+8',fn:()=>({d:{water:22,hp:8},get:{tea:-1},t:'ふうふう冷ましながら、葉っぱのお茶を飲んだ。\n体の奥から、ほっとあたたかくなる。'})});break;
     case 'bflask': o.push({l:'飲む',e:'水分+28',fn:()=>({d:{water:28},get:{bflask:-1,flask:1},t:'魔法瓶に入れておいた湯冷まし。ふたを開けると、ほんのりぬるい。\n魔法瓶の中だと、ほこりも虫も入らない。'})});break;
     case 'wflask': o.push({l:'そのまま飲む',e:'水分+24・お腹をこわすかも',warn:known('boil'),fn:()=>P(.4)?{d:{water:12,hp:-12,food:-6},get:{wflask:-1,flask:1},know:'boil',cause:'生水',t:'しばらくして、お腹がきりきり痛みだした。沸かせばよかった。'}:{d:{water:24},get:{wflask:-1,flask:1},t:'魔法瓶から、ごくごく飲んだ。'}});break;
-    case 'gimo': o.push({l:'食べる',e:'満腹+22 体力+3',fn:()=>({d:{food:22,hp:3},get:{gimo:-1},t:'焼き芋を半分に割ると、湯気がふわっと立ちのぼった。\nほくほくで、ほんのり甘い。かぼちゃの次に好きかもしれない。'})});break;
+    case 'gimo': o.push({l:'食べる',e:'満腹+22 体力+3',fn:()=>({d:{food:22,hp:3},get:{gimo:-1},t:firstEat('gimo','真っ黒になった葉っぱをはがして、焼き芋を半分に割る。\n湯気がふわっと立ちのぼった。\nほくほくで、ほんのり甘い。\n秋のロケで、三人で落ち葉の焚き火を囲んだことを思い出す。\n……かぼちゃの次に、好きかもしれない。','焼き芋を半分に割ると、湯気がふわっと立ちのぼった。ほくほく。')})});break;
     case 'imo': o.push({l:'生でかじる',e:'満腹+4・口がかゆくなる',warn:known('taro'),fn:()=>({d:{food:4,hp:-6},get:{imo:-1},know:'taro',cause:'生の芋',t:'ひと口かじったとたん、口の中がちくちくして、喉までかゆくなった。\n……やっぱり、火を通さなきゃだめなんだ。'})});break;
     case 'salt': o.push({l:'なめる',e:'体力+4 水分−2',fn:()=>({d:{hp:4,water:-2},get:{salt:-1},know:'salt',t:'汗をかいたから、塩をひとつまみ。\n体のだるさが、少しだけ抜けた。'})});break;
-    case 'coconut': if(have('stone')||have('knife'))o.push({l:'割って飲む',e:'水分+24 満腹+6',fn:()=>({d:{water:24,food:6},get:{coconut:-1,shell:1},know:'coconut',t:'殻を割ると、ほんのり甘い水があふれた。殻は器に使える。'})});
+    case 'coconut': if(have('stone')||have('knife'))o.push({l:'割って飲む',e:'水分+24 満腹+6',fn:()=>({d:{water:24,food:6},get:{coconut:-1,shell:1},know:'coconut',t:firstEat('coconut','石のかどで、殻のてっぺんをこつこつ叩く。\n何度目かで、ぱきっとひびが入った。\n口をつけると、ほんのり甘くて、ちょっと青くさい水。\n南の島スペシャルで飲んだのと、同じ味。「……うすい」って、三人で笑ったっけ。\n割った殻は、器に使える。','殻を割ると、ほんのり甘い水があふれた。殻は器に使える。')})});
       else o.push({l:'岩に叩きつける',e:'水分+15 満腹+4 体力−3',fn:()=>({d:{water:15,food:4,hp:-3},get:{coconut:-1},know:'coconut',t:'何度も叩きつけてようやく割れた。半分こぼれてしまった。石があれば楽なのに。'})});break;
-    case 'fruit': o.push({l:'食べる',e:'満腹+12 水分+5',fn:()=>({d:{food:12,water:5},get:{fruit:-1},t:'甘酸っぱい木の実をかじった。'})});break;
-    case 'gfish': o.push({l:'食べる',e:'満腹+26',fn:()=>({d:{food:26},get:{gfish:-1},t:'皮がぱりっと焼けた魚。脂が口に広がる。'})});break;
-    case 'gcrab': o.push({l:'食べる',e:'満腹+16',fn:()=>({d:{food:16},get:{gcrab:-1},t:'殻を割って、甘い身をほじった。'})});break;
-    case 'gclam': o.push({l:'食べる',e:'満腹+12',fn:()=>({d:{food:12},get:{gclam:-1},t:'焼けた貝の汁まですすった。'})});break;
-    case 'gegg': o.push({l:'食べる',e:'満腹+14',fn:()=>({d:{food:14},get:{gegg:-1},t:'濃い味の卵だ。'})});break;
+    case 'fruit': o.push({l:'食べる',e:'満腹+12 水分+5',fn:()=>({d:{food:12,water:5},get:{fruit:-1},t:firstEat('fruit','木の実を袖でみがいて、ひと口かじる。\n甘ずっぱい汁が、じゅっと口に広がった。\n種のまわりが、いちばん甘い。鳥さんたちが選ぶだけのことはある。','甘ずっぱい木の実をかじった。')})});break;
+    case 'gfish': o.push({l:'食べる',e:'満腹+26',fn:()=>({d:{food:26},get:{gfish:-1},t:firstEat('gfish','焼きたての串を、ふうふうしながらひと口。\n皮がぱりっと音を立てて、中からふっくらした白い身があらわれた。\n脂がじゅわっと口に広がる。塩がなくても、ちゃんと海の味がする。\n「……おいしい」\n思わず、誰もいない浜に向かって言ってしまった。','皮がぱりっと焼けた魚。脂が口に広がる。')})});break;
+    case 'gcrab': o.push({l:'食べる',e:'満腹+16',fn:()=>({d:{food:16},get:{gcrab:-1},t:firstEat('gcrab','赤くなった甲羅は、まだ熱い。ハンカチで包んで、そっと割る。\n脚を一本ずつ折って、細い枝で身をかき出した。\n……甘い。カニって、こんなに甘かったんだ。\n夢中でほじっているうちに、指先が潮の香りでいっぱいになった。\n茜ちゃんなら、殻ごとかじっちゃいそう。','殻を割って、甘い身をほじった。')})});break;
+    case 'gclam': o.push({l:'食べる',e:'満腹+12',fn:()=>({d:{food:12},get:{gclam:-1},t:firstEat('gclam','口を開けた貝を、こぼさないようにそっと持ち上げる。\nまずは、殻にたまったおつゆをひと口。\n……あったかい。海のスープみたい。\n身はぷりっとして、噛むほどに味が出てくる。','焼けた貝のおつゆまで、すすった。')})});break;
+    case 'gegg': o.push({l:'食べる',e:'満腹+14',fn:()=>({d:{food:14},get:{gegg:-1},t:firstEat('gegg','石の上の目玉焼きを、平たい貝殻ですくい上げる。\n黄身に小枝の先をそっと入れると、とろり、とあふれた。\n濃い味。いつもの卵より、ちょっとたくましい味がする。\n家の朝ごはんを、少しだけ思い出した。','目玉焼きを、黄身からとろりといただいた。')})});break;
     case 'wpot': o.push({l:'そのまま飲む',e:'水分+24・お腹をこわすかも',warn:known('boil'),fn:()=>{const last=(S.potW||1)<=1;S.potW=Math.max(0,(S.potW||1)-1);const g=last?{wpot:-1,pot:1}:{};return P(.4)?{d:{water:12,hp:-12,food:-6},get:g,know:'boil',cause:'生水',t:'しばらくして腹がきりきり痛みだした。沸かせばよかった。'}:{d:{water:24},get:g,t:'土器から直接ごくごく飲んだ。'+(last?'土器は空になった。':'')}}});break;
     case 'bpot': o.push({l:'飲む',e:'水分+28',fn:()=>{const last=(S.potW||1)<=1;S.potW=Math.max(0,(S.potW||1)-1);return{d:{water:28},get:last?{bpot:-1,pot:1}:{},t:'沸かして冷ました水。安心して飲める。'+(last?'土器は空になった。':'')}}});break;
     case 'bshell': o.push({l:'飲む',e:'水分+28',fn:()=>({d:{water:28},get:{bshell:-1,shell:1},t:'沸かして冷ました水。安心して飲める。殻は空になった。'})});break;
