@@ -683,14 +683,31 @@ const tkey=()=>S.day+'-'+S.slot+'-'+S.place;
 function revealRecipes(){const out=[];RECIPES.forEach(r=>{if(!S.recipes[r.id]&&r.req(S)&&r.show(S)){S.recipes[r.id]=1;out.push(r.t)}});return out}
 const busy=()=>!!(S.result||S.think||S.work||S.phase!=='play');
 
+// 水と食べものを手に入れる案（海水を飲む・知らない実やキノコは入れない）
+const LOWNEED=50;
+const FIND={water:['puddle','fetch','drinkraw','lake','fallen','palm'],food:['shells','tide','fruit','fallen','dig','eggs','rcrab','swim','handfish','rodfish','nest','seaweed']};
+function needNote(){
+  const here=k=>Object.values(CARDS).some(c=>c.p===S.place&&FIND[k].includes(c.id));
+  let x='';
+  if(S.water<LOWNEED)x+='喉が渇いて、水のことばかり考えてしまう。'+(here('water')?'':'……でも、ここには水がなさそう。浜辺の岩のくぼみや、森の奥の小川なら。');
+  if(S.food<LOWNEED)x+='お腹がすいて、食べもののことばかり考えてしまう。'+(here('food')?'':'……でも、ここには食べものがなさそう。浜辺や森なら。');
+  return x?x+'<br>':'';
+}
 function think(){
   if(busy()||S.thought[tkey()])return;
   S.thought[tkey()]=1;
   const h=handOf(S.place);
   const pool=Object.values(CARDS).filter(c=>c.p===S.place&&!c.fixed&&live(c)&&!h.includes(c.id));
   const en=pool.filter(c=>!disOf(c)),di=pool.filter(c=>disOf(c));
-  const pick=wpick(en,3);
-  if(di.length&&(pick.length<3||P(.25))){if(pick.length>=3){const j=pick.findIndex(c=>!c.once);pick.splice(j>=0?j:2,1)}pick.push(di[ri(0,di.length-1)])}
+  // 喉が渇いているとき・お腹がすいているときは、水や食べものを手に入れる案が必ずひとつ浮かぶ（危ない案より、確かな案を先に）
+  const must=[];
+  for(const[need,ids]of [[S.water<LOWNEED,FIND.water],[S.food<LOWNEED,FIND.food]].sort((a,b)=>(a[1]===FIND.water?S.water:S.food)-(b[1]===FIND.water?S.water:S.food))){
+    if(!need)continue;
+    const c=en.filter(c=>ids.includes(c.id)&&!must.includes(c)),safe=c.filter(c=>!c.tags.includes('risk'));
+    const got=wpick(safe.length?safe:c,1)[0];if(got)must.push(got);
+  }
+  const pick=[...must,...wpick(en.filter(c=>!must.includes(c)),3-must.length)];
+  if(di.length&&(pick.length<3||P(.25))){if(pick.length>=3){const j=pick.findIndex(c=>!c.once&&!must.includes(c));pick.splice(j>=0?j:2,1)}pick.push(di[ri(0,di.length-1)])}
   S.think={ids:pick.map(c=>c.id),swap:null};save();render();
 }
 function takeIdea(id){
@@ -984,7 +1001,7 @@ function renderMain(deal){
       document.getElementById('back').onclick=()=>{S.think.swap=null;render(false)};
       return;
     }
-    m.innerHTML=head+`<div class="thinkhead">💭 ${THINK[S.place]}<small>1つ選んで手札に加える（時間は進まない）</small></div>
+    m.innerHTML=head+`<div class="thinkhead">💭 ${THINK[S.place]}<small>${needNote()}1つ選んで手札に加える（時間は進まない）</small></div>
       <div class="cards">${T.ids.map((id,i)=>cardHTML(CARDS[id],{deal:i,idea:1})).join('')||'<p class="scene">何も思いつかない。</p>'}</div>
       <button class="btn sub" id="skip">どれもやめておく</button>`;
     m.querySelectorAll('.card').forEach(b=>b.onclick=()=>{if(b.classList.contains('off')){shake(b);return}takeIdea(b.dataset.id)});
