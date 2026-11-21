@@ -622,7 +622,7 @@ const needOf=r=>typeof r.need==='function'?r.need(S):r.need;
 // ひらめいたときの、藍子の思いつき
 const IDEA={
   fire:'乾いた流木と、枯れ枝。……これなら、火を起こせるかもしれない。\n手のひらをこすり合わせて、番組でやったことを思い出す。',
-  bed:'大きなヤシの葉。何枚も重ねたら、ふかふかの寝床になりそう。\n砂の上で眠るのは、もう寒いから。',
+  bed:s=>s.day>1?'大きなヤシの葉。何枚も重ねたら、ふかふかの寝床になりそう。\nゆうべは、砂の冷たさで何度も目が覚めた。あんな夜は、もういやだな。':'大きなヤシの葉。何枚も重ねたら、ふかふかの寝床になりそう。\n今夜は、砂の上じゃなくて、やわらかいところで眠りたいな。',
   knife:'黒くてつやのある石。割ったら、刃物になるかもしれない。\n考古学の先生が見せてくれた石に、よく似ている。',
   rope:'丈夫なツル。細く裂いて撚り合わせたら、ロープになるはず。\nおばあちゃんの手つきを、指がまだ覚えている。',
   basket:'ツルで骨組みを作って、ヤシの葉を編みこんだら……\n背負いかごがあれば、一度にもっとたくさん運べる。',
@@ -1043,7 +1043,7 @@ function renderMain(deal){
       else if(r.made)chips+=`<span class="get pos">✨ 完成：${r.made}</span>`;
       (r.disc||[]).forEach(p=>chips+=`<span class="get place">🗺️ 新しい場所：${PLACES[p].n}</span>`);
       if(chips)body+=`<div class="gets">${chips}</div>`;
-      body+=(r.ideas||[]).map(id=>{const rc=RECIPES.find(x=>x.id===id);return rc?`<div class="ideabox"><div class="klbl">💡 ひらめいた</div><b>${ic(rc.i)} ${esc(rc.t)}</b><p>${esc(IDEA[id]||'')}${LITE?'':'<br><small>（野営地の「作業をする」から作れる）</small>'}</p></div>`:''}).join('');
+      body+=(r.ideas||[]).map(id=>{const rc=RECIPES.find(x=>x.id===id);return rc?`<div class="ideabox"><div class="klbl">💡 ひらめいた</div><b>${ic(rc.i)} ${esc(rc.t)}</b><p>${esc((typeof IDEA[id]==='function'?IDEA[id](S):IDEA[id])||'')}${LITE?'':'<br><small>（野営地の「作業をする」から作れる）</small>'}</p></div>`:''}).join('');
       body+=knBox(r.kn)+photoHTML(r.photo,r.snapped);
       const nextLbl=r.intro?'はじめる':r.read?'閉じる':(S.hp<=0||r.dead)?'結果を見る':S.slot===2?'夜を迎える':(r.goto?PLACES[r.goto].n+'へ進む':S.slot===0?'昼へ進む':'夕方へ進む');
       btns=r.choice?`<button class="btn" id="goHome">門をくぐる（みんなのところへ）</button>`:`<button class="btn" id="next">${nextLbl}</button>`;
