@@ -347,6 +347,7 @@ const K={
   wetcold:['濡れた服は体温を奪う','水は空気よりずっと熱を伝えやすい。濡れた服のままだと、体温がどんどん奪われる。雨の夜は、屋根と乾いた寝床がいちばんの守り。','亜季さん'],
   cavelife:['洞窟で暮らさない理由','洞窟の中は一年じゅう気温が低めで湿気が多く、体も服も薪も乾きにくい。奥で火を焚くと煙がこもり、大雨のあとは水が出ることもある。それに、外から見つけてもらえない。休むなら入口の近くまで。','鍾乳洞の回'],
   akuni:['灰汁で繊維をとる','ツルや木の皮を灰汁で煮たり、熱い灰に埋めて蒸したりすると、かたい部分がやわらかくなる。水の中でしごくと繊維だけが残り、細くて丈夫な糸になる。藤布や葛布も、こうして作られてきた。','村のおばあちゃん'],
+  heat:['昼の暑さと汗','強い日差しの下では、汗で水分がどんどん出ていく。暑い時間は日陰を選び、頭を布などで守る。動くなら、朝夕の涼しいうちに。','亜季さん'],
   herbtea:['野草のお茶','ヨモギやドクダミのような身近な葉を、昔から干したり煎じたりしてお茶にしてきた。知っている葉だけを使う。','村のおばあちゃん'],
   greenflash:['グリーンフラッシュ','空気が澄んだ日、太陽が水平線に沈む瞬間に、上のふちが一瞬だけ緑に光ることがある。','未央ちゃん'],
   hikarigoke:['ヒカリゴケ','地球のヒカリゴケは自分では光らない。レンズのような細胞が、入ってきたわずかな光を返して光って見える。','鍾乳洞の回'],
@@ -817,6 +818,7 @@ function move(p){
   let msg=PLACES[p].n+'へ移動した'+(LITE?'':c.d?`（🍖−${c.food} 💧−${c.water}）`:'（すぐそこ）');
   if(S.water<=0){S.hp=clamp(S.hp-6);msg+='　喉がからからだ（♥−6）';S.cause='渇き'}
   if(S.food<=0){S.hp=clamp(S.hp-5);msg+='　足に力が入らない（♥−5）';S.cause='空腹'}
+  if(S.slot===1&&c.d&&!S.seen['do:noonheat']){S.seen['do:noonheat']=1;learn('heat');msg+='\n\nお日さまが、真上から照りつけてくる。\n少し歩いただけで、額から汗がつうっと流れて、首すじを伝っていく。\n足もとの照り返しがまぶしい。喉が、さっきよりずっと早く渇いていく。\n「……お昼は、汗で水が出ていっちゃうんだ」\n「日中は、なるべく日陰を選ぶのであります」\n亜季さんの言葉を思い出して、ハンカチを頭にのせ、木陰をつないで歩いた。'+(LITE?'':'\n（昼は、行動するたびに水分が多めに減る）')}
   S.place=p;S.stats.moves++;delete UI.newPlaces[p];S.justAdded=null;
   UI.moveMsg=msg;UI.moveErr=false;
   if(p==='camp'){const u=unload();if(u)UI.moveMsg+='\n'+u}
@@ -1091,7 +1093,7 @@ function cardHTML(c,o={}){
   }
   let sub=c.s;
   if(c.work){const n=RECIPES.filter(r=>S.recipes[r.id]&&r.req(S)&&!craftReason(r)).length;sub=n?`いま作れるもの：${n}`:'道具や住まいを作る'}
-  const costs=c.work?'<i class="cost">作るものを選ぶ</i>':(co.food?`<i class="cost f">🍖−${co.food}</i>`:'')+(co.water?`<i class="cost w">💧−${co.water}${heat()&&c.c[1]>0?'（暑さ+2）':''}</i>`:'')+(!co.food&&!co.water?'<i class="cost">消耗なし</i>':'')+(c.once&&!c.fixed?'<i class="cost once">一度きり</i>':'');
+  const costs=c.work?'<i class="cost">作るものを選ぶ</i>':(co.food?`<i class="cost f">🍖−${co.food}</i>`:'')+(co.water?`<i class="cost w">💧−${co.water}${!LITE&&heat()&&c.c[1]>0?'（暑さ+2）':''}</i>`:'')+(!co.food&&!co.water?'<i class="cost">消耗なし</i>':'')+(c.once&&!c.fixed?'<i class="cost once">一度きり</i>':'');
   const off=dis||so;const tag=o.tag||'button';
   return`<${tag} class="card ${off?'off':''} ${hurt&&!off?'warn':''} ${o.deal!=null?'deal':''} ${o.fresh?'fresh':''} ${o.cls||''}" ${o.deal!=null?`style="animation-delay:${o.deal*90}ms"`:''} data-id="${c.id}" ${off?'aria-disabled="true"':''}>
     <span class="ci" aria-hidden="true">${ic(c.i)}</span><span><span class="ct">${esc(c.t)}</span>${o.fresh?'<span class="newtag">NEW</span>':''}<div class="cs">${esc(sub)}</div></span>
