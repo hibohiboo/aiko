@@ -439,10 +439,13 @@ const PLACES={
 };
 const ORDER=['camp','beach','forest','rocks','stream','hill','cave','ruins'];
 const ARRIVE={
-  hill:['岩の手がかりをたどって、崖に体を預けた。\n「下は見ない、下は見ない……」\n一歩ずつ、手と足を交互に。風が背中を押してくる。','崖の上に出ると、急に視界が開けた。\n眼下に、歩いてきた浜辺と森が広がっている。\n「わぁ……」\n高いところは苦手だけど、この景色は好きかもしれない。'],
+  // ロープを持ってきたときはロープで登る。ロープなしでよじ登ったときは、登る場面はすでに描いてあるので景色から
+  hill:s=>[...(inv('rope')?['ロープの端に、こぶし大の石をしっかり結びつけた。\n崖のてっぺんのふちから、太い木の根が張り出している。あそこなら。\nひゅん、と投げる。一度目は届かない。二度目は岩にはね返された。\n三度目で、ロープが根にくるりと巻きついた。','体重をかけて、ぐっ、ぐっと引いてみる。……ほどけない。\n「ゆっくりでいい、目をそろえて」――そう自分に言い聞かせながら編んだ縄。大丈夫。\nロープを両手で握って、崖に体を預けた。\n「下は見ない、下は見ない……」\n足は岩のくぼみに、手はロープに。一歩ずつ、たぐりよせるように登っていく。風が背中を押してくる。']:[]),
+    '崖の上に出ると、急に視界が開けた。\n眼下に、歩いてきた浜辺と森が広がっている。\n「わぁ……」\n高いところは苦手だけど、この景色は好きかもしれない。'],
   cave:['松明を高く掲げて、割れ目に体をすべりこませた。\nひんやりした空気。足音が、どこまでも奥へ響いていく。\n「……お、おじゃまします」','炎の届くところだけ、濡れた岩壁が橙色に浮かび上がる。\n奥のほうで、何かがぼんやりと青く光っていた。'],
   ruins:['霧のなかを、手さぐりで進んだ。\n何度目かの坂を登りきったとき、ふいに霧が薄くなった。','苔むした石の柱が、輪になって並んでいる。\n人の手で切り出された石だ。その真ん中に、ひときわ大きな石の門が立っていた。\n\n門の向こうには、何もない。ただの霧。\n……どこかで、見たことがある形。']
 };
+const arriveOf=p=>typeof ARRIVE[p]==='function'?ARRIVE[p](S):ARRIVE[p];
 function sceneText(s){
   switch(s.place){
     case 'camp': return ['崖の岩陰の寝場所。流木を立てかけた風よけがある。','岩陰に、ヤシの葉を厚く敷いた寝床がある。','流木の柱にヤシの葉をふいた小屋。雨音が心地いい。','高床の家。潮風が床下を抜けていく。'][s.shelter]+(s.fire?'焚き火がぱちぱちとはぜている。':'火はまだない。')+(s.flags.birdFriend?'ルリが流木の上で羽をつくろっている。':'');
@@ -1010,7 +1013,7 @@ function renderMain(deal){
   const arrive=ARRIVE[S.place]&&(!S.arrived[S.place]||S.arrived[S.place]===tkey());
   if(arrive&&!S.arrived[S.place]){S.arrived[S.place]=tkey();save()}
   const journal=S.slot===0&&S.journal&&!S.think&&!S.work?`<div class="journal">${esc(S.journal)}</div>`:'';
-  const head=`${journal}<div class="scene"><span class="pname">${ic(pl.i)} ${pl.n}・${ic(SLOT_I[S.slot])} ${SLOTS[S.slot]}</span>${arrive?ARRIVE[S.place].map(esc).join('<br><br>'):esc(sceneText(S))}</div>`;
+  const head=`${journal}<div class="scene"><span class="pname">${ic(pl.i)} ${pl.n}・${ic(SLOT_I[S.slot])} ${SLOTS[S.slot]}</span>${arrive?arriveOf(S.place).map(esc).join('<br><br>'):esc(sceneText(S))}</div>`;
   if(S.work){
     const list=RECIPES.filter(r=>S.recipes[r.id]&&r.req(S)).map(r=>({r,why:craftReason(r)})).sort((a,b)=>(a.why?1:0)-(b.why?1:0));
     const co=costOf(CARDS.work.c);
