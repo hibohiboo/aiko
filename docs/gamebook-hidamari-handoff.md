@@ -16,8 +16,8 @@
 | パス | 中身 |
 |---|---|
 | `gamebook/hidamari.html` | **ゲーム本体。これが唯一の元データ。** HTML・CSS・JS が1ファイルに入っている。直接編集する |
-| `gamebook/index.html` | 章を選ぶ画面（陽だまりの章・藍子の章・絆の章の3枚の貼り紙） |
-| `gamebook/kizuna.html`, `gamebook/aiko.html` | ほかの2章。陽だまりの章とは別物。頼まれない限り触らない |
+| `gamebook/index.html` | 章を選ぶ画面（陽だまりの章・絆の章と、番外編の貼り紙） |
+| `gamebook/kizuna.html` | 絆の章（元にした章）。陽だまりの章とは別物。頼まれない限り触らない。藍子が主人公の「藍子の章」は 2026-11-21 に削除した |
 | `tools/gamebook/playtest.cjs` | 自動プレイ。全画面を描画して、例外や `undefined` の表示を探す |
 | `tools/gamebook/datacheck.cjs` | データと文面の点検（依頼ごとの台詞のそろい具合、読みにくい漢字、会話の「札」など） |
 | `dialogues/`, `analysis/` | 高森藍子の台詞と事実の資料。藍子の台詞を書くときの元ネタ |
