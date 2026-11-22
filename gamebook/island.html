@@ -463,6 +463,10 @@ const CL={
   stars:'北極星も、知っている星座も、どこにもなかった。',
   moss:'洞窟の苔は、光のない場所で自分から光っていた。',
   mural:'洞窟の壁画――ふたつの月、石の門、舟で流れ着く人たち。',
+  glowstone:'洞窟の奥の石は、火も日の光もないのに、自分で光っていた。',
+  ceiling:'洞窟の天井の光の粒は、ふたつの月の形にまたたいていた。',
+  glowfish:'地下の流れの魚は、骨が光っていた。',
+  cove:'崖の下の入り江では、海の水が内側から光っていた。',
   loop:'いかだで霧を抜けると、元の浜辺に戻っていた。',
   script:'石板の文字は、地球のどの文字にも似ていなかった。'
 };
@@ -641,11 +645,11 @@ C('cave','lake',{i:'💧',t:'地底湖の水を飲む',s:'岩にこされた水'
 C('cave','cavelife',{i:'🛖',t:'ここで暮らせないか考える',s:'雨もしのげるし、水もある',c:[1,2],tags:['observe'],once:1,w:3,run:s=>({know:'cavelife',t:['ひんやりした岩壁に、手を当てて考える。\n雨はしのげる。地底湖の水もある。苔のおかげで、真っ暗でもない。\n……ここに住めたら、楽かもしれない。','でも、しばらく座っていると、背中から冷えがしみこんでくる。\n外はあんなに暑いのに、ここは一日じゅう、ひんやりしたまま。\n岩壁はじっとり濡れていて、服も、拾ってきた枝も、乾きそうにない。','鍾乳洞の回で、ガイドさんが言っていた。\n「洞窟の中は、一年じゅうほとんど同じ温度なんだ。夏はすずしいけど、寝泊まりするには冷えすぎるし、湿気で体が冷える」\n「それに、奥で火を焚くと、煙の逃げ場がないからね」','足もとの砂に、波のようなすじが残っていた。岩壁の、私の背より高いところにも、水のあとの線。\n……大雨のあとは、地底湖の水がここまで上がってくるんだ。\nそれに、ここからは海が見えない。もし船が通っても、狼煙も、手を振ることもできない。','「……休ませてもらうのは、入口のあたりまでにしよう」\n住むのは、お日さまと海の見える、あの岩陰。\n洞窟は、水を汲みに来て、苔の光をながめに来る場所。']})});
 const light=()=>inv('torch')?'松明':'ほたる石';
 const DEEP=[
-  s=>({tool:'glow',photo:'glowstone',t:['松明の明かりの外、岩の割れ目の奥で、何かが青白く光っていた。\n手を伸ばすと、ころんとした石がひとつ、手のひらに転がりこんできた。','松明を背中に隠してみる。\n……石は、ひとりで光っていた。苔よりずっと明るい。足もとの小石まで、くっきり見える。\n「お月さまを、ちぎってきたみたい」\nあたたかくもない。重くもない。ポケットに入れると、布ごしに、ぽうっと青く透けた。\n「ほたる石、って呼ぶことにしますね」\n――これがあれば、松明がなくても洞窟を歩けそう。']}),
-  s=>({photo:'ceiling',d:{hp:4},t:['低い通路を抜けると、広い空洞に出た。\n'+light()+'の光を、そっと手でおおう。','見上げると、天井いっぱいに、小さな光の粒が散らばっていた。\n苔でも、石でもない。ひとつひとつが、ゆっくりまたたいている。\n……星空だ。洞窟の中に、星空がある。\n目でなぞっていくと、大きな丸と、小さな丸。そのまわりを、光の粒が輪になってめぐっている。\n「ふたつの、月……？」']}),
+  s=>({tool:'glow',clue:'glowstone',photo:'glowstone',t:['松明の明かりの外、岩の割れ目の奥で、何かが青白く光っていた。\n手を伸ばすと、ころんとした石がひとつ、手のひらに転がりこんできた。','松明を背中に隠してみる。\n……石は、ひとりで光っていた。苔よりずっと明るい。足もとの小石まで、くっきり見える。\n「お月さまを、ちぎってきたみたい」\nあたたかくもない。重くもない。ポケットに入れると、布ごしに、ぽうっと青く透けた。\n「ほたる石、って呼ぶことにしますね」\n――これがあれば、松明がなくても洞窟を歩けそう。']}),
+  s=>({clue:'ceiling',photo:'ceiling',d:{hp:4},t:['低い通路を抜けると、広い空洞に出た。\n'+light()+'の光を、そっと手でおおう。','見上げると、天井いっぱいに、小さな光の粒が散らばっていた。\n苔でも、石でもない。ひとつひとつが、ゆっくりまたたいている。\n……星空だ。洞窟の中に、星空がある。\n目でなぞっていくと、大きな丸と、小さな丸。そのまわりを、光の粒が輪になってめぐっている。\n「ふたつの、月……？」']}),
   s=>({d:{hp:10},t:['ぽちょん。ぽちょん。\n天井から垂れた鍾乳石の先から、しずくが落ちている。\nしずくが落ちるたびに、下の石の皿が、澄んだ音を鳴らす。','ド、ミ、ソ……。いくつも並んだ皿が、それぞれ違う高さで歌っている。\n「……ふふっ。伴奏、してくれるんですか？」\nしずくの音に合わせて、小さな声で歌ってみた。\n洞窟じゅうに声が広がって、ひとりなのに、みんなで歌っているみたいだった。']}),
-  s=>({photo:'glowfish',d:{hp:6},t:['細い地下の流れに、ほのかな光がいくつも浮かんでいた。\nしゃがんで、そっとのぞきこむ。\n……お魚さん。体が透きとおっていて、骨まで見える。その骨が、ぼんやり光っているんだ。','「七海ちゃんが見たら、きっと大はしゃぎですね」\n手をさし入れても、逃げない。指のまわりを、光がくるくる回った。\n……とるのは、やめておこう。ここは、この子たちのおうちだから。']}),
-  s=>({discover:['cove'],photo:'cove',t:['奥へ進むほど、'+light()+'の光が、ふわりと横に流れる。\n……風だ。洞窟の奥なのに、風が吹いてくる。それも、潮の匂いのする風。','風をたどって、狭いすき間を横向きになってすり抜ける。\n岩のざらざらが、背中とおなかをこすっていく。\n「ん、しょ……っ」\n……その先に、光が見えた。']})
+  s=>({clue:'glowfish',photo:'glowfish',d:{hp:6},t:['細い地下の流れに、ほのかな光がいくつも浮かんでいた。\nしゃがんで、そっとのぞきこむ。\n……お魚さん。体が透きとおっていて、骨まで見える。その骨が、ぼんやり光っているんだ。','「七海ちゃんが見たら、きっと大はしゃぎですね」\n手をさし入れても、逃げない。指のまわりを、光がくるくる回った。\n……とるのは、やめておこう。ここは、この子たちのおうちだから。']}),
+  s=>({discover:['cove'],clue:'cove',photo:'cove',t:['奥へ進むほど、'+light()+'の光が、ふわりと横に流れる。\n……風だ。洞窟の奥なのに、風が吹いてくる。それも、潮の匂いのする風。','風をたどって、狭いすき間を横向きになってすり抜ける。\n岩のざらざらが、背中とおなかをこすっていく。\n「ん、しょ……っ」\n……その先に、光が見えた。']})
 ];
 C('cave','deeper',{i:'svg:torch',t:'洞窟の奥へ進む',s:'足もとに注意',c:[5,7],tags:['explore'],run:s=>{const n=s.flags.deepN||0;s.flags.deepN=n+1;const k=s.flags.deepF||0;if(n>=3&&k<DEEP.length){s.flags.deepF=k+1;return DEEP[k](s)}const o={get:P(.5)?{stone:2}:{clay:1},t:'奥へ進むと、粘土質の床と崩れた岩があった。使えそうなものを拾う。'};if(P(.25)){o.d={hp:-8};o.hurt='天井に頭をぶつけた';o.t=hurtAdd(o.t,'head','ごつん。\n低い天井に、思いきり頭をぶつけた。目の前に星が散る。\n'+(inv('torch')?'松明を落としそうになって、あわてて握りなおす。……ここで火を落としたら、まっくらだ。':'ほたる石を落としそうになって、あわてて握りなおす。……これをなくしたら、まっくらだ。')+'\nしゃがみこんで、痛みが引くのを待った。\n鍾乳洞のロケで頭をぶつけていた茜ちゃんの気持ちが、ちょっとわかった。洞窟では、頭を低く。','低い天井に頭をぶつけた。……洞窟では、頭を低く。')}else if(P(.3))o.t+='\n足もとを何かがカサカサと横切った。「ひゃっ……！」虫は、苦手です。';return o}});
 // ---- cove ----
@@ -992,14 +996,32 @@ function morning(){
   S.night=null;S.phase='play';
   if(S.hp<=0){finish('dead');return}
   S.day++;S.slot=0;S.place=S.places.camp?'camp':'beach';S.think=null;S.work=false;S.justAdded=null;UI.moveMsg='';
-  if(S.day>30){finish('survive');return}
+  if(S.day>LASTDAY){finish('survive');return}
+  const ms=S.day-1;
+  if(MILESTONES.includes(ms)&&!S.seen['ms:'+ms]){S.phase='milestone';S.milestone=ms;save();render();window.scrollTo(0,0);return}
+  startDay();
+}
+function startDay(){
   track('day_start',{day:S.day});
   S.journal=morningLine();
   save();render();window.scrollTo(0,0);
 }
+// 区切りの日：ここで日記を閉じるか、もう少し島で暮らすか
+const MILESTONES=[30,50],LASTDAY=100;
+const DAYNAME={30:'三十日目',50:'五十日目',100:'百日目'};
+function renderMilestone(){
+  const d=S.milestone;
+  const home=S.places.ruins?(clueN(S)>=4?'霧の奥の石の門は、まだ閉じたまま。':'霧の奥へは、まだ進めない。'):'帰り道は、まだ見つかっていない。';
+  const t=d===30?DAYNAME[d]+'の朝。\n水の探し方も、火の起こし方も、もう体が覚えている。\n\n'+home+'\nでも、この島には、まだ知らない場所や、知らないことがある気がする。\n\nもう少し、この島で暮らしてみる？　それとも、ここで日記を閉じる？'
+    :DAYNAME[d]+'の朝。\n岩陰の野営地も、すっかり「おうち」になった。\n日記帳は、もう半分以上が埋まっている。\n\n'+home+'\n未央ちゃんと茜ちゃんの声を、ときどき思い出す。\n\nもう少し、この島で暮らしてみる？　それとも、ここで日記を閉じる？';
+  app.innerHTML='<div class="res"><div class="kind">'+d+'日</div><h1>'+DAYNAME[d]+'の朝</h1><p class="story">'+esc(t)+'</p>'+
+  '<button class="btn" id="goon">🌅 もう少し、この島で暮らす</button><button class="btn sub" id="closeday">📓 ここで日記を閉じる（エンディングへ）</button></div>';
+  document.getElementById('goon').onclick=()=>{S.seen['ms:'+d]=1;S.phase='play';S.milestone=null;startDay()};
+  document.getElementById('closeday').onclick=()=>finish('survive');
+}
 function finish(kind){
   S.phase='end';S.ending=kind;S.result=null;
-  S.daysSurvived=kind==='dead'?S.day-1:kind==='survive'?30:S.day;
+  S.daysSurvived=kind==='dead'||kind==='survive'?S.day-1:S.day;
   META.best=Math.max(META.best||0,S.daysSurvived);META.runs=(META.runs||0)+1;
   if(kind!=='dead')META.endings[kind]=1;
   track('ending',{ending:kind,day:S.daysSurvived,cause:kind==='dead'?(S.cause||'疲労'):'',clues:clueN(S),photos:S.album.length});
@@ -1066,6 +1088,7 @@ function render(deal){
   if(!S){renderTitle();return}
   if(S.phase==='end'){renderResult();return}
   if(S.phase==='night'){renderNight();return}
+  if(S.phase==='milestone'){renderMilestone();return}
   app.innerHTML=`<header class="hud" id="hud"></header>
   <div class="move-note" id="mnote"></div>
   <main id="main"></main>
@@ -1279,7 +1302,7 @@ function renderNight(){
   ${pageHTML(pg[pi],'page'+(pi?' turn':''))}
   ${last?`${knBox(n.kn)}${photoHTML(n.photo,n.snapped,n)}<div class="ledger">${n.lines.map(([a,b,c])=>`<div><span>${a}</span><span class="${c}">${b}</span></div>`).join('')}
   <div style="border-top:1px solid #ffffff30;margin-top:6px;padding-top:6px"><span>朝の状態</span><span>♥ ${S.hp}　🍖 ${S.food}　💧 ${S.water}</span></div></div>`:''}
-  <button class="btn" id="morn">${!last?'つづき ▸':S.hp<=0?'結果を見る':S.day>=30?'三十日目の朝へ':'朝を迎える'}</button></div>`;
+  <button class="btn" id="morn">${!last?'つづき ▸':S.hp<=0?'結果を見る':DAYNAME[S.day]?DAYNAME[S.day]+'の朝へ':'朝を迎える'}</button></div>`;
   const b=document.getElementById('morn');b.onclick=morning;b.focus({preventScroll:true});bindPhoto(renderNight);
 }
 function renderTitle(){
@@ -1305,7 +1328,7 @@ function renderResult(){
   const E={
     dead:['GAME OVER','力尽きる',`砂の上に倒れこんだ。\n波の音が、少しずつ遠くなっていく……\n\n「あーちゃーん！」\nどこかで、未央ちゃんの声が聞こえた気がした。\n\n原因：${S.cause||'疲労'}`],
     return:['ENDING','おかえりなさい','門をくぐった瞬間、ふたつの月の光が背中で重なった。\n霧が渦を巻いて、潮の匂いが変わる。'+(bird?'\n\n肩の上で、ルリが小さく鳴いた。ふり向くと、青い羽が一枚、霧の向こうへ舞っていった。'+(S.flags.charm?'\n足に結んだ飾り紐が、霧のなかで一瞬だけ、白く光った。':'')+'\n「……またね、ルリちゃん。どこかの森で、また会える気がする」':'')+'\n\n目を開けると、ポジパ島の浜辺だった。\n岩のアーチ。ロケのテント。朝ごはんの匂い。\n\n「あーちゃん！　どこ行ってたの、もう！」\n「藍子ちゃーーん！　探しましたよーっ！！」\n走ってくる未央ちゃんと茜ちゃん。その後ろで、プロデューサーさんが、ほっとしたように笑っていた。\n\n私がいなくなっていたのは、ほんの一時間だったそうです。\n\n「……ただいま。あのね、聞いてほしいお話が、たくさんあるんです」'+(al.includes('moons')?'\n\n後日、トイカメラの写真を現像したら、ふたつの月がちゃんと写っていました。\n三人で、しばらく何も言えませんでした。':al.length?'\n\n後日、トイカメラの写真を現像して、三人で一枚ずつ眺めました。\n「これ、どこ？」って聞かれて、私は「ないしょです」って笑いました。\nいちばんお気に入りの一枚は、歌鈴ちゃんとの「藍鈴ダイアリー」に貼りました。':'')],
-    survive:['ENDING','三十日目の朝','三十日目の朝。\n水の探し方も、火の起こし方も、もう体が覚えている。\n今日も、日記の最初に書く。\n「未央ちゃん、茜ちゃん、プロデューサーさんへ。私は元気です」\n\n霧の向こうに帰り道があると信じて、今日もゆっくり、浜辺をお散歩する。'+(bird?'\n肩の上には、ルリ。':'')]
+    survive:['ENDING',(DAYNAME[S.daysSurvived]||S.daysSurvived+'日目')+'の朝',(DAYNAME[S.daysSurvived]||S.daysSurvived+'日目')+'の朝。\n水の探し方も、火の起こし方も、もう体が覚えている。\n今日も、日記の最初に書く。\n「未央ちゃん、茜ちゃん、プロデューサーさんへ。私は元気です」\n\n霧の向こうに帰り道があると信じて、今日もゆっくり、浜辺をお散歩する。'+(bird?'\n肩の上には、ルリ。':'')]
   }[k];
   const tg=S.tags,max=Math.max(...Object.values(tg));
   const top=Object.keys(tg).sort((a,b)=>tg[b]-tg[a])[0];
@@ -1313,7 +1336,7 @@ function renderResult(){
   const placesN=Object.keys(S.places).length;
   app.innerHTML=`<div class="res"><div class="kind">${E[0]}</div><h1>${E[1]}</h1><p class="story">${esc(E[2])}</p>
   <div class="stats"><div class="big"><b>${S.daysSurvived}日</b>島で過ごした日数</div>
-  <div><b>${S.stats.actions}</b>行動</div><div><b>${placesN}/8</b>見つけた場所</div><div><b>${S.stats.made.length}</b>作ったもの</div>
+  <div><b>${S.stats.actions}</b>行動</div><div><b>${placesN}/${ORDER.length}</b>見つけた場所</div><div><b>${S.stats.made.length}</b>作ったもの</div>
   <div><b>${S.eps.length}</b>DASHの思い出</div><div><b>${clueN(S)}/${NCL}</b>気づいた違和感</div><div><b>${S.stats.hurts}</b>痛い目</div></div>
   <div class="persona"><div class="lbl">今回の藍子は</div><h3>${per[0]}</h3><p>${per[1]}</p>
   ${Object.keys(TAGS).map(t=>`<div class="tagbar ${t===top&&max>0?'top':''}"><span>${TAGS[t]}</span><span class="tb"><i style="width:0" data-w="${max?Math.round(tg[t]/max*100):0}"></i></span><span>${tg[t]}</span></div>`).join('')}</div>
