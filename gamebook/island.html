@@ -332,9 +332,9 @@ const packFull=()=>{const f=packN()>=cap();if(f)(S.want||(S.want={})).shard=1;re
 const EDIBLE=['thermos','tea','bflask','wflask','gimo','imo','salt','coconut','fruit','gfish','gcrab','gclam','gegg','bpot','bshell','rain','wpot','wshell','gshell','gflask','gpot','fish','clam','egg','crab'];
 const COOK={fish:'gfish',crab:'gcrab',clam:'gclam',egg:'gegg',imo:'gimo',wshell:'bshell',wflask:'bflask',wpot:'bpot'};
 const POT=['pot','wpot','bpot','gpot'];  // 土器は水が入っていても土器
-const TOOLS={knife:['石ナイフ','svg:knife'],rope:['ロープ','🪢'],basket:['背負いかご','🧺'],torch:['松明','svg:torch'],pot:['土器','🏺'],rod:['釣り竿','🎣'],catcher:['雨水だめ','🏺+🌧️'],raft:['いかだ','🛶'],crown:['花かんむり','🌼']};
+const TOOLS={knife:['石ナイフ','svg:knife'],rope:['ロープ','🪢'],basket:['背負いかご','🧺'],torch:['松明','svg:torch'],pot:['土器','🏺'],rod:['釣り竿','🎣'],catcher:['雨水だめ','🏺+🌧️'],raft:['いかだ','🛶'],crown:['花かんむり','🌼'],glow:['ほたる石','💎']};
 // 移動：道でつながった場所。野営地と浜辺はすぐそこ（0）
-const EDGES=[['camp','beach',0],['beach','forest',1],['beach','rocks',1],['forest','stream',1],['rocks','hill',1],['rocks','cave',1],['stream','ruins',1]];
+const EDGES=[['camp','beach',0],['beach','forest',1],['beach','rocks',1],['forest','stream',1],['rocks','hill',1],['rocks','cave',1],['cave','cove',1],['stream','ruins',1]];
 function dist(a,b){const D={};D[a]=0;const q=[a];while(q.length){q.sort((x,y)=>D[x]-D[y]);const u=q.shift();for(const[x,y,w]of EDGES){const v=x===u?y:y===u?x:null;if(v&&(D[v]==null||D[u]+w<D[v])){D[v]=D[u]+w;q.push(v)}}}return D[b]??3}
 const moveCost=(a,b)=>{const d=dist(a,b);return{d,food:d,water:d*2}};
 const SHELTER=['岩陰の砂の上','ヤシの葉の寝床','屋根のある小屋','高床の家'];
@@ -445,6 +445,10 @@ const PHOTO={
   moss:['✨','光る苔。暗くて、写らないかもしれない。'],
   mural:['🖐️','洞窟の壁画。ふたつの月と、石の門。'],
   moons:['🌕<span class="moon2">🌕</span>','ふたつの月。白い月と、小さな赤い月。'],
+  glowstone:['💎','ほたる石。手のひらの、小さなお月さま。'],
+  ceiling:['✨','洞窟の天井の星空。まんなかに、ふたつの月。'],
+  glowfish:['🐟','光る骨のお魚さん。ここは、この子たちのおうち。'],
+  cove:['🌌','光の入り江。崖の上からは、見えなかった場所。'],
   gate:['🌀','石の門。この向こうに、帰り道。']
 };
 const FILM=12;
@@ -471,15 +475,18 @@ const PLACES={
   rocks:{n:'岩場',i:'🪨'},
   stream:{n:'小川',i:'🏞️'},
   hill:{n:'崖の上',i:'⛰️',lock:s=>!(inv('rope')||s.flags.climbed)&&(owns('rope')?'ロープを持ってきていない':'登る手段がない')},
-  cave:{n:'洞窟',i:'🕳️',lock:s=>!inv('torch')&&(owns('torch')?'松明を持ってきていない':'真っ暗で進めない')},
+  cave:{n:'洞窟',i:'🕳️',lock:s=>!inv('torch')&&!s.tools.glow&&(owns('torch')?'松明を持ってきていない':'真っ暗で進めない')},
+  cove:{n:'光の入り江',i:'🌌',lock:s=>PLACES.cave.lock(s)},   // 洞窟を抜けた先。崖の真下で、上からは見えない
   ruins:{n:'霧の奥',i:'🏛️',lock:s=>clueN(s)<4&&'霧が深くて進めない'}
 };
-const ORDER=['camp','beach','forest','rocks','stream','hill','cave','ruins'];
+const ORDER=['camp','beach','forest','rocks','stream','hill','cave','cove','ruins'];
 const ARRIVE={
   // ロープを持ってきたときはロープで登る。ロープなしでよじ登ったときは、登る場面はすでに描いてあるので景色から
   hill:s=>[...(inv('rope')?['ロープの端に、こぶし大の石をしっかり結びつけた。\n崖のてっぺんのふちから、太い木の根が張り出している。あそこなら。\nひゅん、と投げる。一度目は届かない。二度目は岩にはね返された。\n三度目で、ロープが根にくるりと巻きついた。','体重をかけて、ぐっ、ぐっと引いてみる。……ほどけない。\n「ゆっくりでいい、目をそろえて」――そう自分に言い聞かせながら編んだ縄。大丈夫。\nロープを両手で握って、崖に体を預けた。\n「下は見ない、下は見ない……」\n足は岩のくぼみに、手はロープに。一歩ずつ、たぐりよせるように登っていく。風が背中を押してくる。\n\nあと少し、というところで、腕がぷるぷる震えだした。\n「も、もう腕が……むり……」\n茜ちゃんなら、ここからでも笑って登りきるのに。\nロープに額をつけて、三回、深呼吸。……もう一回だけ。最後の力で、ふちの根っこに手をかけた。']:[]),
     '崖の上に出ると、急に視界が開けた。\n眼下に、浜辺と、その奥に広がる森が見える。\n「わぁ……」\n高いところは苦手だけど、この景色は好きかもしれない。'],
   cave:['松明を高く掲げて、割れ目に体をすべりこませた。\nひんやりした空気。足音が、どこまでも奥へ響いていく。\n「……お、おじゃまします」','炎の届くところだけ、濡れた岩壁が橙色に浮かび上がる。\n奥のほうで、何かがぼんやりと青く光っていた。\n……雨もしのげそう。ここなら、暮らせたりしないかな。'],
+  cove:s=>['岩のすき間を抜けた先は、小さな入り江だった。\n頭の上には、崖が大きく張り出している。空は、岩の天井の裂け目から細く見えるだけ。\n'+(s.once.overlook?'……崖の上から島を見渡したとき、こんな場所はどこにもなかった。張り出した岩の真下だから、上からは見えないんだ。':'……この岩のひさしの下なら、崖の上からだって、きっと見えない。'),
+    '入り江の水は、内側から光っていた。\n青、碧、ほんの少しの金色。波が寄せるたびに、光が砂の上を這い上がって、ゆっくり引いていく。\n砂浜には、花びらみたいに薄い貝殻が散らばっていて、裂け目から落ちる日の光を受けて、虹色にきらめいていた。\n「……きれい」\nそれ以上、言葉が出てこなかった。\n未央ちゃん。茜ちゃん。いつか、三人でここに来たいな。'],
   ruins:s=>['霧のなかを、手さぐりで進んだ。\n何度目かの坂を登りきったとき、ふいに霧が薄くなった。','苔むした石の柱が、輪になって並んでいる。\n人の手で切り出された石だ。その真ん中に、ひときわ大きな石の門が立っていた。\n\n門の向こうには、何もない。ただの霧。'+(s.clues.mural?'\n……洞窟の壁画に描かれていた門と、同じ形。':'')]
 };
 const arriveOf=p=>typeof ARRIVE[p]==='function'?ARRIVE[p](S):ARRIVE[p];
@@ -491,7 +498,8 @@ function sceneText(s){
     case 'rocks': return '黒い岩が重なる岬。潮が引くと足場が広がる。';
     case 'stream': return '森の奥を流れる澄んだ小川。川底の粘土が足の裏にやわらかい。';
     case 'hill': return '島でいちばん高い場所。風が強くて、遠くまで見渡せる。足もとには白い小花。';
-    case 'cave': return '松明の火が濡れた岩壁を照らす。奥から水の滴る音が響いてくる。';
+    case 'cave': return (inv('torch')?'松明の火が':'ほたる石の青い光が')+'濡れた岩壁を照らす。奥から水の滴る音が響いてくる。';
+    case 'cove': return '崖の下にえぐれた、秘密の入り江。水が内側から青く光っている。';
     case 'ruins': return '苔むした石の柱の輪。真ん中に、古い石の門が立っている。';
   }
 }
@@ -618,7 +626,7 @@ function fetchWater(s,where){
   if(pk){if(pk!==g+'pot'){get[pk]=-1;get[g+'pot']=1}s.potW=s.flags.sealed?3:1;parts.push(s.flags.sealed?'土器（3杯分）':'土器')}
   if(pk&&!s.flags.sealed){s.flags.leaked=1;if(!have('imo'))(s.want||(s.want={})).imo=1}
   const leak=pk&&!s.flags.sealed?'\n……土器の底から、じわりと水がしみ出してくる。焼きたての器には、目に見えないすき間があるんだっけ。一杯分しか持ちそうにない。':'';
-  if(where==='lake')return{get,d:{water:30},know:'groundwater',t:'松明を岩のすき間に立てかけて、地底湖のほとりにしゃがむ。\nまずは両手ですくって、しんと冷えた水を、喉が満足するまで飲んだ。\n持ってきた'+parts.join('と')+'を、湖にそっと沈めて、水を満たした。\nこぼさないように葉でふたをする。'+leak+'\n岩のすき間を、長い時間をかけてしみ出してきた水。小川の水とは違って、このまま持って帰っても飲めそう。'};
+  if(where==='lake')return{get,d:{water:30},know:'groundwater',t:(inv('torch')?'松明を岩のすき間に立てかけて':'ほたる石を岩のくぼみに置いて')+'、地底湖のほとりにしゃがむ。\nまずは両手ですくって、しんと冷えた水を、喉が満足するまで飲んだ。\n持ってきた'+parts.join('と')+'を、湖にそっと沈めて、水を満たした。\nこぼさないように葉でふたをする。'+leak+'\n岩のすき間を、長い時間をかけてしみ出してきた水。小川の水とは違って、このまま持って帰っても飲めそう。'};
   return{get,t:'持ってきた'+parts.join('と')+'に、水を汲んだ。こぼさないように葉でふたをする。'+leak+(known('boil')?'\n野営地で沸かしてから飲もう。':'')};
 }
 C('stream','clay',{i:'🟤',t:'粘土を掘る',s:'焼けば器になる',c:[4,7],tags:['craft'],run:s=>({get:{clay:2},t:'川岸のきめこまかい粘土を、両手ですくい取った。\nひんやりして、肇ちゃんのおじいさんの工房と同じ匂いがする。'})});
@@ -627,11 +635,24 @@ C('stream','rodfish',{i:'🎣',t:'釣り糸を垂らす',s:'釣り竿を持っ�
 C('stream','wash',{i:'🫧',t:'水浴びをする',s:'汗と塩を落とす',c:[1,0],tags:['safe'],run:s=>({d:{hp:7},t:'冷たい水に体を沈める。肌に張りついていた塩が流れ落ちた。\n髪を結びなおすと、気持ちまでしゃんとする。'})});
 C('stream','upstream',{i:'🌫️',t:'上流をたどる',s:'水はどこから来るのだろう',c:[6,9],tags:['explore'],once:1,w:2,req:s=>!s.places.ruins,run:s=>{if(clueN(s)>=4)return{discover:['ruins'],t:['岩を越え、苔の斜面を登る。やがて濃い霧が立ちこめた。\n……この霧、なんだかなつかしい。','霧の切れ間に、石の柱が並んでいるのが見えた。\n自然にできたものじゃない。誰かが、ここに立てたものだ。']};return{discover:['ruins'],t:'上流へ行くほど霧が濃くなって、足もとも見えなくなった。引き返すしかない。\nこの霧の先へ進むには、まだ何かが足りない気がする。\nこの島のことを、もっとよく知らなきゃ。'}}});
 // ---- cave ----
-C('cave','moss',{i:'✨',t:'光る苔を観察する',s:'壁がぼんやり青い',c:[2,4],tags:['observe'],once:1,w:2,run:s=>({clue:'moss',know:'hikarigoke',photo:'moss',t:['岩壁の苔が、ぼんやりと青く光っている。\n松明を背中に隠してみた。\nまっくらな中で、苔だけが青く光り続けていた。',...ep('cave'),'鍾乳洞のガイドさんは、ヒカリゴケは自分では光らないって言っていた。\n……じゃあ、この苔は？']})});
-C('cave','mural',{i:'🖐️',t:'壁画を調べる',s:'岩肌に何か描かれている',c:[3,5],tags:['observe'],once:1,w:2,run:s=>s.flags.muralLeft?(packFull()?{keep:1,t:'壁画の下のくぼみで、青いかけらが光っている。'+FULLSHARD}:{get:{shard:1},t:'壁画の下のくぼみから、残しておいた青いかけらをそっと外した。\nかけらは手のひらで、かすかに光った。'}):(f=>{if(f)s.flags.muralLeft=1;return{clue:'mural',keep:f,get:f?{}:{shard:1},photo:'mural',t:['奥の岩壁に、赤い顔料で絵が描かれていた。\n松明を近づける。','空に、大小ふたつの円。\nその下に、柱が並ぶ石の門。\n海の上には舟。舟から降りる、小さな人の姿がいくつも。\n「私みたいに、迷いこんだ人たち……？」','絵の下のくぼみに、青い石のかけらがはめこまれていた。'+(f?FULLSHARD:'\nそっと外すと、かけらは手のひらでかすかに光った。')]}})(packFull())});
+C('cave','moss',{i:'✨',t:'光る苔を観察する',s:'壁がぼんやり青い',c:[2,4],tags:['observe'],once:1,w:2,run:s=>({clue:'moss',know:'hikarigoke',photo:'moss',t:['岩壁の苔が、ぼんやりと青く光っている。\n'+light()+'を背中に隠してみた。\nまっくらな中で、苔だけが青く光り続けていた。',...ep('cave'),'鍾乳洞のガイドさんは、ヒカリゴケは自分では光らないって言っていた。\n……じゃあ、この苔は？']})});
+C('cave','mural',{i:'🖐️',t:'壁画を調べる',s:'岩肌に何か描かれている',c:[3,5],tags:['observe'],once:1,w:2,run:s=>s.flags.muralLeft?(packFull()?{keep:1,t:'壁画の下のくぼみで、青いかけらが光っている。'+FULLSHARD}:{get:{shard:1},t:'壁画の下のくぼみから、残しておいた青いかけらをそっと外した。\nかけらは手のひらで、かすかに光った。'}):(f=>{if(f)s.flags.muralLeft=1;return{clue:'mural',keep:f,get:f?{}:{shard:1},photo:'mural',t:['奥の岩壁に、赤い顔料で絵が描かれていた。\n'+light()+'を近づける。','空に、大小ふたつの円。\nその下に、柱が並ぶ石の門。\n海の上には舟。舟から降りる、小さな人の姿がいくつも。\n「私みたいに、迷いこんだ人たち……？」','絵の下のくぼみに、青い石のかけらがはめこまれていた。'+(f?FULLSHARD:'\nそっと外すと、かけらは手のひらでかすかに光った。')]}})(packFull())});
 C('cave','lake',{i:'💧',t:'地底湖の水を飲む',s:'岩にこされた水',c:[1,0],tags:['safe'],run:s=>({d:{water:35},know:'groundwater',t:['しんと冷えた水。舌に何の味も残らない。',...ep('well')]})});
 C('cave','cavelife',{i:'🛖',t:'ここで暮らせないか考える',s:'雨もしのげるし、水もある',c:[1,2],tags:['observe'],once:1,w:3,run:s=>({know:'cavelife',t:['ひんやりした岩壁に、手を当てて考える。\n雨はしのげる。地底湖の水もある。苔のおかげで、真っ暗でもない。\n……ここに住めたら、楽かもしれない。','でも、しばらく座っていると、背中から冷えがしみこんでくる。\n外はあんなに暑いのに、ここは一日じゅう、ひんやりしたまま。\n岩壁はじっとり濡れていて、服も、拾ってきた枝も、乾きそうにない。','鍾乳洞の回で、ガイドさんが言っていた。\n「洞窟の中は、一年じゅうほとんど同じ温度なんだ。夏はすずしいけど、寝泊まりするには冷えすぎるし、湿気で体が冷える」\n「それに、奥で火を焚くと、煙の逃げ場がないからね」','足もとの砂に、波のようなすじが残っていた。岩壁の、私の背より高いところにも、水のあとの線。\n……大雨のあとは、地底湖の水がここまで上がってくるんだ。\nそれに、ここからは海が見えない。もし船が通っても、狼煙も、手を振ることもできない。','「……休ませてもらうのは、入口のあたりまでにしよう」\n住むのは、お日さまと海の見える、あの岩陰。\n洞窟は、水を汲みに来て、苔の光をながめに来る場所。']})});
-C('cave','deeper',{i:'svg:torch',t:'洞窟の奥へ進む',s:'足もとに注意',c:[5,7],tags:['explore'],run:s=>{const o={get:P(.5)?{stone:2}:{clay:1},t:'奥へ進むと、粘土質の床と崩れた岩があった。使えそうなものを拾う。'};if(P(.25)){o.d={hp:-8};o.hurt='天井に頭をぶつけた';o.t=hurtAdd(o.t,'head','ごつん。\n低い天井に、思いきり頭をぶつけた。目の前に星が散る。\n松明を落としそうになって、あわてて握りなおす。……ここで火を落としたら、まっくらだ。\nしゃがみこんで、痛みが引くのを待った。\n鍾乳洞のロケで頭をぶつけていた茜ちゃんの気持ちが、ちょっとわかった。洞窟では、頭を低く。','低い天井に頭をぶつけた。……洞窟では、頭を低く。')}else if(P(.3))o.t+='\n足もとを何かがカサカサと横切った。「ひゃっ……！」虫は、苦手です。';return o}});
+const light=()=>inv('torch')?'松明':'ほたる石';
+const DEEP=[
+  s=>({tool:'glow',photo:'glowstone',t:['松明の明かりの外、岩の割れ目の奥で、何かが青白く光っていた。\n手を伸ばすと、ころんとした石がひとつ、手のひらに転がりこんできた。','松明を背中に隠してみる。\n……石は、ひとりで光っていた。苔よりずっと明るい。足もとの小石まで、くっきり見える。\n「お月さまを、ちぎってきたみたい」\nあたたかくもない。重くもない。ポケットに入れると、布ごしに、ぽうっと青く透けた。\n「ほたる石、って呼ぶことにしますね」\n――これがあれば、松明がなくても洞窟を歩けそう。']}),
+  s=>({photo:'ceiling',d:{hp:4},t:['低い通路を抜けると、広い空洞に出た。\n'+light()+'の光を、そっと手でおおう。','見上げると、天井いっぱいに、小さな光の粒が散らばっていた。\n苔でも、石でもない。ひとつひとつが、ゆっくりまたたいている。\n……星空だ。洞窟の中に、星空がある。\n目でなぞっていくと、大きな丸と、小さな丸。そのまわりを、光の粒が輪になってめぐっている。\n「ふたつの、月……？」']}),
+  s=>({d:{hp:10},t:['ぽちょん。ぽちょん。\n天井から垂れた鍾乳石の先から、しずくが落ちている。\nしずくが落ちるたびに、下の石の皿が、澄んだ音を鳴らす。','ド、ミ、ソ……。いくつも並んだ皿が、それぞれ違う高さで歌っている。\n「……ふふっ。伴奏、してくれるんですか？」\nしずくの音に合わせて、小さな声で歌ってみた。\n洞窟じゅうに声が広がって、ひとりなのに、みんなで歌っているみたいだった。']}),
+  s=>({photo:'glowfish',d:{hp:6},t:['細い地下の流れに、ほのかな光がいくつも浮かんでいた。\nしゃがんで、そっとのぞきこむ。\n……お魚さん。体が透きとおっていて、骨まで見える。その骨が、ぼんやり光っているんだ。','「七海ちゃんが見たら、きっと大はしゃぎですね」\n手をさし入れても、逃げない。指のまわりを、光がくるくる回った。\n……とるのは、やめておこう。ここは、この子たちのおうちだから。']}),
+  s=>({discover:['cove'],photo:'cove',t:['奥へ進むほど、'+light()+'の光が、ふわりと横に流れる。\n……風だ。洞窟の奥なのに、風が吹いてくる。それも、潮の匂いのする風。','風をたどって、狭いすき間を横向きになってすり抜ける。\n岩のざらざらが、背中とおなかをこすっていく。\n「ん、しょ……っ」\n……その先に、光が見えた。']})
+];
+C('cave','deeper',{i:'svg:torch',t:'洞窟の奥へ進む',s:'足もとに注意',c:[5,7],tags:['explore'],run:s=>{const n=s.flags.deepN||0;s.flags.deepN=n+1;const k=s.flags.deepF||0;if(n>=3&&k<DEEP.length){s.flags.deepF=k+1;return DEEP[k](s)}const o={get:P(.5)?{stone:2}:{clay:1},t:'奥へ進むと、粘土質の床と崩れた岩があった。使えそうなものを拾う。'};if(P(.25)){o.d={hp:-8};o.hurt='天井に頭をぶつけた';o.t=hurtAdd(o.t,'head','ごつん。\n低い天井に、思いきり頭をぶつけた。目の前に星が散る。\n'+(inv('torch')?'松明を落としそうになって、あわてて握りなおす。……ここで火を落としたら、まっくらだ。':'ほたる石を落としそうになって、あわてて握りなおす。……これをなくしたら、まっくらだ。')+'\nしゃがみこんで、痛みが引くのを待った。\n鍾乳洞のロケで頭をぶつけていた茜ちゃんの気持ちが、ちょっとわかった。洞窟では、頭を低く。','低い天井に頭をぶつけた。……洞窟では、頭を低く。')}else if(P(.3))o.t+='\n足もとを何かがカサカサと横切った。「ひゃっ……！」虫は、苦手です。';return o}});
+// ---- cove ----
+C('cove','covelook',{i:'🌌',t:'入り江をながめる',s:'岩の裂け目から光が落ちてくる',c:[1,2],tags:['observe'],once:1,w:2,run:s=>({d:{hp:8},t:['砂の上に腰を下ろして、入り江をながめた。\n岩の天井の裂け目から、光の柱が一本、まっすぐ水面に落ちている。\n光の柱の中を、細かい粒がきらきら舞っていた。','水面の光と、柱の光がまじりあって、入り江ぜんぶが、ゆっくり呼吸しているみたい。\n……写真に撮っても、きっとこの感じは写らない。\nそれでも、ここに来たことは、ちゃんと覚えていたい。']})});
+C('cove','glowwade',{i:'🌊',t:'光る浅瀬を歩く',s:'足もとで、光がほどける',c:[1,2],tags:['safe'],run:s=>({d:{hp:10},t:firstDo('glowwade','靴を脱いで、浅瀬に足をひたした。\nひんやり。一歩ふみ出すたびに、足のまわりで光がふわっとほどけて、星みたいに散らばっていく。\n「わぁ……！」\nくるっと回ってみる。光の輪が、くるくる広がった。\n……誰も見ていないから、もう一回だけ。','光る浅瀬を、ゆっくり歩いた。足のまわりで、光がふわっとほどけていく。')})});
+C('cove','coveshell',{i:'🐚',t:'虹色の貝殻を拾う',s:'花びらみたいに薄い',c:[1,2],tags:['observe'],once:1,run:s=>({d:{hp:6},t:'砂の上の貝殻を、ひとつ拾い上げる。\n花びらみたいに薄くて、光にかざすと、虹色が透けて見えた。\n「ひとつだけ、いただいていきますね」\nハンカチに包んで、胸のポケットにしまった。帰ったら、加奈ちゃんに見せてあげたいな。'})});
+C('cove','coveclam',{i:'🐚',t:'浅瀬で貝を探す',s:'光る砂の下に',c:[3,5],tags:['safe'],run:s=>({get:{clam:ri(1,2)},t:'光る砂を指でそっと掘ると、貝が出てきた。\n貝の殻まで、ほんのり青く光っている。……食べても、大丈夫ですよね？'})});
 // ---- hill ----
 C('hill','overlook',{i:'🏝️',t:'島を見渡す',s:'島の形を確かめる',c:[3,6],tags:['explore','observe'],once:1,w:2,run:s=>{const o={noGo:1,clue:'fogwall',photo:'overlook',t:['島は、思っていたより小さい。歩いて一日でひと回りできそう。\n浜辺、森、岩場。'+(s.fire?'自分の野営地の煙も見える。':'崖の下に、野営地の岩陰も見える。'),'視線を沖へ移す。\n……どの方角も、海の少し先で、白い霧が壁のように立ちのぼっている。\n空と海の境目が、どこにも見えなかった。']};if(!s.places.stream){o.discover=['stream'];o.t.push('森の中に、光る筋が見えた。小川だ。')}return o}});
 C('hill','stars',{i:'🌌',t:'星が出るのを待つ',s:'夕方だけ',c:[2,4],tags:['observe'],slot:2,once:1,w:2,run:s=>({clue:'stars',know:'polaris',photo:'stars',t:['日が沈んで、空いっぱいに星が広がった。\nこんなに星の多い空は、はじめて。',...ep('stars'),'北の空を探す。ひしゃくの形。カシオペヤのW。\n目をこらしても、どの星をつないでも、見覚えのある形にならない。\n「……未央ちゃん。北極星、どこにもないよ」']})});
@@ -786,7 +807,7 @@ const busy=()=>!!(S.result||S.think||S.work||S.phase!=='play');
 const LOWNEED=50;
 // 材料が手に入る案（欲しいものがあるとき、浮かびやすくなる）
 const GIVES={vine:['vines'],twig:['twigs','tidy'],leaf:['twigs','tidy'],stone:['stones'],shell:['fallen'],clay:['clay'],imo:['dig'],herb:['herb'],flower:['flowers'],wood:['driftwood'],fruit:['fruit','bird'],shard:['mural','nest','rubble']};
-const FIND={water:['puddle','fetch','lakefetch','drinkraw','lake','fallen','palm'],food:['shells','tide','fruit','fallen','dig','eggs','rcrab','swim','handfish','rodfish','nest','seaweed']};
+const FIND={water:['puddle','fetch','lakefetch','drinkraw','lake','fallen','palm'],food:['shells','tide','fruit','fallen','dig','eggs','rcrab','coveclam','swim','handfish','rodfish','nest','seaweed']};
 // 知っている場所のうち、水や食べものが手に入りそうなところ
 function goNote(k){const P=k==='water'?[['beach','浜辺の岩のくぼみ'],['stream','小川'],['cave','地底湖'],['forest','森のヤシの木']]:[['beach','浜辺'],['forest','森'],['rocks','岩場'],['stream','小川']];
   const l=P.filter(([p])=>S.places[p]&&p!==S.place).map(x=>x[1]);return l.length?l.slice(0,2).join('や')+'なら。':''}
@@ -798,9 +819,9 @@ function needNote(){
   return x?x+'<br>':'';
 }
 // 着いたときの描写に出てきたものは、その場所で最初に思いつく
-const FIRSTIDEA={beach:['flotsam','toforest','sos'],forest:['bird'],rocks:['tide','stones'],stream:['drinkraw','clay'],cave:['moss','cavelife'],hill:['overlook','flowers']};
+const FIRSTIDEA={beach:['flotsam','toforest','sos'],forest:['bird'],rocks:['tide','stones'],stream:['drinkraw','clay'],cave:['moss','cavelife'],hill:['overlook','flowers'],cove:['covelook','glowwade']};
 // 新しい場所へ行く案（これが浮かばないと先へ進めないので出やすくする。ただ、喉が渇いていたりお腹がすいていたりすると、足が遠のく）
-const GOIDEA=['toforest','cape','deep','crack','lookup','upstream'];
+const GOIDEA=['toforest','cape','deep','crack','lookup','upstream','deeper'];
 function think(){
   if(busy()||S.thought[tkey()])return;
   S.thought[tkey()]=1;
@@ -817,7 +838,7 @@ function think(){
   }
   const firstK='idea:'+S.place,first=!S.seen[firstK];S.seen[firstK]=1;
   for(const id of first?FIRSTIDEA[S.place]||[]:[]){const c=en.find(c=>c.id===id);if(c&&!must.includes(c)&&must.length<3)must.push(c)}
-  const go=en.filter(c=>GOIDEA.includes(c.id)&&!must.includes(c));
+  const go=en.filter(c=>GOIDEA.includes(c.id)&&!must.includes(c)&&(c.id!=='deeper'||!S.places.cove));
   if(go.length&&must.length<3&&S.water>=LOWNEED&&S.food>=LOWNEED&&P(.6))must.push(wpick(go,1)[0]);
   const pick=[...must,...wpick(en.filter(c=>!must.includes(c)),3-must.length)];
   if(di.length&&(pick.length<3||P(.25))){if(pick.length>=3){const j=pick.findIndex(c=>!c.once&&!must.includes(c));pick.splice(j>=0?j:2,1)}pick.push(di[ri(0,di.length-1)])}
