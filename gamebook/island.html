@@ -930,7 +930,7 @@ function doNight(){
 }
 function morningLine(){
   const d=S.day;let x;
-  if(d===7)x='島に来て一週間。岩に七本目の線を刻んだ。\n'+(S.seen['do:firstsnap']?'写真を撮らない日も、日記の最後はいつも同じ。':'日記の最後は、いつも同じ。')+'「今日も、生きています」';
+  if(d===7)x='島に来て一週間。岩に七本目の線を刻んだ。\n'+(S.seen['do:todayphoto']?'写真を撮らない日も、日記の最後はいつも同じ。':'日記の最後は、いつも同じ。')+'「今日も、生きています」';
   else if(d===14)x='二週間がたった。もう、波の音がしないと眠れない気がする。';
   else if(d===21)x='三週間。手のひらの皮が、すっかり厚くなった。握力、ついたかも。';
   else if(d===28)x='もうすぐ、ひと月。ポジパDASHなら、何回分の放送になるかな。';
@@ -1053,9 +1053,9 @@ function renderPlaces(){
 function deltaChips(d){return[['♥','hp'],['🍖','food'],['💧','water']].filter(([,k])=>d[k]).map(([n,k])=>`<span class="get ${d[k]<0?'neg':'pos'}">${n} ${d[k]>0?'+':''}${d[k]}</span>`).join('')}
 function knBox(list){return(list||[]).map(x=>x.fresh?`<div class="kbox"><div class="klbl">${K[x.k][2]?'📺 ポジパDASHで教わったこと・'+esc(K[x.k][2]):'📓 藍子のメモ'}</div><b>${K[x.k][0]}</b><p>${K[x.k][1]}</p></div>`:`<div class="kbox old"><div class="klbl">📺 思い出した</div><b>${K[x.k][0]}</b></div>`).join('')}
 function pageHTML(p,cls){if(p&&p.ep)return`<div class="ep${cls&&/turn/.test(cls)?' page turn':''}"><div class="eph">📺 ポジパDASH ${esc(p.ep)}</div><p>${esc(p.t)}</p></div>`;return`<p class="${cls||'story'}">${esc(p)}</p>`}
-function photoHTML(id,snapped,first){if(!id||!PHOTO[id])return'';if(S.album.includes(id))return!snapped?'':`<div class="snap done">📷 撮った：${esc(PHOTO[id][1])}</div>${first?(first.map(p=>pageHTML(p)).join('')+`<p class="story">日記の最後に、一行書きそえる。
+function photoHTML(id,snapped,o){const first=o&&o.firstSnap,diary=o&&o.snapDiary;if(!id||!PHOTO[id])return'';if(S.album.includes(id))return!snapped?'':`<div class="snap done">📷 撮った：${esc(PHOTO[id][1])}</div>${first?first.map(p=>pageHTML(p)).join(''):''}${diary?(`<p class="story">日記の最後に、一行書きそえる。
 「今日の1枚。今日も、生きています」</p>`):''}`;if(S.film<=0)return'<div class="snap done">📷 フィルムが、もう残っていない</div>';return`<button class="snap" id="snap" data-ph="${id}">📷 この瞬間を撮る<small>のこり ${S.film} 枚</small></button>`}
-function bindPhoto(after){const b=document.getElementById('snap');if(b)b.onclick=()=>{const id=b.dataset.ph;if(S.album.includes(id)||S.film<=0)return;S.album.push(id);S.film--;META.photos[id]=1;const o=S.phase==='night'?S.night:S.result;if(o){o.snapped=1;if(!S.seen['do:firstsnap']){S.seen['do:firstsnap']=1;o.firstSnap=ep('tsubaki')}}save();after()}}
+function bindPhoto(after){const b=document.getElementById('snap');if(b)b.onclick=()=>{const id=b.dataset.ph;if(S.album.includes(id)||S.film<=0)return;S.album.push(id);S.film--;META.photos[id]=1;const o=S.phase==='night'?S.night:S.result;if(o){o.snapped=1;if(!S.seen['do:firstsnap']){S.seen['do:firstsnap']=1;o.firstSnap=ep('tsubaki')}if(S.day>=3&&!S.seen['do:todayphoto']){S.seen['do:todayphoto']=1;o.snapDiary=1}}save();after()}}
 function albumHTML(list){return`<div class="album">${list.map(id=>`<figure class="ph"><div class="phi">${ic(PHOTO[id][0])}</div><figcaption>${esc(PHOTO[id][1])}</figcaption></figure>`).join('')}</div>`}
 function renderMain(deal){
   const m=document.getElementById('main');
@@ -1076,7 +1076,7 @@ function renderMain(deal){
       (r.disc||[]).forEach(p=>chips+=`<span class="get place">🗺️ 新しい場所：${PLACES[p].n}</span>`);
       if(chips)body+=`<div class="gets">${chips}</div>`;
       body+=(r.ideas||[]).map(id=>{const rc=RECIPES.find(x=>x.id===id);return rc?`<div class="ideabox"><div class="klbl">💡 ひらめいた</div><b>${ic(rc.i)} ${esc(rc.t)}</b><p>${esc((typeof IDEA[id]==='function'?IDEA[id](S):IDEA[id])||'')}${LITE?'':'<br><small>（野営地の「作業をする」から作れる）</small>'}</p></div>`:''}).join('');
-      body+=knBox(r.kn)+photoHTML(r.photo,r.snapped,r.firstSnap);
+      body+=knBox(r.kn)+photoHTML(r.photo,r.snapped,r);
       const nextLbl=r.intro?'はじめる':r.read?'閉じる':(S.hp<=0||r.dead)?'結果を見る':S.slot===2?'夜を迎える':(r.goto?PLACES[r.goto].n+'へ進む':S.slot===0?'昼へ進む':'夕方へ進む');
       btns=r.choice?`<button class="btn" id="goHome">門をくぐる（みんなのところへ）</button>`:`<button class="btn" id="next">${nextLbl}</button>`;
     }
@@ -1227,7 +1227,7 @@ function renderNight(){
   const n=S.night,pg=pages(n.t),pi=n.page||0,last=pi>=pg.length-1;
   app.innerHTML=`<div class="nightwrap"><h2>${S.day}日目の夜</h2><div class="sky" aria-hidden="true">🌕${S.clues.moons?'<span class="moon2">🌕</span>':''}　✦ ✧</div>
   ${pageHTML(pg[pi],'page'+(pi?' turn':''))}
-  ${last?`${knBox(n.kn)}${photoHTML(n.photo,n.snapped,n.firstSnap)}<div class="ledger">${n.lines.map(([a,b,c])=>`<div><span>${a}</span><span class="${c}">${b}</span></div>`).join('')}
+  ${last?`${knBox(n.kn)}${photoHTML(n.photo,n.snapped,n)}<div class="ledger">${n.lines.map(([a,b,c])=>`<div><span>${a}</span><span class="${c}">${b}</span></div>`).join('')}
   <div style="border-top:1px solid #ffffff30;margin-top:6px;padding-top:6px"><span>朝の状態</span><span>♥ ${S.hp}　🍖 ${S.food}　💧 ${S.water}</span></div></div>`:''}
   <button class="btn" id="morn">${!last?'つづき ▸':S.hp<=0?'結果を見る':S.day>=30?'三十日目の朝へ':'朝を迎える'}</button></div>`;
   const b=document.getElementById('morn');b.onclick=morning;b.focus({preventScroll:true});bindPhoto(renderNight);
