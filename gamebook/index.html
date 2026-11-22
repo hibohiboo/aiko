@@ -29,7 +29,9 @@ a.flyer::before{content:"";position:absolute;top:6px;left:50%;width:9px;height:9
 .x{font-family:var(--fn);font-size:14px;line-height:1.75}
 .note{font-size:12px;color:var(--mute);margin:0}
 @media (prefers-reduced-motion:reduce){a.flyer{transition:none}}
+html.lite .k,html.lite .x,html.lite .note{display:none}
 </style>
+<script>if(/github.io$/.test(location.hostname)&&!/[?&]debug/.test(location.search))document.documentElement.classList.add("lite")</script>
 </head>
 <body>
 <main>

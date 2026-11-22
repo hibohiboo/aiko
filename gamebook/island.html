@@ -1222,7 +1222,7 @@ function renderTitle(){
   ${run&&run.phase!=='end'?`<button class="btn" id="cont">つづきから（${run.day}日目・${SLOTS[run.slot]||'夜'}）</button><button class="btn sub" id="start">はじめから</button>`:'<button class="btn" id="start">はじめる</button>'}
   <div class="meta"><div><b>${META.best||0}日</b>最長の日数</div><div><b>${Object.keys(META.endings||{}).length}/2</b>エンディング</div><div><b>${ne}/${Object.keys(EP).length}</b>DASHの思い出</div></div>
   ${ne||META.runs?'<button class="btn sub" id="notebook">📓 手帳を見る</button>':''}
-  <div class="howto">・高森藍子が、番組『ポジパDASH』で教わった知恵を頼りに、ひとりで島を生きのびる。<br>・「考える」と案が3つ浮かぶ。1つ選んで、その場所の手札（3枚まで）に加える。<br>・手札の行動を選ぶと時間が進む（1日に朝・昼・夕の3回）。<br>・行動すると満腹と水分が減る。どちらかが0になると体力が減り、0で終わり。<br>・移動には満腹と水分を使う。遠い場所ほど多く減る。<br>・作ることと火で焼くことは、野営地でしかできない。<br>・新しいことをすると、番組の思い出がよみがえる。<br>・トイカメラのフィルムは${FILM}枚。残したい瞬間を選んで撮ろう。</div>
+  ${LITE?"":`<div class="howto">・高森藍子が、番組『ポジパDASH』で教わった知恵を頼りに、ひとりで島を生きのびる。<br>・「考える」と案が3つ浮かぶ。1つ選んで、その場所の手札（3枚まで）に加える。<br>・手札の行動を選ぶと時間が進む（1日に朝・昼・夕の3回）。<br>・行動すると満腹と水分が減る。どちらかが0になると体力が減り、0で終わり。<br>・移動には満腹と水分を使う。遠い場所ほど多く減る。<br>・作ることと火で焼くことは、野営地でしかできない。<br>・新しいことをすると、番組の思い出がよみがえる。<br>・トイカメラのフィルムは${FILM}枚。残したい瞬間を選んで撮ろう。</div>`}
   <a class="back" href="index.html">← お話の一覧へ</a></div>`;
   document.getElementById('start').onclick=()=>{if(run&&run.phase!=='end'&&!confirmReset())return;newRun();render()};
   const c=document.getElementById('cont');if(c)c.onclick=()=>{S=run;UI=freshUI();render()};
