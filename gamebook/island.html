@@ -270,6 +270,7 @@ nav.bottom.three .badge{top:5px;left:auto;right:6%}
 .ideabox b{font-size:14px}
 .ideabox p{font-family:var(--serif);font-size:13px;line-height:1.8;margin:4px 0 0;white-space:pre-line;color:#4a3b22}
 .ideabox small{font-family:var(--sans);font-size:11px;color:var(--muted)}
+.title .wipe{margin-top:18px;font-size:12px;opacity:.75}
 </style>
 <!-- アクセス解析（Google アナリティクス）。github.io で ?debug を付けないときだけ読み込む。説明は about.html -->
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
@@ -1240,7 +1241,8 @@ function renderTitle(){
   <div class="meta"><div><b>${META.best||0}日</b>最長の日数</div><div><b>${Object.keys(META.endings||{}).length}/2</b>エンディング</div><div><b>${ne}/${Object.keys(EP).length}</b>DASHの思い出</div></div>
   ${ne||META.runs?'<button class="btn sub" id="notebook">📓 手帳を見る</button>':''}
   ${LITE?"":`<div class="howto">・高森藍子が、番組『ポジパDASH』で教わった知恵を頼りに、ひとりで島を生きのびる。<br>・「考える」と案が3つ浮かぶ。1つ選んで、その場所の手札（3枚まで）に加える。<br>・手札の行動を選ぶと時間が進む（1日に朝・昼・夕の3回）。<br>・行動すると満腹と水分が減る。どちらかが0になると体力が減り、0で終わり。<br>・移動には満腹と水分を使う。遠い場所ほど多く減る。<br>・作ることと火で焼くことは、野営地でしかできない。<br>・新しいことをすると、番組の思い出がよみがえる。<br>・トイカメラのフィルムは${FILM}枚。残したい瞬間を選んで撮ろう。</div>`}
-  <a class="back" href="index.html">← お話の一覧へ</a></div>`;
+  <a class="back" href="index.html">← お話の一覧へ</a>${LITE?'':'<button class="btn sub wipe" id="wipe">🗑 保存データを消す（debug）</button>'}</div>`;
+  const wp=document.getElementById('wipe');if(wp)wp.onclick=()=>{if(!confirm('この島の保存データ（進行中の記録・手帳・アルバム・最長日数）をすべて消します。よろしいですか？'))return;store.del('aiko_drift_run1');store.del('aiko_drift_meta1');location.reload()};
   document.getElementById('start').onclick=()=>{if(run&&run.phase!=='end'&&!confirmReset())return;newRun();render()};
   const c=document.getElementById('cont');if(c)c.onclick=()=>{S=run;UI=freshUI();render()};
   const nb=document.getElementById('notebook');if(nb)nb.onclick=()=>{UI.noteTab='ep';openSheet('know')};

@@ -1007,7 +1007,8 @@ function clearQuest(){const q=S.q,Q=QS[q.id],r=Q.rw,first=!S.done[q.id],before=r
  S.rw={id:q.id,got,say,perf,up:rankI()>before?RK[rankI()]:null};S.q=null;S.scr='reward'}
 let _tt;function toast(m){const t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.toggle('on',true);clearTimeout(_tt);_tt=setTimeout(()=>t.classList.toggle('on',false),3000)}
 const A={
- new(){S=fresh();S.scr='og';track('game_start')},cont(){S=saved;if(S.scr==='title')S.scr='og'},
+ new(){S=fresh();S.scr='og';track('game_start')},
+ wipe(){if(!confirm('ギルドの保存データ（進行中の記録と、集めた称号）をすべて消します。よろしいですか？'))return true;try{localStorage.removeItem(KEY);localStorage.removeItem(TKEY)}catch(e){}location.reload();return true},cont(){S=saved;if(S.scr==='title')S.scr='og'},
  og(d){track('choice',{scene:'og',pick:d.t});S.og=d.t;S.sk[d.t]=2;S.scr='org'},
  org(d){track('choice',{scene:'org',pick:d.o});S.org=d.o;S.scr='og2'},
  og2(d){track('choice',{scene:'og2',pick:d.t});S.sk[d.t]++;S.sub=d.t;enterGuild()},
@@ -1073,7 +1074,7 @@ const V={
 title(){return `<section class="title"><p class="eyebrow">ゲームブック　陽だまりの章</p><h1>辺境ギルドの<br>冒険者</h1><p class="sub">異世界から来た少女と歩く、冒険者暮らし</p>
 <p class="nar">辺境都市ラズベル。魔物の森と古い迷宮に挟まれたこの街では、腕に覚えのある者はみな、ギルド「銀の秤亭」の扉をくぐる。<br>あなたの手にあるのは、いくつかの身につけた技と、わずかな銀貨だけ。</p>
 ${COL.length?`<p class="sub">これまでの旅で集めた称号　${COL.length} / ${TL.length}</p>`:''}
-<div class="stack">${saved?go('cont','続きから',{s:`ランク${RK[(S=saved,rankI())]}・名声${saved.fame}`})+go('new','最初から始める',{alt:1}):go('new','ギルドの扉をくぐる')}</div></section>`},
+<div class="stack">${saved?go('cont','続きから',{s:`ランク${RK[(S=saved,rankI())]}・名声${saved.fame}`})+go('new','最初から始める',{alt:1}):go('new','ギルドの扉をくぐる')}</div>${LITE?'':`<div class="stack" style="margin-top:18px;opacity:.75">${go('wipe','🗑 保存データを消す（debug）',{alt:1})}</div>`}</section>`},
 og(){return `<div class="head"><h2>得意な技</h2><p>受付嬢が登録用紙を差し出す。まず、いちばん自信のある技を書き入れる（Lv2で開始）。</p></div><div class="hand two">${TK.map(t=>fuda({t,a:'og',d:`data-t="${t}"`,name:JOB[t],x:MAIN[t],foot:`${T[t].n} Lv2`})).join('')}</div>`},
 org(){return `<div class="head"><h2>あなたの生まれ</h2><p>次の欄は「出身」。${JOB[S.og]}のあなたは、どこで育ったのだろう。</p></div><div class="hand">${Object.entries(ORG).map(([k,o])=>fuda({a:'org',d:`data-o="${k}"`,ty:'出身',gl:'郷',name:o.n,x:o.x})).join('')}</div>`},
 og2(){const o=ORG[S.org];return `<div class="head"><h2>もうひとつの縁</h2><p>${o.x}　そこで、誰かに教わったことがある（+1Lv）。得意と同じ系統を選べば、さらに伸びる。${LITE?'このあとは、依頼をこなすたびに腕が上がっていく。':'このあとは経験値札がたまるたび、自動で札を覚えていく。こちらがLv3になるまでは得意と交互に、そのあとは得意を2回、こちらを1回の順に。'}</p></div><div class="hand two">${TK.map(t=>fuda({t,a:'og2',d:`data-t="${t}"`,name:`${T[t].n} +1`,x:o.y[t]})).join('')}</div>`},
