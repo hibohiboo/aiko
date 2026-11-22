@@ -1121,7 +1121,7 @@ function renderMain(deal){
     const list=RECIPES.filter(r=>S.recipes[r.id]&&r.req(S)).map(r=>({r,why:craftReason(r)})).sort((a,b)=>(a.why?1:0)-(b.why?1:0));
     const co=costOf(CARDS.work.c);
     m.innerHTML=head+`<div class="thinkhead">🔨 何を作ろう？${LITE?'':`<small>作ると時間が進む（🍖−${co.food} 💧−${co.water}）。材料は野営地の蓄えとリュックから使う。</small>`}</div>`+
-      (list.map(({r,why})=>{const mats=Object.entries(needOf(r)).map(([k,n])=>`<span class="mat ${have(k)>=n?'ok':'short'}">${ic(ITEMS[k][1])}${ITEMS[k][0]} ${have(k)}/${n}</span>`).join('')+(r.tools||[]).map(t=>`<span class="mat ${S.tools[t]?'ok':'short'}">${ic(TOOLS[t][1])}${TOOLS[t][0]}</span>`).join('')+(r.fire?`<span class="mat ${S.fire?'ok':'short'}">🔥火</span>`:'');
+      (list.map(({r,why})=>{const mats=Object.entries(needOf(r)).map(([k,n])=>`<span class="mat ${have(k)>=n?'ok':'short'}">${ic(ITEMS[k][1])}${ITEMS[k][0]} ${have(k)}/${n}</span>`).join('')+(r.tools||[]).map(t=>`<span class="mat ${tool(t)?'ok':'short'}">${ic(TOOLS[t][1])}${TOOLS[t][0]}</span>`).join('')+(r.fire?`<span class="mat ${S.fire?'ok':'short'}">🔥火</span>`:'');
         return`<div class="row"><span class="ri">${ic(r.i)}</span><span class="rn">${r.t}${r.id==='fire'?`<small>${bowOK()?'弓きり式（ツルを弦に使う）で成功しやすい':known('bowdrill')?'ツルがあれば弓きり式にできる':'うまくいくとは限らない'}</small>`:''}<div class="mats">${mats}</div></span><button class="mini" data-craft="${r.id}" ${why?'disabled':''}>${why?esc(why):'作る'}</button></div>`}).join('')||'<p class="hint" style="text-align:left">まだ、作れそうなものを思いつかない。<br>島で何かを拾ってくれば、ひらめくかもしれない。</p>')+
       `<button class="btn sub" id="cancelwork">やめる</button>`;
     m.querySelectorAll('[data-craft]').forEach(b=>b.onclick=()=>craft(RECIPES.find(r=>r.id===b.dataset.craft)));
