@@ -551,7 +551,7 @@ C('beach','flotsam',{i:'👀',t:'漂着物を調べる',s:'波打ち際に何が
   const r=R();if(r<.4)return{get:{coconut:1},t:'波に転がされていたヤシの実を見つけた。'};if(r<.75)return{get:{leaf:2},t:'打ち上げられたヤシの葉が使えそうだ。'};return{get:{wood:1,twig:1},t:'目ぼしいものはない。小さな流木と枝を拾った。'}}});
 C('beach','horn',{i:'🐚',t:'大きな巻き貝を吹いてみる',s:'両手で抱えるほどの巻き貝',c:[1,2],tags:['observe'],once:1,w:1.5,run:s=>({d:{hp:6},t:['波打ち際に、両手で抱えるほどの巻き貝が転がっていた。\n先っぽが欠けて、穴があいている。\n……芳乃ちゃんの、ほら貝みたい。','エフェメラのみんなで集まった日、芳乃ちゃんがほら貝を見事に鳴らしてくれたことがあります。\n「ぶおおー」\n「藍子さんもー、いかがでしてー？」\n私が吹いたら、すうっと息のもれる音しか出なくて。まゆちゃんと智絵里ちゃんが、くすくす笑っていました。','息を吸って、思いきり吹いてみる。\n……ぷすー。\n「ふふっ。やっぱり、だめですね」\nでも肩の力が抜けて、ちょっとだけ元気が出た。']})});
 C('beach','shells',{i:'🐚',t:'波打ち際で貝を探す',s:'砂を掘って貝をとる',c:[3,6],tags:['safe'],run:s=>({get:{clam:ri(1,2)},t:'引き波のあとに残る小さな穴。指で掘ると、貝が出てきた。'})});
-C('beach','tide',{i:'🦀',t:'潮だまりをのぞく',s:'取り残された生き物を探す',c:[4,7],tags:['observe','explore'],run:s=>{
+C('rocks','tide',{i:'🦀',t:'潮だまりをのぞく',s:'取り残された生き物を探す',c:[4,7],tags:['observe','explore'],run:s=>{
   if(!s.clues.crab)return{clue:'crab',know:'tidepool',get:{crab:1},photo:'crab',t:['潮だまりの底に、カニさんがいた。\n「こんにちは。……ちょっとだけ、ごめんなさい」\n甲羅をつまんで持ち上げると、脚がわらわらと宙をかく。',...ep('tide'),'一本、二本……脚は10本。七海ちゃんのクイズの答えと、同じ。\nでも、ハサミが3本あった。\n「……え？」','となりの潮だまりのカニも、そのとなりのカニも、そっとのぞいてみた。\n……どのカニさんも、ハサミが3本。']};
   const o={t:'',get:{}};const r=R();if(r<.5){o.get.crab=1;o.t='岩のすき間からカニを引っぱり出した。'}else if(r<.75){o.get.fish=1;o.t='逃げ場をなくした小魚を、手ですくった。'}else{o.get.clam=1;o.t='岩に貼りついた貝をはがした。'}
   if(P(.15)){o.d={hp:-5};o.t=hurtAdd(o.t,'slip','濡れた岩で、つるりと足がすべった。\nとっさに手をついて、膝をしたたかにすりむく。血がにじんだ。\n潮だまりの水で傷を洗いながら、ふと思う。……ここで頭を打っていたら。\n濡れた岩の上では、海藻のついていないところを選んで歩こう。','濡れた岩で足をすべらせて、膝をすりむいた。')}return o}});
@@ -572,7 +572,7 @@ C('forest','vines',{i:'🌿',t:'ツルを集める',s:'縄や結び目に使え�
 C('forest','twigs',{i:'svg:twig',t:'枯れ枝とヤシの葉を拾う',s:'燃料と屋根の材料',c:[3,6],tags:['craft'],run:s=>({get:{twig:2,leaf:ri(1,2)},t:'乾いた枝と、大きなヤシの葉を集めた。'})});
 C('forest','herb',{i:'🌱',t:'いい香りの葉を摘む',s:'どこかで嗅いだことのある香り',c:[2,4],tags:['safe'],run:s=>({get:{herb:2},t:['葉をちぎって香りをかぐと、ヨモギに似たやさしい匂いがした。\n村のおばあちゃんの縁側を思い出す。\n知っている葉っぱに、ちゃんと似ているものだけを選んで摘んだ。',...ep('plants'),(s.recipes.tea?'香りのいい葉を、両手いっぱいに摘んだ。':'……これ、お茶にできないかな。')]})});
 C('forest','dig',{i:'🥔',t:'芋を掘る',s:'ハート形の大きな葉の根もと',c:[5,7],tags:['craft'],run:s=>P(.7)?{get:{imo:ri(1,2)},know:'taro',t:firstDo('dig','タロイモに似た、ハート形の大きな葉。根もとを石で掘ると、ごつごつした芋が出てきた。\n「生で食べちゃだめよ。口がかゆくなるからね」\n村のおばあちゃんの声がする。焚き火で焼こう。','ハート形の葉の根もとを掘って、芋を掘り出した。')+(s.flags.leaked&&!s.flags.sealed?'\n……そういえば、新しい土器は、最初に何かを煮るといいんだっけ。':'')}:{t:'掘っても掘っても、細い根ばかりだった。\n手が泥だらけになった。'}});
-C('forest','flowers',{i:'🌼',t:'白い小花を摘む',s:'木もれ日の原っぱに咲いている',c:[2,3],tags:['observe'],run:s=>({get:{flower:ri(2,3)},t:'原っぱに、シロツメクサに似た白い花が咲いていた。\n「ごめんね、少しだけ」\n摘んだ花を手のひらにのせると、甘い香りがした。\n夕美さんなら、この花の名前もすぐにわかるのかな。'})});
+C('hill','flowers',{i:'🌼',t:'白い小花を摘む',s:'風に揺れる草地に咲いている',c:[2,3],tags:['observe'],run:s=>({get:{flower:ri(2,3)},t:'崖の上の草地に、シロツメクサに似た白い花が咲いていた。\n「ごめんね、少しだけ」\n摘んだ花を手のひらにのせると、甘い香りがした。\n夕美さんなら、この花の名前もすぐにわかるのかな。'})});
 C('forest','palm',{i:'🌴',t:'ヤシの木に登る',s:'実と葉がまとめて手に入る',c:[6,8],tags:['risk'],run:s=>{if(P(.3))return{d:{hp:-10},get:{coconut:1},hurt:'木から落ちた',cause:'転落',t:firstHurt('palm',['幹にしがみついて、少しずつ登っていく。\nあと少し。実に手が届きそう――','そこで、うっかり下を見てしまった。\n思っていたより、ずっと高い。くらり、と目の前が揺れる。\n手のひらが、汗ですべった。','背中から、砂の上に落ちた。\n息が止まる。しばらく、空しか見えなかった。\n……下が砂でよかった。岩だったら、と思うと、ぞっとする。','体を起こして、手足をひとつずつ動かしてみる。痛いけど、折れてはいない。\n転がってきた実をひとつだけ拾って、そろそろと帰った。'],'途中で下を見てしまって、手がすべった。背中から砂に落ちる。\n転がってきた実をひとつだけ拾った。')};return{get:{coconut:2,leaf:1},t:'下は見ないで、幹にしがみついて登りきった。\n実をふたつ落として、そろそろと降りる。……膝が笑ってる。'}}});
 C('forest','fallen',{i:'🥥',t:'落ちたヤシの実を探す',s:'木の根もとを見て回る',c:[3,5],tags:['safe'],run:s=>P(.7)?{get:{coconut:1},t:'根もとの草むらに、熟した実がひとつ落ちていた。'}:{get:{shell:1},t:'あるのは割れて乾いた殻ばかり。\nきれいに半分に割れたものをひとつ拾った。器になりそうだ。'}});
 C('forest','deep',{i:'🌳',t:'森の奥へ分け入る',s:'水の音がした気がする',c:[6,10],tags:['explore'],once:1,w:2,req:s=>!s.places.stream,run:s=>{if(P(known('followdown')?.75:.5))return{discover:['stream'],know:['followdown','birdwater'],want:'shell',t:['喉がからから。水を探さなきゃ。\n「迷ったら、沢へ下りちゃいけないよ。落ち着いて、来た道を引き返すの」\n山歩き名人のおばあさんの言葉が、頭の中で聞こえる。',...ep('forest'),'立ち止まって、目を閉じた。耳をすます。\n葉のざわめき。虫の羽音。それから、鳥の声。\n……あちこちで鳴いているけれど、右手の奥のほうだけ、いくつもの声が重なって、にぎやかだ。\n「鳥はね、毎日水を飲みに行くの。鳥がたくさん鳴いているほうに、水はあるよ」\nこれも、おばあさんの言葉。','迷っているわけじゃない。来た道は、まだちゃんとわかる。\nそれに、今は水がいる。鳥の声のするほうへ。\n通った枝にツルを結んで目印にしながら、地面のくぼみに沿って、少しずつ下りた。\n子どものころは、迷子になってばかりだった。だから、ふり返って目印を確かめるのを忘れない。','さらさら、と音がした。\n茂みを抜けた先に、澄んだ小川が流れていた。\n思わずかけ寄って、手を浸す。冷たい。\n……でも、このまま飲んで大丈夫かな。']};return{keep:1,d:{water:-4},know:'followdown',t:['シダをかき分けて進むうちに、どっちから来たのかわからなくなった。\n胸がどきどきする。……子どものころ、迷子になったときと同じ。','「迷ったら、落ち着いて、来た道を引き返すの」\n深呼吸して、折れた枝と足あとをたどって、森の入口まで戻った。\n次は、通った道に目印を残しながら進もう。',...ep('forest')]}}});
@@ -784,8 +784,8 @@ function needNote(){
   return x?x+'<br>':'';
 }
 // 着いたときの描写に出てきたものは、その場所で最初に思いつく
-const FIRSTIDEA={forest:['bird'],rocks:['stones'],stream:['drinkraw','clay'],cave:['moss','cavelife'],hill:['overlook']};
-// 新しい場所へ行く案（これが浮かばないと先へ進めないので、出せるときは必ず出す）
+const FIRSTIDEA={forest:['bird'],rocks:['tide','stones'],stream:['drinkraw','clay'],cave:['moss','cavelife'],hill:['overlook','flowers']};
+// 新しい場所へ行く案（これが浮かばないと先へ進めないので出やすくする。ただ、喉が渇いていたりお腹がすいていたりすると、足が遠のく）
 const GOIDEA=['toforest','cape','deep','crack','lookup','upstream'];
 function think(){
   if(busy()||S.thought[tkey()])return;
@@ -802,7 +802,9 @@ function think(){
     const got=wpick(safe.length?safe:c,1)[0];if(got)must.push(got);
   }
   const firstK='idea:'+S.place,first=!S.seen[firstK];S.seen[firstK]=1;
-  for(const id of [...(first?FIRSTIDEA[S.place]||[]:[]),...GOIDEA]){const c=en.find(c=>c.id===id);if(c&&!must.includes(c)&&must.length<3&&(!GOIDEA.includes(id)||!must.some(m=>GOIDEA.includes(m.id))))must.push(c)}
+  for(const id of first?FIRSTIDEA[S.place]||[]:[]){const c=en.find(c=>c.id===id);if(c&&!must.includes(c)&&must.length<3)must.push(c)}
+  const go=en.filter(c=>GOIDEA.includes(c.id)&&!must.includes(c));
+  if(go.length&&must.length<3&&S.water>=LOWNEED&&S.food>=LOWNEED&&P(.6))must.push(wpick(go,1)[0]);
   const pick=[...must,...wpick(en.filter(c=>!must.includes(c)),3-must.length)];
   if(di.length&&(pick.length<3||P(.25))){if(pick.length>=3){const j=pick.findIndex(c=>!c.once&&!must.includes(c));pick.splice(j>=0?j:2,1)}pick.push(di[ri(0,di.length-1)])}
   for(const k of W)if(pick.some(c=>(GIVES[k]||[]).includes(c.id)))delete S.want[k];
