@@ -783,6 +783,10 @@ function needNote(){
   if(S.food<LOWNEED)x+='お腹がすいて、食べもののことばかり考えてしまう。'+(here('food')?'':'……でも、ここには食べものがなさそう。'+goNote('food'));
   return x?x+'<br>':'';
 }
+// 着いたときの描写に出てきたものは、その場所で最初に思いつく
+const FIRSTIDEA={forest:['bird'],rocks:['stones'],stream:['drinkraw','clay'],cave:['moss','cavelife'],hill:['overlook']};
+// 新しい場所へ行く案（これが浮かばないと先へ進めないので、出せるときは必ず出す）
+const GOIDEA=['toforest','cape','deep','crack','lookup','upstream'];
 function think(){
   if(busy()||S.thought[tkey()])return;
   S.thought[tkey()]=1;
@@ -797,6 +801,8 @@ function think(){
     const c=en.filter(c=>ids.includes(c.id)&&!must.includes(c)),safe=c.filter(c=>!c.tags.includes('risk'));
     const got=wpick(safe.length?safe:c,1)[0];if(got)must.push(got);
   }
+  const firstK='idea:'+S.place,first=!S.seen[firstK];S.seen[firstK]=1;
+  for(const id of [...(first?FIRSTIDEA[S.place]||[]:[]),...GOIDEA]){const c=en.find(c=>c.id===id);if(c&&!must.includes(c)&&must.length<3&&(!GOIDEA.includes(id)||!must.some(m=>GOIDEA.includes(m.id))))must.push(c)}
   const pick=[...must,...wpick(en.filter(c=>!must.includes(c)),3-must.length)];
   if(di.length&&(pick.length<3||P(.25))){if(pick.length>=3){const j=pick.findIndex(c=>!c.once&&!must.includes(c));pick.splice(j>=0?j:2,1)}pick.push(di[ri(0,di.length-1)])}
   for(const k of W)if(pick.some(c=>(GIVES[k]||[]).includes(c.id)))delete S.want[k];
