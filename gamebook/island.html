@@ -251,6 +251,7 @@ div.snap.done{cursor:default;border-style:solid;font-weight:400;font-size:12.5px
 .nightwrap .ep .eph{color:#f2c56b}
 .nightwrap .snap{background:#ffffff14;color:#f3ead3;border-color:#f2c56b;margin-bottom:6px}
 .nightwrap .snap small{color:#f2c56b}
+.nightwrap div.snap.done{background:#ffffff0c;color:#f3ead3}
 nav.bottom.three{grid-template-columns:repeat(3,1fr)}
 nav.bottom.three button{flex-direction:row;justify-content:center;gap:5px;font-size:13px;padding:12px 2px 13px}
 nav.bottom.three button span{font-size:19px}
@@ -870,12 +871,13 @@ function doNight(){
   S.food=clamp(S.food-8);S.water=clamp(S.water-10);
   lines.push(['夜のあいだの消耗','🍖−8 💧−10','neg']);
   const camp=!!S.places.camp;
+  const cold=!camp||(S.shelter===0&&!S.fire&&P(.4));
   if(!camp){
     t.push('結局、寝られる場所は見つからなかった。\n波打ち際から離れた砂の上で、膝を抱えて夜を明かした。\n風が冷たい。砂が、背中から体温を奪っていく。\n「……明日は、ちゃんと探そう」');
   }else if(S.day===1||!S.flags.firstNight){
     S.flags.firstNight=1;
     t.push('岩陰で丸くなって、波の音を数えた。\n見上げると、こぼれそうなほどの星。\n未央ちゃんと茜ちゃん、心配してるかな。プロデューサーさんも。\n知っている星座を探そうとして、すぐにまぶたが重くなった。');
-  }else if(S.day>=2&&!S.clues.moons){
+  }else if(S.day>=4&&!cold&&!S.clues.moons){
     addClue('moons');photo='moons';
     t.push('夜中、まぶしさで目が覚めた。\n浜が、昼間みたいに青白く光っている。','岩陰から顔を出して、空を見上げた。\n白い月が昇っていた。\nそのすぐ隣に、もうひとつ。ひと回り小さな、赤い月が。\n\n「……え？」\n気がつくと、トイカメラを握りしめていた。');
     const r=learn('moon');if(r)kn.push(r);
@@ -892,7 +894,7 @@ function doNight(){
   if(S.day===1){t.push(...ep('aki'));const r=learn('rule3');if(r)kn.push(r)}
   const smudge=S.flags.smudge===S.day;
   let rec=camp?[2,8,15,25][S.shelter]+(S.fire?5:0)+(S.tools.crown?3:0)+(smudge?3:0):-6;
-  if(!camp||(S.shelter===0&&!S.fire&&P(.4))){if(camp)rec=-3;const r=learn('ground');if(r)kn.push(r);
+  if(cold){if(camp)rec=-3;const r=learn('ground');if(r)kn.push(r);
     if(camp&&S.shelter===0&&!have('leaf'))(S.want||(S.want={})).leaf=1;
     const ft=firstHurt('cold',['夜が更けるにつれて、背中から冷えがしみこんできた。\n砂は、昼の熱をとっくに手放している。\n体を丸めても、手足の先がどんどん冷たくなっていく。歯が、かちかちと鳴った。','「地面に寝るとな、体の熱を土に持っていかれる」\n棟梁の言葉がよみがえる。\nハンカチを首に巻いて、ヤシの葉をかき集めて、少しでも体と砂のあいだに挟みこむ。\nほんの少しだけ、ましになった。\n'+(camp?'明日は、ちゃんとした寝床を作ろう。':'明日こそ、ちゃんと眠れる場所を探そう。')],null);if(ft)t.push(...ft);lines.push([camp?'岩陰の砂の上で眠った':'吹きさらしの砂の上で眠った','体力 '+rec+'（地面に体温を奪われた）','neg'])}
   else lines.push(['眠り（'+SHELTER[S.shelter]+(S.fire?'・焚き火':'')+(S.tools.crown?'・花の香り':'')+(smudge?'・虫よけ':'')+'）','体力 '+(rec>=0?'+':'')+rec,rec>0?'pos':'']);
