@@ -689,7 +689,7 @@ const RECIPES=[
   {id:'fline',i:'🎣',t:'釣り糸を張りかえる',show:s=>owns('rod')&&have('fiber'),need:{fiber:1},tools:['rod'],req:s=>!s.flags.fline,run:s=>{s.flags.fline=1;return{made:'細い釣り糸',t:['釣り竿のツルの糸をほどいて、とりだした繊維をより合わせた、細い糸に張りかえた。\n水にひたすと、ほとんど見えないくらい細い。','「魚は、糸が見えると寄ってこん」\n漁師のおじいさんの言葉。これなら、きっと。\n（魚が釣れやすくなった）']}}},
   {id:'charm',i:'🎀',t:'ルリちゃんに飾り紐を編む',show:s=>s.flags.birdFriend&&have('fiber'),need:{fiber:1},req:s=>s.flags.birdFriend&&!s.flags.charm,run:s=>{s.flags.charm=1;return{made:'ルリちゃんの飾り紐',photo:'charm',t:['とりだした繊維を三本ずつ束ねて、ゆっくり、目をそろえて編んでいく。\nレースの刺しゅうより、ずっと太い糸。でも、指はちゃんと覚えている。','小指の先ほどの、小さな飾り紐ができた。\n「ルリちゃん、ちょっとだけ、じっとしててね」\n細い足に、きつくならないように、そっと結ぶ。\nルリちゃんは不思議そうに足を見つめて、それから、ピィ、とひと声鳴いた。','「おそろいの目印。……もし離ればなれになっても、見つけられるように」\nルリちゃんは、前よりもっと、私のそばにいてくれるようになった。']}}},
   {id:'rod',i:'🎣',t:'釣り竿',show:s=>s.places.stream&&(have('vine')||have('clam')),need:{twig:1,vine:1,clam:1},req:s=>!owns('rod'),run:s=>({tool:'rod',made:'釣り竿',t:['貝殻を石で削って小さな針にして、ツルの糸を枝に結んだ。',...ep('rod')]})},
-  {id:'catcher',i:'🏺+🌧️',t:'雨水だめ',show:s=>owns('pot'),need:{leaf:2},tools:['pot'],req:s=>!s.tools.catcher,run:s=>({tool:'catcher',know:'rain',made:'雨水だめ',t:['ヤシの葉を漏斗のように組んで、雨水が土器に流れこむようにした。',...ep('catcher')]})},
+  {id:'catcher',i:'🏺+🌧️',t:'雨水だめ',show:s=>owns('pot'),need:{leaf:2,pot:1},req:s=>!s.tools.catcher,run:s=>{s.flags.sealed=0;s.potW=0;return{tool:'catcher',know:'rain',made:'雨水だめ',t:['ヤシの葉を漏斗のように組んで、雨水が土器に流れこむようにした。\n土器は、岩陰のすみに据えつけた。もう持ち歩けないけれど、これで雨の日は水がたまる。\nお湯を沸かすなら、新しい土器を焼かなきゃ。',...ep('catcher')]}}},
   {id:'raft',i:'🛶',t:'いかだ',show:s=>owns('rope')&&have('wood')>=4,need:s=>have('fiber')>=2?{wood:8,vine:2,fiber:2}:{wood:8,vine:2},tools:['rope'],req:s=>!s.tools.raft&&!s.flags.raftUsed,run:s=>{const strong=have('fiber')>=2;s.flags.strongRaft=strong?1:0;return{tool:'raft',made:strong?'丈夫ないかだ':'いかだ',t:['流木を並べてロープでしばって、いかだを組んだ。'+(strong?'\nその上から、繊維で撚った細くて丈夫な縄を、何重にも巻きつける。\n結び目を引いてみると、びくともしない。':''),...ep('raft'),'浜辺から沖へ出られる。……今度は、回らないように。']}}}
 ];
 
@@ -852,7 +852,7 @@ function idle(){
 function craftReason(r){
   if(r.fire&&!S.fire)return'火が必要';
   for(const t of r.tools||[])if(!tool(t))return TOOLS[t][0]+'が必要';
-  for(const[k,n]of Object.entries(needOf(r)))if(have(k)<n)return ITEMS[k][0]+'があと'+(n-have(k));
+  for(const[k,n]of Object.entries(needOf(r)))if(have(k)<n)return k==='pot'&&POT.some(x=>have(x))?'土器を空にしてから':ITEMS[k][0]+'があと'+(n-have(k));
   return null;
 }
 function craft(r){
