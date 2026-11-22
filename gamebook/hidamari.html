@@ -120,11 +120,16 @@ p{margin:0}
 @keyframes deal{from{transform:translateY(14px)}}
 @media (prefers-reduced-motion:no-preference){#app:not(.still) .fuda,#app:not(.still) .board>.flyer{animation:deal .32s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:calc(var(--i,0)*35ms)}}
 </style>
+<!-- アクセス解析（Google アナリティクス）。github.io で ?debug を付けないときだけ読み込む。説明は about.html -->
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+(function(){if(!/github\.io$/.test(location.hostname)||/[?&]debug/.test(location.search))return;window.GA_ON=true;gtag('js',new Date());gtag('config','G-PH9DQ1LSR1');var e=document.createElement('script');e.async=true;e.src='https://www.googletagmanager.com/gtag/js?id=G-PH9DQ1LSR1';document.head.appendChild(e)})()</script>
 </head>
 <body>
 <div id="app"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 <script>
+// アクセス解析へイベントを送る（<head> で GA を読み込んだときだけ。debug・Artifact・テストでは何もしない）
+function track(n,p){try{if(globalThis.GA_ON&&typeof gtag==='function')gtag('event',n,Object.assign({game:'hidamari'},p))}catch(e){}}
 const T={w:{n:'戦士',g:'剣'},e:{n:'探索',g:'探'},a:{n:'攻撃魔法',g:'魔'},s:{n:'補助魔法',g:'援'},r:{n:'射撃',g:'弓'},h:{n:'回復',g:'癒'}},TK=Object.keys(T),RK=['F','E','D','C','B','A'];
 const SK={w:['斬りつけ','盾受け','強撃','旋風斬','渾身の一閃','剣聖の構え','竜断ち','不落の盾','剣神の一閃','辺境の守護者'],e:['忍び足','罠外し','鍵開け','気配察知','影渡り','千里眼','無音の極み','風の足跡','万鍵の指','誰も見ぬ道'],a:['火矢','氷槍','雷撃','爆炎','流星','極光','星落とし','天雷','竜の息吹の写し','創世の火'],s:['灯りの術','眠りの霧','身体強化','幻影','時の枷','聖域','運命の糸','星読み','祝福の環','大いなる導き'],r:['石つぶて','速射','狙い撃ち','二連射','必中の一矢','曲射','天穿つ矢','風読みの一矢','千里の矢','流星群'],h:['応急手当','癒しの光','解毒','浄化','大いなる祈り','蘇生の息吹','奇跡','慈雨','聖女の手','命の泉']};
 const MAIN={w:'剣と盾で前に立つ。正面からの勝負に強い。',e:'罠、鍵、足跡。戦わずに道を拓く。',a:'火と氷と雷。群れや硬い敵をまとめて崩す。',s:'灯り、眠り、強化。適性外の場面では次の札を強める。',r:'弓と投げ物。遠い的と素早い敵に強い。',h:'癒しと浄化。適性外の場面ではHPを回復する。'};
@@ -982,7 +987,7 @@ function pagesFor(i){const q=S.q,sc=QS[q.id].sc;let p=sc[i].p;const sp=!q.solo&&
  return[p]}
 function addBond(id){const b=bondOf(id),m=MB[id];if(b>=5)return`${m.n}との絆は、もう十分に深い。`;S.bond[id]=b+1;
  return`${m.n}との絆が深まった（${b+1}/5）`+(b===2?`。絆の札「${m.bc}」を覚えた。どの場面でも適性になる。`:b===4?`。絆の札「${m.bc}」の突破力が7になった。`:'')}
-function clearQuest(){const q=S.q,Q=QS[q.id],r=Q.rw,first=!S.done[q.id],before=rankI(),got=[];
+function clearQuest(){const q=S.q,Q=QS[q.id],r=Q.rw,first=!S.done[q.id],before=rankI(),got=[];track('quest_clear',{quest:q.id,first:first?'yes':'no'});
  const perf=(q.cr||0)===Q.sc.length,pg=perf?Math.ceil(r.g/2):0,g=r.g+q.bonus+pg;S.gold+=g;S.st.gold+=g;got.push(['報酬',`${g}G`+(q.bonus?(LITE?'（見事な手際に、上乗せあり）':`（会心のおひねり ${q.bonus}G込み）`):'')]);
  const px=perf&&!S.pf[q.id]?1:0,xp=(Q.rep&&!first?0:r.xp)+px;if(xp){S.xp+=xp;if(!LITE)got.push(['経験値札',xp+'枚'])}
  if(perf){S.pf[q.id]=1;S.st.perf=(S.st.perf||0)+1;got.unshift(['依頼主からの心づけ',`期待以上の働きに +${pg}G`+(px&&!LITE?'・経験値札 +1':'')])}
@@ -1002,16 +1007,16 @@ function clearQuest(){const q=S.q,Q=QS[q.id],r=Q.rw,first=!S.done[q.id],before=r
  S.rw={id:q.id,got,say,perf,up:rankI()>before?RK[rankI()]:null};S.q=null;S.scr='reward'}
 let _tt;function toast(m){const t=document.getElementById('toast');if(!t)return;t.textContent=m;t.classList.toggle('on',true);clearTimeout(_tt);_tt=setTimeout(()=>t.classList.toggle('on',false),3000)}
 const A={
- new(){S=fresh();S.scr='og'},cont(){S=saved;if(S.scr==='title')S.scr='og'},
- og(d){S.og=d.t;S.sk[d.t]=2;S.scr='org'},
- org(d){S.org=d.o;S.scr='og2'},
- og2(d){S.sk[d.t]++;S.sub=d.t;enterGuild()},
+ new(){S=fresh();S.scr='og';track('game_start')},cont(){S=saved;if(S.scr==='title')S.scr='og'},
+ og(d){track('choice',{scene:'og',pick:d.t});S.og=d.t;S.sk[d.t]=2;S.scr='org'},
+ org(d){track('choice',{scene:'org',pick:d.o});S.org=d.o;S.scr='og2'},
+ og2(d){track('choice',{scene:'og2',pick:d.t});S.sk[d.t]++;S.sub=d.t;enterGuild()},
  quest(d){S.sel=d.id;S.scr='quest';S.msg=''},
  back(){if(S.grw&&S.grw.length&&(S.scr==='talk'||S.scr==='tavern')){S.gaf=1;S.scr='grow';return}enterGuildKeep()},
  toggle(d){const i=S.act.indexOf(d.id);if(i>=0)S.act.splice(i,1);else if(S.act.length+(S.temp?1:0)<3)S.act.push(d.id);return true},
  accept(){const Q=QS[S.sel],solo=Q.max===1,max=maxHp(Q);
   S.q={id:S.sel,i:0,solo,hand:buildHand(solo),max,hp:max,buff:0,bonus:0,res:null,note:'',bn:0,eve:0,cr:0,camp:Q.eve&&S.act.length?{kind:'eve',done:null}:null,
-   pages:Q.rep&&S.done[S.sel]?['いつもの籠を背負い、通い慣れた森の道を行く。']:[...Q.in]};S.q.pages.push(...pagesFor(0));S.scr='scene'},
+   pages:Q.rep&&S.done[S.sel]?['いつもの籠を背負い、通い慣れた森の道を行く。']:[...Q.in]};S.q.pages.push(...pagesFor(0));S.scr='scene';track('quest_start',{quest:S.sel,party:solo?'solo':S.act.join('+')||'none'})},
  page(){S.q.pages.shift()},
  play(d){const q=S.q,i=+d.i,c=q.hand[i],e=eff(c);q.hand.splice(i,1);if(c.item)S.st.item++;else if(c.w==='me')S.st.t[c.t]++;
   if(c.item)S.items.splice(S.items.indexOf(c.item),1);
@@ -1019,17 +1024,17 @@ const A={
   if(e.k==='buff'){q.buff+=e.v;q.note=(c.bo&&AKN[c.n]?AKN[c.n]+'　':'')+`「${c.n}」が次の一手を後押しする（突破力+${q.buff}）。`;return true}
   resolve(c,e)},
  body(){resolve(null,null)},
- next(){const q=S.q,sc=QS[q.id].sc;if(q.res.dead){S.st.fail++;S.ff=q.id;if(QS[q.id].pre)S.uf[q.id]=1;if(!q.solo)S.temp=null;S.q=null;S.scr='fail';return}
+ next(){const q=S.q,sc=QS[q.id].sc;if(q.res.dead){S.st.fail++;S.ff=q.id;track('quest_fail',{quest:q.id,step:q.i});if(QS[q.id].pre)S.uf[q.id]=1;if(!q.solo)S.temp=null;S.q=null;S.scr='fail';return}
   q.res=null;q.i++;if(q.i>=sc.length)return clearQuest();
   q.pages=pagesFor(q.i);
   if(q.i===(REST[q.id]&&REST[q.id][2]!=null?REST[q.id][2]:sc.length-1)&&!q.solo&&S.act.length&&!QS[q.id].eve){const fire=REST[q.id][0],cn=fire?S.cmp:S.cin,id=[...S.act].sort((a,b)=>(cn[a]||0)-(cn[b]||0))[0];q.camp={id,idx:(cn[id]||0)%(fire?MB[id].camp:MB[id].rest).length,kind:fire?'fire':'in',done:null}}},
- campR(d){const q=S.q,c=q.camp,i=+d.i,card=id=>{if(S.bond[id]===3&&!q.hand.some(x=>x.any&&!x.ak&&x.w===id))q.hand.push(mCards(id).pop())};c.done=i;
+ campR(d){const q=S.q,c=q.camp,i=+d.i,card=id=>{if(S.bond[id]===3&&!q.hand.some(x=>x.any&&!x.ak&&x.w===id))q.hand.push(mCards(id).pop())};c.done=i;track('choice',{scene:c.kind==='eve'?'camp:eve':'camp:'+c.kind+':'+c.id+':'+c.idx,pick:String(i)});
   if(c.kind==='eve'){S.st.chat++;if(i===0){q.max+=6;q.hp=q.max}else if(i===1)q.eve2=1;else q.eve=1;c.fx=EVE.r[i][2]+'。';return}
   const fire=c.kind==='fire',cn=fire?S.cmp:S.cin,t=(fire?MB[c.id].camp:MB[c.id].rest)[c.idx];cn[c.id]=(cn[c.id]||0)+1;
   if(i===2){S.st.rest++;const b=q.hp;q.hp=Math.min(q.max,q.hp+3);c.fx=`静かに体を休めた。HPが${q.hp-b}回復した。`}
   else{S.st.chat++;const k=lean(t,i);addLean(c.id,k);c.fx=addBond(c.id)+(LITE?'':`　今回は「${LN[k]}」返事だった。`);card(c.id)}},
  campEnd(){S.q.camp=null},
- home(){if(S.scr==='reward'&&S.grw&&S.grw.length&&!(S.mem.length&&S.tav&&S.rw.id!=='q18')){S.scr='grow';return}const won=S.scr==='reward';if(won&&S.rw&&S.rw.id==='q18'){S.scr=S.mem.includes('aiko')?'parting':'ending';return}S.rw=null;enterGuild();if(won&&S.mem.length&&S.tav){if(S.mem.includes('aiko'))A.talk({id:'aiko'});else S.scr='tavern'}},
+ home(){if(S.scr==='reward'&&S.grw&&S.grw.length&&!(S.mem.length&&S.tav&&S.rw.id!=='q18')){S.scr='grow';return}const won=S.scr==='reward';if(won&&S.rw&&S.rw.id==='q18'){if(!S.mem.includes('aiko'))track('ending',{ending:'dawn'});S.scr=S.mem.includes('aiko')?'parting':'ending';return}S.rw=null;enterGuild();if(won&&S.mem.length&&S.tav){if(S.mem.includes('aiko'))A.talk({id:'aiko'});else S.scr='tavern'}},
  shop(){S.scr='shop';S.msg=''},school(d){const t=d.t,s=SCH[t],l=S.sk[t];S.sch=t;S.scr='school';S.msg='';if(!S.gr[t]){S.gr[t]=1;S.gtx=`${s.who}：${GHI[t]}|あなたは名乗り、これから世話になります、と頭を下げた。`;if(l>=7&&!S.gear.some(g=>g.k==='m'+t)){S.gtx+='|'+MAS[t];S.msg=giveM(t)}}else S.gtx=`${s.who}：${s.hi[l<3?1:l<5?2:l<7?3:4]}`},grown(){S.grw.shift();if(!S.grw.length){if(S.gaf){S.gaf=0;return enterGuild()}S.scr='reward';return A.home()}},recruit(){S.scr='recruit';S.msg=''},status(){S.scr='status';S.msg=''},
  tavern(){if(S.tav===1&&S.mem.includes('aiko'))return A.talk({id:'aiko'});S.scr='tavern';S.msg=''},equip(){S.scr='equip';S.msg='';S.who='me'},
  buy(d){const it=IT[d.id];if(S.gold<it.c||S.items.length>=6)return true;S.gold-=it.c;S.items.push(d.id);S.msg=`「${it.n}」を買った（−${it.c}G・残り${S.gold}G）。次の依頼から手札に入る。`;return true},
@@ -1038,14 +1043,14 @@ const A={
  hire(d){const p=TP[+d.i],c=20+10*rankI();if(S.temp||S.gold<c||S.act.length>=3)return true;S.gold-=c;const b=rankI()>=2?3:2;S.temp={n:p.n,t:p.t,c:[[p.c[0],b],[p.c[1],b]]};S.msg=`${p.n}と、次の依頼一回ぶんの契約を結んだ。`;return true},
  talk(d){const id=d.id,m=MB[id],L=S.last,Q=L&&QS[L.id],sp=Q&&QT[L.id].m[id],went=Q&&L.p.includes(id),was=Q&&(went||Q.max===1||Q.rw.mem===id);
   const first=id==='aiko'&&S.tav===1,pub=!S.pub&&S.scr!=='tavern';S.pub=1;S.tav=first&&S.mem.length>1?2:0;S.talk={id,idx:S.epi[id]||0,done:null,lead:(pub?PUBX+'|':'')+(first&&Q?QT[L.id].x+'|':'')+(!Q?'':sp&&was?`${m.n}：${sp}|ひとしきり今日の話をしたあと。|`:went?`${m.n}は杯を置いて、今日の「${Q.n}」をふりかえった。|${m.n}：${id==='aiko'&&AQL[L.id]?AQL[L.id].af:m.ln.af[0]}|ひとしきり今日の話をしたあと。|`:`「${Q.n}」のいきさつを聞かせると、${m.n}は最後まで身を乗り出して聞いていた。|`)};S.scr='talk'},
- talkR(d){const t=S.talk,i=+d.i,k=lean(epOf(t.id,t.idx),i);t.done=i;S.epi[t.id]=t.idx+1;S.st.chat++;addLean(t.id,k);t.fx=addBond(t.id)+(LITE?'':`　今回は「${LN[k]}」返事だった。`);if(t.id==='aiko'&&t.idx<5){S.ap++;t.fx+='　見習い帖の頁 +1'}if(t.id==='tia'&&t.idx===2){S.gear.push({k:'scale',w:null});t.fx+=`　特別な装備「古竜の逆鱗」を受け取った（${GR.scale.x}）。`}},
+ talkR(d){const t=S.talk,i=+d.i,k=lean(epOf(t.id,t.idx),i);t.done=i;track('choice',{scene:'talk:'+t.id+':'+t.idx,pick:String(i)});S.epi[t.id]=t.idx+1;S.st.chat++;addLean(t.id,k);t.fx=addBond(t.id)+(LITE?'':`　今回は「${LN[k]}」返事だった。`);if(t.id==='aiko'&&t.idx<5){S.ap++;t.fx+='　見習い帖の頁 +1'}if(t.id==='tia'&&t.idx===2){S.gear.push({k:'scale',w:null});t.fx+=`　特別な装備「古竜の逆鱗」を受け取った（${GR.scale.x}）。`}},
  recap(){const e=TL.filter(t=>t.f()).map(t=>t.k);COL=[...new Set([...COL,...e])];try{localStorage.setItem(TKEY,JSON.stringify(COL))}catch(x){}S.scr='recap'},
  who(d){S.who=d.w;return true},
  wear(d){if(gearOf(S.who).length<2){const g=S.gear[+d.i];g.w=S.who;S.msg=`${S.who==='me'?'あなた':MB[S.who].n}が「${GR[g.k].n}」を装備した。`}return true},
  strip(d){const g=S.gear[+d.i];g.w=null;S.msg=`「${GR[g.k].n}」を外して持ち物に戻した。`;return true},
  ask(d){S.ask=d.k;S.alast=null;S.scr='aschool';S.msg=''},
- alearn(){const k=S.ask,l=S.ak[k]||0,c=acost(k);if(c==null||S.ap<c||areq(k))return;S.ap-=c;S.ak[k]=l+1;S.alast=k;S.msg=`藍子の「${AK[k].n}」がLv${l+1}になった。札「${AK[k].card[l]}」を覚えた。`},
- part(d){const i=+d.i,ln=S.lean.aiko||[0,0],k=i===0?'ret':i===1?'stay':bondOf('aiko')>=4&&ln[1]>=ln[0]?'stay':'ret';S.aend={k,ch:i,sk:domA()};if(k==='ret'){S.mem=S.mem.filter(x=>x!=='aiko');S.act=S.act.filter(x=>x!=='aiko')}S.scr='ending'},
+ alearn(){const k=S.ask,l=S.ak[k]||0,c=acost(k);if(c==null||S.ap<c||areq(k))return;S.ap-=c;S.ak[k]=l+1;track('aiko_skill',{skill:k,lv:l+1});S.alast=k;S.msg=`藍子の「${AK[k].n}」がLv${l+1}になった。札「${AK[k].card[l]}」を覚えた。`},
+ part(d){const i=+d.i,ln=S.lean.aiko||[0,0],k=i===0?'ret':i===1?'stay':bondOf('aiko')>=4&&ln[1]>=ln[0]?'stay':'ret';S.aend={k,ch:i,sk:domA()};if(k==='ret'){S.mem=S.mem.filter(x=>x!=='aiko');S.act=S.act.filter(x=>x!=='aiko')}track('choice',{scene:'part',pick:String(i)});track('ending',{ending:'aiko_'+k,skill:S.aend.sk,bond:bondOf('aiko')});S.scr='ending'},
  reset(){S.scr='reset'},reset2(){try{localStorage.removeItem(KEY)}catch(e){}saved=null;S=fresh()}
 };
 // ---------- 描画 ----------

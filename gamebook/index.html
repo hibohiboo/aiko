@@ -30,14 +30,20 @@ a.flyer::before{content:"";position:absolute;top:6px;left:50%;width:9px;height:9
 .note{font-size:12px;color:var(--mute);margin:0}
 @media (prefers-reduced-motion:reduce){a.flyer{transition:none}}
 html.lite .x,html.lite .note{display:none}
+.foot{margin:24px 0 0;font-size:12px;text-align:center}
+.foot a{color:var(--mute)}
 </style>
 <script>if(/github.io$/.test(location.hostname)&&!/[?&]debug/.test(location.search))document.documentElement.classList.add("lite")</script>
+<!-- アクセス解析（Google アナリティクス）。github.io で ?debug を付けないときだけ読み込む。説明は about.html -->
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+(function(){if(!/github\.io$/.test(location.hostname)||/[?&]debug/.test(location.search))return;window.GA_ON=true;gtag('js',new Date());gtag('config','G-PH9DQ1LSR1');var e=document.createElement('script');e.async=true;e.src='https://www.googletagmanager.com/gtag/js?id=G-PH9DQ1LSR1';document.head.appendChild(e)})()</script>
 </head>
 <body>
 <main>
 <a class="flyer p3" href="hidamari.html"><span class="k">陽だまりの章</span><span class="t">辺境ギルドの冒険者</span><span class="x">薬草摘みの森で聞こえた、誰かを励ます声。傷ついた小鳥を抱えた少女・高森藍子と出会い、仲間として旅をする。藍子が伸ばす8つの技能と、最後に返す言葉で結末が変わる。</span></a>
 <a class="flyer island" href="island.html"><span class="k">無人島のひとり暮らし</span><span class="t">ゆるふわソロキャンアイランド</span><span class="x">番組で通う無人島「ポジパ島」の早朝ロケ。気がつくと、藍子はひとり、知らない浜辺で目を覚ましていた。亜季さんや島の先生たちに教わった知恵を頼りに、火を起こし、土器を焼き、家を建てて、みんなのところへ帰る道を探す。新しいことをするたびに、番組の思い出がよみがえる。</span></a>
 <p class="note">進行はこのブラウザに自動で保存されます。章ごとに別々の記録です。</p>
+<p class="foot"><a href="about.html">このサイトについて（アクセス解析）</a></p>
 </main>
 </body>
 </html>

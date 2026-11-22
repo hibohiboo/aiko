@@ -159,3 +159,9 @@ node tools/gamebook/playtest.cjs '{"og":"s","sub":"r","seed":3,"late":4}' --lite
 
 - メモリ: `C:\Users\hisa\.claude\projects\d--projects-ai-----bot\memory\aiko-gamebook-artifact.md`（Artifact の URL と方針）
 - 藍子の台詞の元ネタ: `dialogues/02_deresute_card/`（カードごと）、`analysis/事実まとめ.md`
+
+## アクセス解析（2026-11-22）
+
+- Google アナリティクス（測定 ID `G-PH9DQ1LSR1`）を `<head>` で読み込む。github.io で `?debug` なしのときだけ動き、Artifact・debug・node のテストでは `track()` が何もしない。
+- 新しい選択肢や結末を足したら、その処理に `track('choice',{scene,pick})` や `track('ending',{ending})` を添える。イベントには `game` が自動で付く。
+- 何を集めているかの説明は gamebook/about.html（目次のいちばん下からリンク）。集める内容を増やしたら、about.html の文も合わせる。

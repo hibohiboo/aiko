@@ -271,11 +271,16 @@ nav.bottom.three .badge{top:5px;left:auto;right:6%}
 .ideabox p{font-family:var(--serif);font-size:13px;line-height:1.8;margin:4px 0 0;white-space:pre-line;color:#4a3b22}
 .ideabox small{font-family:var(--sans);font-size:11px;color:var(--muted)}
 </style>
+<!-- アクセス解析（Google アナリティクス）。github.io で ?debug を付けないときだけ読み込む。説明は about.html -->
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
+(function(){if(!/github\.io$/.test(location.hostname)||/[?&]debug/.test(location.search))return;window.GA_ON=true;gtag('js',new Date());gtag('config','G-PH9DQ1LSR1');var e=document.createElement('script');e.async=true;e.src='https://www.googletagmanager.com/gtag/js?id=G-PH9DQ1LSR1';document.head.appendChild(e)})()</script>
 </head>
 <body>
 <div id="app"></div>
 <script>
 "use strict";
+// アクセス解析へイベントを送る（<head> で GA を読み込んだときだけ。debug・Artifact・テストでは何もしない）
+function track(n,p){try{if(globalThis.GA_ON&&typeof gtag==='function')gtag('event',n,Object.assign({game:'island'},p))}catch(e){}}
 // github.io では消耗量などの説明を隠す。?debug を付けると全部出す（陽だまりの章と同じ）
 const LITE=(typeof location==='object'&&/github\.io$/.test(location.hostname)&&!/[?&]debug/.test(location.search))||!!globalThis.__LITE;
 /* ================= utilities ================= */
@@ -696,6 +701,7 @@ let S=null;
 const freshUI=()=>({sheet:null,moveMsg:'',moveErr:false,bagMsg:'',lastHud:null,newPlaces:{}});
 let UI=freshUI();
 function newRun(){
+  track('game_start');
   S={v:1,day:1,slot:0,hp:100,food:80,water:80,place:'beach',inv:{thermos:1},film:FILM,album:[],seen:{},eps:[],store:{},tools:{},fire:0,shelter:0,
     places:{beach:1},flags:{},clues:{},clueOrder:[],know:{},newKnow:{},hurt:{},once:{},
     want:{},hand:{},thought:{},think:null,potW:0,work:false,recipes:{},justAdded:null,arrived:{},journal:'',
@@ -797,6 +803,7 @@ function think(){
 }
 function takeIdea(id){
   const c=CARDS[id];if(disOf(c))return;
+  track('choice',{scene:'idea:'+S.place,pick:id,day:S.day});
   const h=handOf(S.place);
   if(h.length<3){h.push(id);S.think=null;S.justAdded=id}else S.think.swap=id;
   save();render();
@@ -808,6 +815,7 @@ function act(c){
   if(disOf(c)||slotOff(c))return;
   if(c.work){S.work=true;save();render(false);return}
   S.justAdded=null;
+  track('action',{scene:S.place,pick:c.id,day:S.day});
   const o=c.run(S)||{};
   if(o.hurt)S.hurt[c.id]=o.hurt;
   if(c.once&&!o.keep)S.once[c.id]=1;
@@ -830,6 +838,7 @@ function craftReason(r){
 function craft(r){
   if(S.result||!S.work||craftReason(r))return;
   S.work=false;
+  track('craft',{pick:r.id,day:S.day});
   const o=r.run(S)||{};
   const mats={};
   if(!o.keepMats)for(const[k,n]of Object.entries(needOf(r)))mats[k]=-n;
@@ -934,6 +943,7 @@ function morning(){
   if(S.hp<=0){finish('dead');return}
   S.day++;S.slot=0;S.place=S.places.camp?'camp':'beach';S.think=null;S.work=false;S.justAdded=null;UI.moveMsg='';
   if(S.day>30){finish('survive');return}
+  track('day_start',{day:S.day});
   S.journal=morningLine();
   save();render();window.scrollTo(0,0);
 }
@@ -942,6 +952,7 @@ function finish(kind){
   S.daysSurvived=kind==='dead'?S.day-1:kind==='survive'?30:S.day;
   META.best=Math.max(META.best||0,S.daysSurvived);META.runs=(META.runs||0)+1;
   if(kind!=='dead')META.endings[kind]=1;
+  track('ending',{ending:kind,day:S.daysSurvived,cause:kind==='dead'?(S.cause||'疲労'):'',clues:clueN(S),photos:S.album.length});
   Object.keys(S.clues).forEach(c=>META.clues[c]=1);
   store.del('aiko_drift_run1');store.set('aiko_drift_meta1',META);
   renderResult();window.scrollTo(0,0);
