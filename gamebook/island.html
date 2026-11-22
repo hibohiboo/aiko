@@ -263,6 +263,8 @@ nav.bottom button.intro{background:#f7e3a8;animation:navglow 1.6s ease-in-out in
 @keyframes navglow{0%,100%{box-shadow:inset 0 0 0 0 #e0a84400}50%{box-shadow:inset 0 0 0 3px #e0a844}}
 .navtip{position:absolute;bottom:calc(100% + 9px);right:6px;background:#3d2a00;color:#fff7e0;font-style:normal;font-size:12.5px;font-weight:700;white-space:nowrap;padding:7px 11px;border-radius:9px;pointer-events:none;box-shadow:0 3px 10px #0003;animation:tipin .5s ease both,tipbob 1.6s ease-in-out .5s infinite}
 .navtip::after{content:'';position:absolute;top:100%;right:24px;border:6px solid transparent;border-top-color:#3d2a00}
+.navtip.l{right:auto;left:6px}
+.navtip.l::after{right:auto;left:24px}
 @keyframes tipin{from{opacity:0;transform:translateY(10px)}}
 @keyframes tipbob{50%{transform:translateY(-3px)}}
 .tabs{flex-wrap:wrap}
@@ -731,7 +733,7 @@ function gain(k,n,res){
     if(atCamp()){S.store[k]=(S.store[k]||0)+n;res.gets.push([k,n]);if(S.want)delete S.want[k];return}
     let put=n;
     if(!KEYI.includes(k)){const room=Math.max(0,cap()-packN());put=Math.min(n,room)}
-    if(put){S.inv[k]=inv(k)+put;res.gets.push([k,put]);if(S.want)delete S.want[k]}
+    if(put){S.inv[k]=inv(k)+put;res.gets.push([k,put]);if(S.want)delete S.want[k];if(!S.seen['ui:bag'])S.seen['ui:bagnew']=1}
     if(n-put>0)res.lost.push([k,n-put]);
   }else if(n<0){
     let need=-n;const fromPack=Math.min(need,inv(k));S.inv[k]=inv(k)-fromPack;need-=fromPack;
@@ -1181,8 +1183,9 @@ function renderNav(){
   const n=document.getElementById('nav');if(!n)return;
   const nw=Object.keys(UI.newPlaces).filter(p=>p!==S.place).length;
   const canMove=!busy()&&ORDER.some(p=>S.places[p]&&p!==S.place),intro=canMove&&!S.seen['ui:move'];
-  n.innerHTML=`<button data-s="bag"><span>${ic('svg:sack')}</span>リュック ${packN()}/${cap()}</button><button data-s="know"><span>📓</span>手帳</button><button data-s="move" ${canMove?'':'disabled'}${intro?' class="intro"':''}><span>👣</span>移動する${nw?`<i class="badge">${nw}</i>`:''}${intro?'<em class="navtip">ほかの場所へは、ここから</em>':''}</button>`;
-  n.querySelectorAll('button').forEach(b=>b.onclick=e=>{UI.bagMsg='';UI.bagKn=null;if(b.dataset.s==='move'&&!S.seen['ui:move']){S.seen['ui:move']=1;save();b.classList.remove('intro');b.querySelector('.navtip')?.remove()}openSheet(b.dataset.s,e.currentTarget)});
+  const bagIntro=!busy()&&S.seen['ui:bagnew']&&!S.seen['ui:bag'];
+  n.innerHTML=`<button data-s="bag"${bagIntro?' class="intro"':''}><span>${ic('svg:sack')}</span>リュック ${packN()}/${cap()}${bagIntro?'<em class="navtip l">拾ったものは、ここに</em>':''}</button><button data-s="know"><span>📓</span>手帳</button><button data-s="move" ${canMove?'':'disabled'}${intro?' class="intro"':''}><span>👣</span>移動する${nw?`<i class="badge">${nw}</i>`:''}${intro?'<em class="navtip">ほかの場所へは、ここから</em>':''}</button>`;
+  n.querySelectorAll('button').forEach(b=>b.onclick=e=>{UI.bagMsg='';UI.bagKn=null;const once={move:'ui:move',bag:'ui:bag'}[b.dataset.s];if(once&&b.classList.contains('intro')){S.seen[once]=1;save();b.classList.remove('intro');b.querySelector('.navtip')?.remove()}openSheet(b.dataset.s,e.currentTarget)});
 }
 let sheetOpener=null;
 function openSheet(name,opener){
@@ -1218,7 +1221,7 @@ function openSheet(name,opener){
     const n=Object.keys(K).filter(known).length;
     const eps=Object.keys(EP).filter(e=>META.eps&&META.eps[e]).sort((a,b)=>parseInt(EP[a][0].slice(1))-parseInt(EP[b][0].slice(1)));
     const album=S?S.album:Object.keys(PHOTO).filter(p=>META.photos[p]);
-    h=`<h2>手帳<button class="close">閉じる</button></h2><div class="tabs">`+[['know','教わったこと',n+'/'+Object.keys(K).length],['ep','DASHの思い出',eps.length+'/'+Object.keys(EP).length],['album','アルバム',S?album.length+'/'+FILM:album.length+'枚'],...(cn?[['clue','島の違和感',cn+'/'+NCL]]:[])].map(([k,l,c])=>`<button class="tab ${tab===k?'on':''}" data-tab="${k}">${l}<small>${c}</small></button>`).join('')+'</div>';
+    h=`<h2>手帳<button class="close">閉じる</button></h2><div class="tabs">`+[['know','知恵袋',n+'/'+Object.keys(K).length],['ep','思い出',eps.length+'/'+Object.keys(EP).length],['album','アルバム',S?album.length+'/'+FILM:album.length+'枚'],...(cn?[['clue','島のメモ',cn+'/'+NCL]]:[])].map(([k,l,c])=>`<button class="tab ${tab===k?'on':''}" data-tab="${k}">${l}<small>${c}</small></button>`).join('')+'</div>';
     if(tab==='clue'&&cn)h+=Object.keys(CL).map(c=>clues[c]?`<div class="clue">${CL[c]}</div>`:'<div class="clue unk">？？？</div>').join('');
     else if(tab==='ep')h+=eps.length?eps.map(e=>`<div class="ep"><div class="eph">📺 ポジパDASH ${esc(EP[e][0])}</div><p>${esc(EP[e][1])}</p></div>`).join(''):'<p class="hint" style="text-align:left">島で新しいことをすると、ポジパDASHで教わったことを思い出す。</p>';
     else if(tab==='album')h+=(S?'':'<p class="hint" style="text-align:left;margin-top:0">これまでに撮った写真</p>')+(album.length?albumHTML(album):'<p class="hint" style="text-align:left">まだ一枚も撮っていない。トイカメラのフィルムは '+FILM+' 枚。</p>');
