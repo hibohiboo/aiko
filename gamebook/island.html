@@ -1188,8 +1188,9 @@ function cardHTML(c,o={}){
     <span class="costs">${costs}</span>${notes}</${tag}>`;
 }
 function renderNav(){
+  // 数字は、新しく見つけて、今すぐ行ける場所だけ（行けない場所は、行けるようになったときにまた数える）
   const n=document.getElementById('nav');if(!n)return;
-  const nw=Object.keys(UI.newPlaces).filter(p=>p!==S.place).length;
+  const nw=Object.keys(UI.newPlaces).filter(p=>p!==S.place&&!(PLACES[p].lock&&PLACES[p].lock(S))).length;
   const canMove=!busy()&&ORDER.some(p=>S.places[p]&&p!==S.place),intro=canMove&&!S.seen['ui:move'];
   const bagIntro=!busy()&&S.seen['ui:bagnew']&&!S.seen['ui:bag'];
   n.innerHTML=`<button data-s="bag"${bagIntro?' class="intro"':''}><span>${ic('svg:sack')}</span>リュック ${packN()}/${cap()}${bagIntro?'<em class="navtip l">拾ったものは、ここに</em>':''}</button><button data-s="know"><span>📓</span>手帳</button><button data-s="move" ${canMove?'':'disabled'}${intro?' class="intro"':''}><span>👣</span>移動する${nw?`<i class="badge">${nw}</i>`:''}${intro?'<em class="navtip">ほかの場所へは、ここから</em>':''}</button>`;
