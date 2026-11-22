@@ -1164,7 +1164,7 @@ function openSheet(name,opener){
       const L=PLACES[p].lock&&PLACES[p].lock(S);const c=moveCost(here,p);
       const zero=c.water&&S.water-c.water<=0||c.food&&S.food-c.food<=0;
       const cost=LITE?'':c.d?`<span class="mat">🍖−${c.food}</span><span class="mat">💧−${c.water}</span>`:'<span class="mat ok">すぐそこ（消耗なし）</span>';
-      return`<div class="row ${L?'lockrow':''}"><span class="ri">${L?'🔒':ic(PLACES[p].i)}</span><span class="rn">${PLACES[p].n}${UI.newPlaces[p]?'<span class="newtag">NEW</span>':''}<div class="mats">${L?`<span class="mat short">${esc(L)}</span>`:cost}${!L&&zero?'<span class="mat short">着くころに尽きる</span>':''}</div></span><button class="mini" data-go="${p}" ${L?'disabled':''}>${L?'行けない':'行く'}</button></div>`}).join('')||'<p class="hint" style="text-align:left">ほかに知っている場所はまだない。</p>';
+      return`<div class="row ${L?'lockrow':''}"><span class="ri">${L?'🔒':ic(PLACES[p].i)}</span><span class="rn">${PLACES[p].n}${UI.newPlaces[p]?'<span class="newtag">NEW</span>':''}<div class="mats">${L?`<span class="mat short">${esc(L)}</span>`:cost}${!L&&zero&&!LITE?`<span class="mat short">♥−${(c.water&&S.water-c.water<=0?6:0)+(c.food&&S.food-c.food<=0?5:0)}</span>`:''}</div></span><button class="mini" data-go="${p}" ${L?'disabled':''}>${L?'行けない':'行く'}</button></div>`}).join('')||'<p class="hint" style="text-align:left">ほかに知っている場所はまだない。</p>';
     if(!LITE)h+='<p class="hint" style="text-align:left;margin-top:12px">遠い場所ほど満腹と水分を使う。道は 野営地・浜辺 → 森の入口 → 小川、浜辺 → 岩場 とつながっている。</p>';
   }else if(name==='know'){
     const tab=UI.noteTab||'know';
