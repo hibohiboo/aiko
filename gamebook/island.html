@@ -888,6 +888,12 @@ function doNight(){
   S.food=clamp(S.food-8);S.water=clamp(S.water-10);
   lines.push(['夜のあいだの消耗','🍖−8 💧−10','neg']);
   const camp=!!S.places.camp;
+  // 野営地の外で夕方を終えたら、野営地へ帰る（はじめての一回は描写する）
+  if(camp&&S.place!=='camp'){
+    if(!S.seen['do:walkhome']){S.seen['do:walkhome']=1;
+      t.push('日が傾いてきた。\n'+PLACES[S.place].n+'をあとにして、野営地の岩陰へ戻る。\n夕焼けの浜を歩いていると、長い影がひとりぶんだけ、砂の上にのびていた。\n「暗くなってから、歩きまわらないこと」\n亜季さんに、何度も言われたこと。……明るいうちに帰れて、よかった。\n'+(S.fire?'焚き火の燠に枯れ枝を足すと、ぱちぱちと、炎がまた起き上がった。':'岩陰に腰を下ろして、ほっと息をつく。')+'\n「……ただいま」\n誰もいないけれど、言ってみた。')}
+    S.place='camp';unload();
+  }
   const cold=!camp||(S.shelter===0&&!S.fire&&P(.4));
   if(!camp){
     t.push('結局、寝られる場所は見つからなかった。\n波打ち際から離れた砂の上で、膝を抱えて夜を明かした。\n風が冷たい。砂が、背中から体温を奪っていく。\n「……明日は、ちゃんと探そう」');
