@@ -974,7 +974,7 @@ function useItem(k,idx){
   const ds=[['♥',r.delta.hp],['🍖',r.delta.food],['💧',r.delta.water]].filter(x=>x[1]).map(x=>x[0]+(x[1]>0?' +':' ')+x[1]).join(' / ');
   if(/\n/.test(o.t)&&!S.result&&S.hp>0){closeSheet(true);S.result=Object.assign(r,{page:0,title:ITEMS[k][0]+'を'+u.l,read:1});save();render(true);return}
   UI.bagMsg=o.t+(ds?'（'+ds+'）':'');UI.bagKn=r.kn;
-  save();renderHud(true);renderNav();
+  save();renderHud(true);renderNav();if(!S.result)renderMain(false);
   if(S.hp<=0){closeSheet();S.result={t:o.t+'\nもう、立ち上がる力が残っていない。',page:0,extra:[],delta:r.delta,gets:[],lost:[],kn:[],disc:[],ideas:[],title:'',dead:1};render();return}
   openSheet('bag');
 }
