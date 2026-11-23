@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>ゆるふわソロキャンアイランド</title>
+<meta name="description" content="目を覚ましたら、知らない浜辺。リュックの中には、魔法瓶がひとつ。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ゆるふわソロキャンアイランド">
+<meta property="og:description" content="目を覚ましたら、知らない浜辺。リュックの中には、魔法瓶がひとつ。">
+<meta property="og:url" content="https://hibohiboo.github.io/aiko/island.html">
+<meta property="og:image" content="https://hibohiboo.github.io/aiko/island-ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M8%209.5c-1.3-1.7.9-2.8-.3-4.8M12%209.5c-1.3-1.7.9-2.8-.3-4.8M16%209.5c-1.3-1.7.9-2.8-.3-4.8%22%20stroke%3D%22%239a8f7c%22%20stroke-width%3D%221.8%22%20fill%3D%22none%22%20stroke-linecap%3D%22round%22%2F%3E%3Cpath%20d%3D%22M3.5%2011.5h17l-2.4%2010h-12.2z%22%20fill%3D%22%238a5a2b%22%2F%3E%3Cellipse%20cx%3D%2212%22%20cy%3D%2211.8%22%20rx%3D%228.2%22%20ry%3D%221.9%22%20fill%3D%22%23c99a6b%22%2F%3E%3C%2Fsvg%3E">
 <style>
 :root{
   --paper:#f3ead3; --paper2:#ebdfc2; --ink:#2a2216; --muted:#76684f; --line:#d3c39f;
@@ -280,6 +288,13 @@ nav.bottom button.intro{background:#f7e3a8;animation:navglow 1.6s ease-in-out in
 .ideabox p{font-family:var(--serif);font-size:13px;line-height:1.8;margin:4px 0 0;white-space:pre-line;color:#4a3b22}
 .ideabox small{font-family:var(--sans);font-size:11px;color:var(--muted)}
 .title .wipe{margin-top:18px;font-size:12px;opacity:.75}
+.emblem{display:block;width:220px;max-width:72%;height:auto;margin:0 auto 18px}
+.emblem .steam{animation:steam 4.2s ease-in-out infinite;opacity:0}
+.emblem .steam:nth-of-type(2){animation-delay:1.4s}
+.emblem .steam:nth-of-type(3){animation-delay:2.8s}
+@keyframes steam{0%{opacity:0;transform:translateY(4px)}35%{opacity:.85}100%{opacity:0;transform:translateY(-8px)}}
+@media (prefers-reduced-motion:reduce){.emblem .steam{animation:none!important;opacity:.7}}
+.title .tag{font-family:var(--serif);font-size:14px;color:var(--muted);letter-spacing:.2em;margin-bottom:30px}
 </style>
 <!-- アクセス解析（Google アナリティクス）。github.io で ?debug を付けないときだけ読み込む。説明は about.html -->
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}
@@ -1454,10 +1469,23 @@ function renderNight(){
   <button class="btn" id="morn">${!last?'つづき ▸':S.hp<=0?'結果を見る':DAYNAME[S.day]?DAYNAME[S.day]+'の朝へ':'朝を迎える'}</button></div>`;
   const b=document.getElementById('morn');b.onclick=morning;b.focus({preventScroll:true});bindPhoto(renderNight);
 }
+const EMBLEM='<svg class="emblem" viewBox="36 30 128 90" role="img" aria-label="波打ち際の岩の上に、湯気の立つ魔法瓶のカップ">'
+  +'<defs><clipPath id="emc"><rect x="36" y="30" width="128" height="90" rx="10"/></clipPath></defs><g clip-path="url(#emc)">'
+  +'<rect x="36" y="58" width="128" height="62" fill="#bcd3d6"/><path d="M36 58h128" stroke="#9fbfc4" stroke-width="1.2"/>'
+  +'<path d="M44 70h16M136 67h18M130 79h10M46 86h8" stroke="#e6efef" stroke-width="1.6" stroke-linecap="round"/>'
+  +'<path class="steam" d="M110 70c-2.4-3 1.6-5-.5-8.5s1.5-5 0-8" stroke="#9a8f7c" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+  +'<path class="steam" d="M115 70c-2.4-3 1.6-5-.5-8.5s1.5-5 0-8" stroke="#9a8f7c" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+  +'<path class="steam" d="M120 70c-2.4-3 1.6-5-.5-8.5s1.5-5 0-8" stroke="#9a8f7c" stroke-width="1.6" fill="none" stroke-linecap="round"/>'
+  +'<path d="M54 114c2-19 20-29 46-29s44 10 46 29z" fill="#9c8f78"/><path d="M70 96c8-6 18-8 28-8" stroke="#b8ad97" stroke-width="2.4" fill="none" stroke-linecap="round"/>'
+  +'<rect x="82" y="50" width="17" height="37" rx="4" fill="#d9dde3"/><rect x="86" y="46" width="9" height="5" rx="1.2" fill="#b7bfca"/><path d="M82 59h17" stroke="#b7bfca" stroke-width="1.4"/>'
+  +'<path d="M106 74.5h18l-2.2 12h-13.6z" fill="#8a5a2b"/><ellipse cx="115" cy="74.8" rx="8.6" ry="1.8" fill="#c99a6b"/>'
+  +'<path d="M30 113c8-3.5 16-3.5 24 0s16 3.5 24 0 16-3.5 24 0 16 3.5 24 0 16-3.5 24 0 16 3.5 24 0V122H30z" fill="#bcd3d6"/>'
+  +'<path d="M30 113c8-3.5 16-3.5 24 0s16 3.5 24 0 16-3.5 24 0 16 3.5 24 0 16-3.5 24 0 16 3.5 24 0" stroke="#f3f7f5" stroke-width="1.8" fill="none" stroke-linecap="round"/>'
+  +'</g></svg>';
 function renderTitle(){
   const run=store.get('aiko_drift_run1');
   const ne=Object.keys(META.eps||{}).length;
-  app.innerHTML=`<div class="title"><h1>ゆるふわ<br>ソロキャン<br>アイランド</h1><div class="wave">〜〜〜　〜〜　〜〜〜</div>
+  app.innerHTML=`<div class="title">${EMBLEM}<h1>ゆるふわ<br>ソロキャン<br>アイランド</h1><div class="tag">……おじゃまします</div>
   ${run&&run.phase!=='end'?`<button class="btn" id="cont">つづきから（${run.day}日目・${SLOTS[run.slot]||'夜'}）</button><button class="btn sub" id="start">はじめから</button>`:'<button class="btn" id="start">はじめる</button>'}
   <div class="meta"><div><b>${META.best||0}日</b>最長の日数</div><div><b>${Object.keys(META.endings||{}).length}/2</b>エンディング</div><div><b>${ne}/${Object.keys(EP).length}</b>思い出</div></div>
   ${ne||META.runs?'<button class="btn sub" id="notebook">📓 手帳を見る</button>':''}
