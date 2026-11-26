@@ -101,7 +101,7 @@ npm run test:island:e2e            # 4回 × 600手
 npm run test:island:e2e -- 8 1000  # 8回 × 1000手
 ```
 
-不具合を直したら、同じ不具合をもう一度入れたときに落ちるテストを `tests/island/data.test.cjs` に足す。
+テストの方針（何をどちらに書くか、肥大化させないための決まり）は `docs/gamebook-island-handoff.md` の「テストと確認のしかた」。
 
 ---
 

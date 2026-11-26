@@ -1,12 +1,12 @@
 // 島ゲームのユニットテスト：データのそろい具合と、文章の約束ごと。
-// 使い方: node --test tests/island/
+// 使い方: npm run test:island
+// 方針（足す・消すときの決まり）は docs/gamebook-island-handoff.md の「テストと確認のしかた」。
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { load } = require('./load.cjs');
-const { richState: rich } = require('./state.cjs');
-const richState = (G, F, set, over) => rich(G, F, over);
+const { load, richState, BAD } = require('./load.cjs');
 
-const BAD = /undefined|NaN|\[object|null(?![a-z])/;
+const strip = h => h.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+const around = t => (t.match(new RegExp('.{0,30}(' + BAD.source + ').{0,20}')) || [t])[0];
 // 文はページの配列。ページは文字列か、思い出の回 {ep, t}
 const textOf = t => [].concat(t || []).map(x => (x && typeof x === 'object') ? [x.ep, x.t].join('\n') : x).join('\n');
 
@@ -15,22 +15,23 @@ test('改行コードは LF', () => {
   assert.ok(!html.includes('\r'), 'CRLF が含まれている');
 });
 
-test('どの場所にも、名前・考える文・地図の名前がある（着いたときの文は、あれば正しい）', () => {
-  const { G, F, set } = load();
-  richState(G, F, set);
+test('どの場所でも、着いた画面・いつもの画面・考える画面に変なものが出ない', () => {
+  const { G, F, els } = load();
+  richState(G, F);
   for (const p of G.ORDER) {
-    assert.ok(G.PLACES[p] && G.PLACES[p].n, `${p}: PLACES に名前がない`);
-    assert.ok(G.NAMES[p], `${p}: 地図の名前（NAMES）がない`);
     const [n, m] = F.nameIt(p);
     assert.ok(n && m && !BAD.test(n + m), `${p}: 地図の名前が変: ${n} / ${m}`);
-    if (G.ARRIVE[p]) { // 着いたときの文は、ある場所だけ
-      const a = textOf(F.arriveOf(p));
-      assert.ok(a && !BAD.test(a), `${p}: 着いたときの文が変: ${a.slice(0, 40)}`);
+    for (const [what, set] of [
+      ['着いた画面', S => { S.arrived = {}; S.think = null; }],
+      ['いつもの画面', S => { S.arrived[p] = 'x'; S.think = null; }],
+      ['考える画面', S => { S.think = { ids: [] }; }],
+    ]) {
+      Object.assign(G.S, { place: p, result: null });
+      set(G.S);
+      F.render();
+      const t = strip(els.main.innerHTML);
+      assert.ok(t.trim() && !BAD.test(t), `${p} の${what}: ${around(t)}`);
     }
-    G.S.place = p;
-    const sc = F.sceneText(G.S);
-    assert.ok(sc && !BAD.test(sc), `${p}: 場所の描写が変: ${sc}`);
-    assert.ok(G.THINK[p], `${p}: 「考える」の文（THINK）がない（画面に undefined が出る）`);
   }
 });
 
@@ -48,7 +49,7 @@ test('カードの場所・時間帯・コストの書き方が正しい', () =>
 // カードとレシピの run を、いくつもの乱数で実行して、返り値を調べる
 function checkResult(G, where, o) {
   const t = textOf(o.t);
-  assert.ok(!BAD.test(t), `${where}: 文に undefined などが出る: ${(t.match(/.{0,30}(undefined|NaN|\[object|null).{0,20}/) || [t])[0]}`);
+  assert.ok(!BAD.test(t), `${where}: 文に undefined などが出る: ${around(t)}`);
   for (const k of Object.keys(o.get || {})) assert.ok(G.ITEMS[k] || G.TOOLS[k], `${where}: get の ${k} が ITEMS にない`);
   for (const k of [].concat(o.know || [])) assert.ok(G.K[k], `${where}: know の ${k} が知識（K）にない`);
   if (o.clue) assert.ok(G.CL[o.clue], `${where}: clue の ${o.clue} が違和感（CL）にない`);
@@ -63,10 +64,10 @@ function checkResult(G, where, o) {
 
 test('どのカードを実行しても、文と結果が正しい（乱数を変えて20回ずつ）', () => {
   for (let seed = 1; seed <= 20; seed++) {
-    const { G, F, set } = load({ seed });
+    const { G, F } = load({ seed });
     for (const [id, c] of Object.entries(G.CARDS)) {
       if (!c.run) continue;
-      const S = richState(G, F, set, { place: c.p, slot: c.slot ?? 0 });
+      const S = richState(G, F, { place: c.p, slot: c.slot ?? 0 });
       S.flags.cafeN = seed % 4;
       let o;
       assert.doesNotThrow(() => { o = c.run(S) || {}; }, `${id}: run で例外`);
@@ -77,9 +78,9 @@ test('どのカードを実行しても、文と結果が正しい（乱数を�
 
 test('どのレシピを作っても、文と結果が正しい', () => {
   for (let seed = 1; seed <= 5; seed++) {
-    const { G, F, set } = load({ seed });
+    const { G, F } = load({ seed });
     for (const r of G.RECIPES) {
-      const S = richState(G, F, set, { place: 'camp' });
+      const S = richState(G, F, { place: 'camp' });
       for (const k of Object.keys(G.TOOLS)) { delete S.tools[k]; }
       let o;
       assert.doesNotThrow(() => { o = r.run(S) || {}; }, `${r.id}: run で例外`);
@@ -90,10 +91,10 @@ test('どのレシピを作っても、文と結果が正しい', () => {
 
 test('どの持ちものを使っても、文が正しい', () => {
   for (let seed = 1; seed <= 5; seed++) {
-    const { G, F, set } = load({ seed });
+    const { G, F } = load({ seed });
     for (const k of Object.keys(G.ITEMS)) {
       for (const withKnife of [0, 1]) {
-        const S = richState(G, F, set, { place: 'camp' });
+        const S = richState(G, F, { place: 'camp' });
         S.inv[k] = 2; S.inv.knife = withKnife;
         const opts = F.uses(k) || [];
         for (const u of opts) {
@@ -102,24 +103,24 @@ test('どの持ちものを使っても、文が正しい', () => {
           let o;
           assert.doesNotThrow(() => { o = u.fn() || {}; }, `持ちもの ${k}「${u.l}」で例外`);
           const t = textOf(o.t);
-          assert.ok(!BAD.test(t), `持ちもの ${k}「${u.l}」の文が変: ${t.slice(0, 60)}`);
+          assert.ok(!BAD.test(t), `持ちもの ${k}「${u.l}」の文が変: ${around(t)}`);
         }
       }
     }
   }
 });
 
-test('時間帯の決まった行動は、考えているときも手札でも、同じ時間帯を案内する', () => {
-  const { G, F } = load();
+test('時間帯の決まった行動は、考えている画面でも手札でも、その時間帯を案内する', () => {
+  const { G, F, els } = load();
   for (const [id, c] of Object.entries(G.CARDS)) {
     if (c.slot == null) continue;
     const want = (c.slot === 2 ? '夕方' : G.SLOTS[c.slot]) + 'にできる';
-    F.newRun(); G.S.slot = (c.slot + 1) % 3; // その時間帯ではないときの案内
+    richState(G, F, { place: c.p, slot: (c.slot + 1) % 3 }); // その時間帯ではないとき
     assert.equal(F.slotOff(c), want, `${id}: 手札の案内`);
+    G.S.think = { ids: [id] };
+    F.render();
+    assert.ok(strip(els.main.innerHTML).includes('🕒 ' + want), `${id}: 考えている画面の案内が「${want}」でない`);
   }
-  // 考えているときの注記は、手札の案内と同じ書き方で作る（決め打ちの「夕方」を使わない）
-  const { js } = load();
-  assert.ok(!/note info">🕒 夕方にできる/.test(js), '考えているときの注記が「夕方」の決め打ちに戻っている');
 });
 
 test('昔の名前・言い回しが残っていない', () => {
