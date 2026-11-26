@@ -6,10 +6,13 @@
   "scripts": {
     "scrape": "bun scraper/index.ts",
     "scrape:debug": "bun scraper/index.ts --debug",
-    "scrape:dry": "bun scraper/index.ts --dry-run"
+    "scrape:dry": "bun scraper/index.ts --dry-run",
+    "test:island": "node --test tests/island/*.test.cjs",
+    "test:island:e2e": "node tests/island/play.e2e.cjs"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "playwright": "1.63.0"
   },
   "peerDependencies": {
     "typescript": "^5"

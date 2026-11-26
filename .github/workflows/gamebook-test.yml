@@ -1,0 +1,36 @@
+name: ゲームブックのテスト
+
+# 島ゲーム（gamebook/island.html）のテスト。
+#   ユニット: データのそろい具合と文章の約束ごと（node --test）
+#   大きいテスト: 本物のブラウザで自動プレイし、例外・undefined・はみ出しを探す（Playwright）
+# プルリクエストで動き、公開（gamebook-pages.yml）の前にも呼ばれる。
+on:
+  pull_request:
+    paths:
+      - 'gamebook/**'
+      - 'tests/island/**'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/gamebook-test.yml'
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: ユニットテスト
+        run: npm run test:island
+      - name: ブラウザを入れる
+        run: npx playwright install --with-deps chromium
+      - name: 大きいテスト（自動プレイ）
+        run: npm run test:island:e2e -- 6 800
