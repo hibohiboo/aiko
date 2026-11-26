@@ -123,6 +123,29 @@ test('時間帯の決まった行動は、考えている画面でも手札で�
   }
 });
 
+test('手札のカードは、材料が足りないときや「1日1回」を使ったあとも、手札から消えない', () => {
+  // 出る条件（req）が偽になると、カードは手札から消えて、考え直すまで戻らない。
+  // 材料の数や1日1回のような一時的な条件は dis（押せない理由を出す）に書く。
+  const { G, F } = load();
+  const mk = c => {
+    const S = richState(G, F, { place: c.p });
+    for (const k of Object.keys(G.ITEMS)) S.inv[k] = S.inv[k] || 1;
+    Object.assign(S.flags, { birdFriend: 0 }); S.clues.bird = 1;
+    return S;
+  };
+  for (const [id, c] of Object.entries(G.CARDS)) {
+    if (!c.req || c.once || c.fixed || !c.req(mk(c))) continue;
+    const poor = mk(c);
+    for (const k of Object.keys(poor.inv)) if (!G.CARRY.includes(k)) delete poor.inv[k];
+    poor.store = {};
+    assert.ok(c.req(poor), `${id}: 材料がないと手札から消える（req の材料の条件を dis に移す）`);
+    const used = mk(c);
+    c.run(used);
+    for (const k of Object.keys(G.ITEMS)) { G.S.store[k] = 3; G.S.inv[k] = G.S.inv[k] || 1; }
+    assert.ok(c.req(G.S), `${id}: 使ったあと、その日のうちは手札から消える（1日1回の条件を dis に移す）`);
+  }
+});
+
 test('昔の名前・言い回しが残っていない', () => {
   const { html } = load();
   for (const w of ['ほたる石', 'ひとつも、濡れない', '用事を何も持たずに']) assert.ok(!html.includes(w), `「${w}」が残っている`);
