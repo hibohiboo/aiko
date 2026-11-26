@@ -1398,7 +1398,7 @@ function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList
 function cardHTML(c,o={}){
   const co=costOf(c.c);const dis=disOf(c);const so=!o.idea&&slotOff(c);const hurt=S.hurt[c.id];
   let notes='';
-  if(dis)notes+=o.idea?`<span class="note info">⏳ いまは：${esc(dis)}（手札に加えておける）</span>`:`<span class="note">🚫 ${esc(dis)}</span>`;
+  if(dis)notes+=o.idea?`<span class="note info">⏳ いまは：${esc(dis)}</span>`:`<span class="note">🚫 ${esc(dis)}</span>`;
   else{
     if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 ${c.slot===2?'夕方':SLOTS[c.slot]}にできる</span>`;
     if(so)notes+=`<span class="note">🕒 ${esc(so)}</span>`;
