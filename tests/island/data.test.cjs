@@ -165,6 +165,18 @@ test('考えて浮かんだ案は、いまできなくても手札に加えら�
   }
 });
 
+test('食べものの一覧がそろっている（どれも食べ方・飲み方があり、飲みもの・保存食の分け方が食べものの中にある）', () => {
+  const { G, F } = load();
+  richState(G, F, { place: 'camp' });
+  for (const k of G.EDIBLE) {
+    assert.ok(G.ITEMS[k], `EDIBLE の ${k} が ITEMS にない`);
+    G.S.inv[k] = 1;
+    assert.ok((F.uses(k) || []).length, `${G.ITEMS[k][0]}（${k}）に、食べる・飲むの選択肢がない`);
+  }
+  for (const k of [...G.DRINKS, ...G.KEEPS]) assert.ok(G.EDIBLE.includes(k), `飲みもの・保存食の ${k} が EDIBLE にない`);
+  assert.ok(G.SNACKS.length && G.SNACKS.every(k => !G.DRINKS.includes(k)), '夜にあさられる食べものの一覧が変');
+});
+
 test('昔の名前・言い回しが残っていない', () => {
   const { html } = load();
   for (const w of ['ほたる石', 'ひとつも、濡れない', '用事を何も持たずに']) assert.ok(!html.includes(w), `「${w}」が残っている`);

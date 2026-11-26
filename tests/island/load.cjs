@@ -20,8 +20,8 @@ function el() {
 
 // 取り出すトップレベルの名前（const は vm の外から見えないので、最後に this へ載せる）
 const EXPOSE = ['S', 'UI', 'META', 'ITEMS', 'TOOLS', 'K', 'EP', 'PHOTO', 'CL', 'PLACES', 'ORDER', 'NAMES', 'ARRIVE',
-  'CARDS', 'RECIPES', 'IDEA', 'THINK', 'FIRSTIDEA', 'LIFEIDEA', 'GOIDEA', 'TRACE', 'SLOTS', 'COOK', 'EDIBLE', 'CARRY',
-  'MATS', 'POT', 'EDGES', 'SHELTER', 'GIVES', 'FIND', 'MILESTONES', 'DAYNAME'];
+  'CARDS', 'RECIPES', 'IDEA', 'FIRSTIDEA', 'LIFEIDEA', 'GOIDEA', 'TRACE', 'SLOTS', 'COOK', 'EDIBLE', 'CARRY',
+  'MATS', 'POT', 'DRINKS', 'KEEPS', 'SNACKS', 'EDGES', 'SHELTER', 'GIVES', 'FIND', 'MILESTONES', 'DAYNAME'];
 const FUNCS = ['newRun', 'save', 'act', 'craft', 'proceed', 'move', 'think', 'takeIdea', 'idle', 'doNight', 'morning',
   'morningLine', 'startDay', 'uses', 'useItem', 'render', 'slotOff', 'disOf', 'handOf', 'nameIt', 'arriveOf', 'sceneText',
   'cafeVisit', 'dryDone', 'apply', 'learn'];

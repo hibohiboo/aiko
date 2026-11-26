@@ -346,6 +346,10 @@ const KEYI=[];                                              // 数に入らな�
 const FULLSHARD='\n……でも、リュックはもういっぱい。\nかけらはここに残しておいて、あとで取りに来よう。';
 const packFull=()=>{const f=packN()>=cap();if(f)(S.want||(S.want={})).shard=1;return f};   // 残したかけらは、取りに戻る案として浮かびやすくする
 const EDIBLE=['hfish','hclam','hfruit','himo','hweed','thermos','tea','bflask','wflask','gimo','imo','salt','coconut','fruit','gfish','gcrab','gclam','gegg','bpot','bshell','rain','wpot','wshell','gshell','gflask','gpot','fish','clam','egg','crab'];
+// 飲みもの（水・お茶）と、しまってある保存食（干したもの・塩）。夜に動物があさるのは、それ以外の食べもの
+const DRINKS=['wshell','bshell','wpot','bpot','gshell','gflask','gpot','rain','tea','thermos','wflask','bflask'];
+const KEEPS=['salt','hfish','hclam','hfruit','himo','hweed'];
+const SNACKS=EDIBLE.filter(k=>!DRINKS.includes(k)&&!KEEPS.includes(k));
 const COOK={fish:'gfish',crab:'gcrab',clam:'gclam',egg:'gegg',imo:'gimo',wshell:'bshell',wflask:'bflask',wpot:'bpot'};
 const POT=['pot','wpot','bpot','gpot'];  // 土器は水が入っていても土器
 const TOOLS={knife:['石ナイフ','svg:knife'],rope:['ロープ','🪢'],basket:['背負いかご','🧺'],torch:['松明','svg:torch'],pot:['土器','🏺'],rod:['釣り竿','🎣'],catcher:['雨水だめ','🏺+🌧️'],raft:['いかだ','🛶'],crown:['花かんむり','🌼'],glow:['つきよ石','💎'],signs:['道しるべ','🪧'],bench:['夕日のベンチ','🪑'],garden:['花畑','🌼'],cafe:['島のカフェ','☕']};
@@ -446,12 +450,13 @@ const EP={
   kintsugi:['第84回「金継ぎ」','割れたお茶碗を直してもらう回。\n金継ぎの職人さんが、割れ目に漆を塗って、乾いたら金の粉をまいていく。何日も、何日もかけて。\n「割れたことも、この器の歴史なんですよ」\n茜ちゃんがロケで割っちゃったお茶碗が、金色の線の入った、世界にひとつのお茶碗になりました。\n未央ちゃんが「傷も勲章だね！」って言って、茜ちゃんは、ちょっとだけ泣きそうになっていました。'],
   house:['第163回「高床の家、完成！」','一年がかりの高床の家。最後の床板を渡したのは、三人いっしょでした。\n茜ちゃんが「せーのっ！」って言って、未央ちゃんが「ポジパDASH〜！」って叫んで、私はちょっと遅れて「……だっしゅ」。\nそのずれ方が、なぜか番組でいちばん人気の場面になってしまいました。\n棟梁が床をこんこんと叩いて、「いい家だ」と言ってくれたこと。ずっと忘れません。\n放送の次の日、事務所の掲示板には、卯月ちゃんや美波さんからの「おめでとう」のメモがたくさん貼ってありました。']
 };
-function firstHurt(k,a,b){if(S.seen['hurt:'+k])return b;S.seen['hurt:'+k]=1;return a}
+// はじめてのときだけ a、2回目からは b を返す。kind ごとに S.seen の鍵を分ける（hurt:・do:・eat:）
+function first(kind,k,a,b){const key=kind+':'+k;if(S.seen[key])return b;S.seen[key]=1;return a}
+const firstHurt=(k,a,b)=>first('hurt',k,a,b), firstDo=(k,a,b)=>first('do',k,a,b), firstEat=(k,a,b)=>first('eat',k,a,b);
 // 体力がはじめて 30 を切ったとき（倒れていなければ）
 function lowLine(){if(S.hp<=0||S.hp>=30||S.seen['do:happyend'])return null;S.seen['do:happyend']=1;
   return'体が重い。座りこんだまま、しばらく立ち上がれなかった。\n……ここで終わり、なんて。\n\n「……最後はハッピーエンドって、決めてますから」\n\n声に出したら、指先に、少しだけ力が戻ってきた。'}
-function firstDo(k,a,b){if(S.seen['do:'+k])return b;S.seen['do:'+k]=1;return a}
-function hurtAdd(t,k,a,b){if(S.seen['hurt:'+k])return t+'\n'+b;S.seen['hurt:'+k]=1;return[t,a]}
+function hurtAdd(t,k,a,b){return first('hurt',k,[t,a],t+'\n'+b)}
 function ep(id){if(!S||S.seen['ep:'+id])return[];S.seen['ep:'+id]=1;S.eps.push(id);META.eps=META.eps||{};META.eps[id]=1;return[{ep:EP[id][0],t:EP[id][1]}]}
 
 // トイカメラで撮れる瞬間：[絵, 藍子のひとこと]
@@ -511,14 +516,14 @@ const NCL=Object.keys(CL).length;
 
 const PLACES={
   camp:{n:'野営地',i:'🛖'},
-  beach:{n:'浜辺',i:'🌊'},
+  beach:{n:'浜辺',at:'波打ち際',i:'🌊'},
   forest:{n:'森の入口',i:'🌴'},
   rocks:{n:'岩場',i:'🪨'},
-  stream:{n:'小川',i:'🏞️'},
+  stream:{n:'小川',at:'小川のほとり',i:'🏞️'},
   hill:{n:'崖の上',i:'⛰️',lock:s=>!(inv('rope')||s.flags.climbed)&&(owns('rope')?'ロープを持ってきていない':'登る手段がない')},
   cave:{n:'洞窟',i:'🕳️',lock:s=>!inv('torch')&&!s.tools.glow&&(owns('torch')?'松明を持ってきていない':'真っ暗で進めない')},
   cove:{n:'光の入り江',i:'🌌',lock:s=>PLACES.cave.lock(s)},   // 洞窟を抜けた先。崖の真下で、上からは見えない
-  ruins:{n:'霧の奥',i:'🏛️',lock:s=>clueN(s)<4&&'霧が深くて進めない'}
+  ruins:{n:'霧の奥',at:'石の門の前',i:'🏛️',lock:s=>clueN(s)<4&&'霧が深くて進めない'}
 };
 const ORDER=['camp','beach','forest','rocks','stream','hill','cave','cove','ruins'];
 // 30日目に、藍子が場所に名前をつける（そのプレイでしたことで変わる）。[名前, 地図に添える思い出]
@@ -572,6 +577,11 @@ const packN=()=>Object.entries(S.inv).filter(([k])=>!KEYI.includes(k)).reduce((a
 
 /* ----- cards ----- */
 const CARDS={};
+// カード C(場所, id, {...})
+//   i 絵・t 見出し・s 説明・c [食べもの, 水] のコスト・tags・w 浮かびやすさ・slot 時間帯（0朝 1昼 2夕）
+//   req: 出る条件。偽になると手札から外れ、考え直すまで戻らない。島での進み具合（見つけた・作った・知った）にだけ使う
+//   dis: 押せない理由（文字列）。材料の数・持っている道具・「1日1回」のような一時的な条件はこちらに書く
+//   once: 一度きり。fixed: 手札でなく、いつも出ている。run(s): 結果 {t, get, d, know, discover, photo, ...} を返す
 function C(p,id,o){o.p=p;o.id=id;o.w=o.w||1;CARDS[id]=o}
 // ---- fixed (story / camp work) ----
 C('beach','findcamp',{fixed:1,story:1,i:'🌙',t:'寝られる場所を探す',s:'日が暮れる前に',c:[3,5],tags:['explore'],once:1,req:s=>!s.places.camp,run:s=>({discover:['camp'],photo:'camp',t:[
@@ -922,7 +932,9 @@ function apply(o,cost,tags,free){
   return{t:o.t,page:0,extra,delta:{hp:S.hp-b.hp,food:S.food-b.food,water:S.water-b.water},gets:res.gets,lost:res.lost,tool:o.tool,kn,disc,choice:o.choice,made:o.made,ideas,photo:o.photo};
 }
 const disOf=c=>c.dis?c.dis(S):null;
-const slotOff=c=>c.slot!=null&&c.slot!==S.slot&&(c.slot===2?'夕方にできる':SLOTS[c.slot]+'にできる');
+// 時間帯の決まった行動の案内（「朝にできる」など）。手札でも考える画面でも、これを使う
+const slotNote=sl=>(sl===2?'夕方':SLOTS[sl])+'にできる';
+const slotOff=c=>c.slot!=null&&c.slot!==S.slot&&slotNote(c.slot);
 function wpick(list,n){const a=list.slice(),out=[];while(out.length<n&&a.length){const tot=a.reduce((x,c)=>x+c.w,0);let r=R()*tot,i=0;for(;i<a.length;i++){r-=a[i].w;if(r<=0)break}out.push(a.splice(Math.min(i,a.length-1),1)[0])}return out}
 const live=c=>c&&!(c.once&&S.once[c.id])&&(!c.req||c.req(S));
 function handOf(p){const h=(S.hand[p]||[]).filter(id=>live(CARDS[id]));S.hand[p]=h;return h}
@@ -1090,7 +1102,7 @@ function doNight(){
       // 喉が渇いていれば、降ってきた雨を飲む
       if(S.water<RAINDRINK){const b0=S.water;S.water=clamp(S.water+20);x+=firstHurt('raindrink','\n喉がからからだった。\n岩陰から、そっと両手を出してみる。手のひらに、冷たい雨がたまっていく。\n口をつけると、やわらかい真水の味がした。\n「雨は、空からのいただきもの。でも、受ける器はきれいにね」\n村のおばあちゃんの言葉を思い出す。\n大きな葉を雨でゆすいでから丸めて、しずくを集めては、何度も飲んだ。\n体のすみずみまで、しみわたっていく。\n','\n喉が渇いていたので、ゆすいだ葉を丸めて、雨のしずくを集めて飲んだ。\n');const r3=learn('rain');if(r3)kn.push(r3);lines.push(['雨水を飲んだ','💧+'+(S.water-b0),'pos'])}
       if(S.tools.catcher){S.store.rain=(S.store.rain||0)+2;x+='雨水だめに、水がたまっていく音がする。'+firstHurt('catcher','\n「空からの、いただきもの」','');lines.push(['雨水だめ','雨水 +2（野営地）','pos'])}else if(S.shelter<2){S.hp=clamp(S.hp-4);const ft=firstHurt('rain','\n'+(S.shelter?'ヤシの葉のすき間':'岩のひさしの端')+'から、冷たいしずくがぽたぽた落ちてくる。\n服が、背中から少しずつ濡れていく。\n濡れた服は、乾いた服よりずっと早く体温を奪う――亜季さんの言葉を思い出して、岩の奥へ奥へと身を寄せた。\n膝を抱えて、雨音を数えながら、朝を待った。',null);x+=ft||(S.shelter?'葉のすき間':'岩のひさしの端')+'から雨が落ちてきて、何度も目が覚めた。';if(ft){const r2=learn('wetcold');if(r2)kn.push(r2)}lines.push(['雨にぬれた','♥−4','neg'])}else x+='屋根を叩く雨音を聞きながら眠った。\nポジパ島の小屋で、三人で聞いた雨の音に似ていた。';t.push(x)}
-    else if(r<.45&&!S.fire){const f=Object.keys(S.store).filter(k=>EDIBLE.includes(k)&&!['wshell','bshell','wpot','bpot','gshell','gflask','gpot','rain','tea','thermos','wflask','bflask','salt','hfish','hclam','hfruit','himo','hweed'].includes(k));if(f.length){const k=f[ri(0,f.length-1)];S.store[k]--;if(!S.store[k])delete S.store[k];t.push('暗闇で、何かが荷物をあさる音がした。……虫じゃありませんように。\n朝になると、置いていた'+ITEMS[k][0]+'がひとつ消えていた。火があれば、近寄らなかったかな。');lines.push(['夜の訪問者',ITEMS[k][0]+' −1','neg'])}else t.push('暗闇の向こうで、何かの目が光った気がした。\n「……こ、こんばんは」')}
+    else if(r<.45&&!S.fire){const f=Object.keys(S.store).filter(k=>SNACKS.includes(k));if(f.length){const k=f[ri(0,f.length-1)];S.store[k]--;if(!S.store[k])delete S.store[k];t.push('暗闇で、何かが荷物をあさる音がした。……虫じゃありませんように。\n朝になると、置いていた'+ITEMS[k][0]+'がひとつ消えていた。火があれば、近寄らなかったかな。');lines.push(['夜の訪問者',ITEMS[k][0]+' −1','neg'])}else t.push('暗闇の向こうで、何かの目が光った気がした。\n「……こ、こんばんは」')}
     else if(r<.6)t.push('流れ星がひとつ、霧の向こうへ落ちていった。\n今度は、ちゃんと間に合った。\n「みんなのところへ、帰れますように」');
     else{const L=['波の音を数えているうちに、眠っていた。',(S.fire?'焚き火の燠を見ながら':'暗い海をながめながら')+'、事務所のみんなのことを考えた。\n今日は、レッスンの日だったはず。','風の強い夜。未央ちゃんなら「テンション上がるね！」って言いそう。','虫の声が、聞いたことのない拍子で鳴いている。\n……虫は、ちょっと苦手です。','プロデューサーさんの声を思い出そうとした。\n「藍子のペースでいいよ」\n……はい。私のペースで、がんばります。','茜ちゃんなら、今ごろ島を三周くらい走っていそう。\nそう思ったら、ひとりで笑ってしまった。','歌鈴ちゃんは、今ごろ神社のお掃除かな。\n石段で転んでいませんように。','芳乃ちゃんの言葉を思い出した。「足るを知る」。\n火があって、星がきれいで、ちゃんとお腹もふくれた。……うん、今日は足りています。'];if(S.clues.moons)L.push('ふたつの月が、岩陰の入口を照らしている。\nもう、少しだけ見慣れてきた。');t.push(L[ri(0,L.length-1)])}
   }
@@ -1209,7 +1221,6 @@ function finish(kind){
 
 /* ----- eat / drink (リュック・野営地の蓄えから。時間は進まない) ----- */
 // はじめて食べるときだけ、描写を厚くする
-function firstEat(k,a,b){if(S.seen['eat:'+k])return b;S.seen['eat:'+k]=1;return a}
 function uses(k){
   const o=[];
   switch(k){
@@ -1371,7 +1382,7 @@ function renderMain(deal){
       document.getElementById('back').onclick=()=>{S.think.swap=null;render(false)};
       return;
     }
-    m.innerHTML=head+`<div class="thinkhead">💭 ${THINK[S.place]}<small>${needNote()}${LITE?'':'1つ選んで手札に加える（時間は進まない）'}</small></div>
+    m.innerHTML=head+`<div class="thinkhead">💭 ${thinkOf(S.place)}<small>${needNote()}${LITE?'':'1つ選んで手札に加える（時間は進まない）'}</small></div>
       <div class="cards">${T.ids.map((id,i)=>cardHTML(CARDS[id],{deal:i,idea:1})).join('')||'<p class="scene">何も思いつかない。</p>'}</div>
       <button class="btn sub" id="skip">どれもやめておく</button>`;
     m.querySelectorAll('.card').forEach(b=>b.onclick=()=>takeIdea(b.dataset.id));
@@ -1387,20 +1398,21 @@ function renderMain(deal){
   m.innerHTML=head+(fx.length?`<div class="cards fixed">${fx.map(c=>cardHTML(c,{cls:c.story?'story':'camp'})).join('')}</div>`:'')+
     `<div class="sec">${pn(S.place)}でできること ${LITE?'':'<small>選ぶと時間が進む</small>'}</div>
     <div class="cards">${html}</div>
-    <button class="btn think ${h.length?'sub':''}" id="think" ${thought?'disabled':''}>${thought?'この時間、ここではもう考えた':'💭 '+THINK[S.place]}</button>
+    <button class="btn think ${h.length?'sub':''}" id="think" ${thought?'disabled':''}>${thought?'この時間、ここではもう考えた':'💭 '+thinkOf(S.place)}</button>
     ${thought&&!usable?'<p class="hint">ほかの場所に移って考えることもできる。</p><button class="btn sub" id="idle">何もせずに時間を過ごす</button>':''}`;
   m.querySelectorAll('button.card').forEach(b=>b.onclick=()=>{const c=CARDS[b.dataset.id];if(b.classList.contains('off')){shake(b);return}if(!c.work)m.querySelectorAll('.card').forEach(x=>x.disabled=true);act(c)});
   document.getElementById('think').onclick=think;
   const idl=document.getElementById('idle');if(idl)idl.onclick=idle;
 }
-const THINK={beach:'波打ち際で、何をしようか考える',forest:'森の入口で、何をしようか考える',rocks:'岩場で、何をしようか考える',stream:'小川のほとりで、何をしようか考える',camp:'野営地で、何をしようか考える',hill:'崖の上で、何をしようか考える',cave:'洞窟で、何をしようか考える',cove:'光の入り江で、何をしようか考える',ruins:'石の門の前で、何をしようか考える'};
+// 「考える」の見出し。場所の名前（言いかえがあれば at）から作るので、場所を足しても抜けない
+const thinkOf=p=>(PLACES[p].at||PLACES[p].n)+'で、何をしようか考える';
 function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
 function cardHTML(c,o={}){
   const co=costOf(c.c);const dis=disOf(c);const so=!o.idea&&slotOff(c);const hurt=S.hurt[c.id];
   let notes='';
   if(dis)notes+=o.idea?`<span class="note info">⏳ いまは：${esc(dis)}</span>`:`<span class="note">🚫 ${esc(dis)}</span>`;
   else{
-    if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 ${c.slot===2?'夕方':SLOTS[c.slot]}にできる</span>`;
+    if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 ${slotNote(c.slot)}</span>`;
     if(so)notes+=`<span class="note">🕒 ${esc(so)}</span>`;
     if(hurt)notes+=`<span class="note warn">⚠ 前回：${esc(hurt)}</span>`;
     const zf=co.food>0&&S.food-co.food<=0,zw=co.water>0&&S.water-co.water<=0;
