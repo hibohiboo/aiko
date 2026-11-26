@@ -348,7 +348,7 @@ const packFull=()=>{const f=packN()>=cap();if(f)(S.want||(S.want={})).shard=1;re
 const EDIBLE=['hfish','hclam','hfruit','himo','hweed','thermos','tea','bflask','wflask','gimo','imo','salt','coconut','fruit','gfish','gcrab','gclam','gegg','bpot','bshell','rain','wpot','wshell','gshell','gflask','gpot','fish','clam','egg','crab'];
 const COOK={fish:'gfish',crab:'gcrab',clam:'gclam',egg:'gegg',imo:'gimo',wshell:'bshell',wflask:'bflask',wpot:'bpot'};
 const POT=['pot','wpot','bpot','gpot'];  // 土器は水が入っていても土器
-const TOOLS={knife:['石ナイフ','svg:knife'],rope:['ロープ','🪢'],basket:['背負いかご','🧺'],torch:['松明','svg:torch'],pot:['土器','🏺'],rod:['釣り竿','🎣'],catcher:['雨水だめ','🏺+🌧️'],raft:['いかだ','🛶'],crown:['花かんむり','🌼'],glow:['ほたる石','💎'],signs:['道しるべ','🪧'],bench:['夕日のベンチ','🪑'],garden:['花畑','🌼'],cafe:['島のカフェ','☕']};
+const TOOLS={knife:['石ナイフ','svg:knife'],rope:['ロープ','🪢'],basket:['背負いかご','🧺'],torch:['松明','svg:torch'],pot:['土器','🏺'],rod:['釣り竿','🎣'],catcher:['雨水だめ','🏺+🌧️'],raft:['いかだ','🛶'],crown:['花かんむり','🌼'],glow:['つきよ石','💎'],signs:['道しるべ','🪧'],bench:['夕日のベンチ','🪑'],garden:['花畑','🌼'],cafe:['島のカフェ','☕']};
 // 移動：道でつながった場所。野営地と浜辺はすぐそこ（0）
 const EDGES=[['camp','beach',0],['beach','forest',1],['beach','rocks',1],['forest','stream',1],['rocks','hill',1],['rocks','cave',1],['cave','cove',1],['stream','ruins',1]];
 function dist(a,b){const D={};D[a]=0;const q=[a];while(q.length){q.sort((x,y)=>D[x]-D[y]);const u=q.shift();for(const[x,y,w]of EDGES){const v=x===u?y:y===u?x:null;if(v&&(D[v]==null||D[u]+w<D[v])){D[v]=D[u]+w;q.push(v)}}}return D[b]??3}
@@ -475,7 +475,7 @@ const PHOTO={
   moss:['✨','光る苔。暗くて、写らないかもしれない。'],
   mural:['🖐️','洞窟の壁画。ふたつの月と、石の門。'],
   moons:['🌕<span class="moon2">🌕</span>','ふたつの月。白い月と、小さな赤い月。'],
-  glowstone:['💎','ほたる石。手のひらの、小さなお月さま。'],
+  glowstone:['💎','つきよ石。手のひらの、小さなお月さま。'],
   ceiling:['✨','洞窟の天井の星空。まんなかに、ふたつの月。'],
   glowfish:['🐟','光る骨のお魚さん。ここは、この子たちのおうち。'],
   cove:['🌌','光の入り江。崖の上からは、見えなかった場所。'],
@@ -553,7 +553,7 @@ function sceneText(s){
     case 'rocks': return '黒い岩が重なる岬。潮が引くと足場が広がる。';
     case 'stream': return '森の奥を流れる澄んだ小川。川底の粘土が足の裏にやわらかい。';
     case 'hill': return '島でいちばん高い場所。風が強くて、遠くまで見渡せる。足もとには白い小花。'+(s.tools.bench?'西のはしに、流木のベンチ。':'');
-    case 'cave': return (inv('torch')?'松明の火が':'ほたる石の青い光が')+'濡れた岩壁を照らす。奥から水の滴る音が響いてくる。';
+    case 'cave': return (inv('torch')?'松明の火が':'つきよ石の青い光が')+'濡れた岩壁を照らす。奥から水の滴る音が響いてくる。';
     case 'cove': return '崖の下にえぐれた、秘密の入り江。水が内側から青く光っている。';
     case 'ruins': return '苔むした石の柱の輪。真ん中に、古い石の門が立っている。';
   }
@@ -585,7 +585,7 @@ const COOKT={
   fish:['小枝の皮をむいて、魚の口から尾のほうへ、波を縫うように刺していく。\n焚き火のまわりの砂に、斜めに立てて並べた。\n「遠火の強火じゃ」\n漁師のおじいさんの声を思い出して、炎から少し離す。近すぎると、皮だけ焦げて中は生のままになってしまう。\nじりじり、と脂が落ちて、炎がぱっと跳ねる。くるりと返して、もう半分。\n皮がきつね色にふくらんできたら、焼きあがり。','魚は小枝に刺して、遠火でじっくり焼いた。'],
   crab:['焚き火の燠を少しよけて、平たい石を熱しておく。\nさっきまで、脚をわらわら動かしていたカニさん。\n……正直に言うと、こういうインパクトのある食べものは、ちょっと苦手です。\nでも、そうも言っていられない。\n番組では、お店に並ぶ前の命のことも、ちゃんと教わってきたから。\nカニさんは、甲羅を下にして石の上へ。\n「……ごめんなさい。いただきます」\n黒っぽかった甲羅が、みるみるうちに赤く染まっていく。\n殻のすき間から、しゅわしゅわと潮の香りの湯気が上がった。','カニは甲羅を下にして、焼いた石の上で赤くなるまで焼いた。'],
   clam:['貝は、口を上にして燠の上に並べる。\n「貝はね、ひっくり返さないの。おいしいおつゆがこぼれちゃうから」\n村のおばあちゃんに教わったとおり、じっと待つ。\nぱかっ。ぱかっ。\nひとつずつ口を開いていく貝の中で、おつゆがふつふつと煮立っていた。','貝は口を上にして燠に並べ、ぱかっと開くまで待った。'],
-  egg:['平たい石を焚き火にのせて、よく熱する。\n真ん中を少しくぼませておくと、白身が流れていかない。\n手をかざして、じんわり熱が伝わってくるくらいになったら――\n卵を石のかどでこつんと割って、そっと落とす。\nじゅっ。\n白身のふちがちりちりと、レースみたいに焼けていく。黄身は、まんまるのまま。\n「……ふふっ。目玉焼きだ」\nフライパンのかわりに、島の石。','卵は、焼いた石の上で目玉焼きにした。'],
+  egg:['浜で拾った平たい石を、焚き火にのせて、よく熱する。\n真ん中が少しくぼんだ石を選んできたから、白身が流れていかない。\n手をかざして、じんわり熱が伝わってくるくらいになったら――\n卵を石のかどでこつんと割って、そっと落とす。\nじゅっ。\n白身のふちがちりちりと、レースみたいに焼けていく。黄身は、まんまるのまま。\n「……ふふっ。目玉焼きだ」\nフライパンのかわりに、島の石。','卵は、焼いた石の上で目玉焼きにした。'],
   imo:['芋は大きな葉で包んで、焚き火の下の、熱い灰の中に埋めた。\n「焼き芋はね、炎じゃなくて、灰でじっくり焼くのよ」\n村のおばあちゃんの言葉を思い出しながら、のんびり待つ。\n枝でつついて掘り出すと、葉っぱは真っ黒。\nそっと開くと、ほっくりした湯気が立ちのぼった。','芋は葉で包んで、熱い灰に埋めて焼いた。']
 };
 C('camp','cook',{fixed:1,i:'🐟+🔥',t:'焚き火で料理する',s:'焼けるものをまとめて焼く',c:[2,3],tags:['safe'],req:s=>s.fire,dis:s=>!Object.keys(COOK).some(k=>have(k)&&((k!=='wshell'&&k!=='wflask')||tool('pot')))&&'焼けるものがない',run:s=>{
@@ -611,8 +611,20 @@ C('camp','warm',{i:'🔥',t:'焚き火で体を温める',s:'体力を回復す�
 C('camp','teeth',{i:'🪥',t:'歯をみがく',s:'朝のうちに',c:[1,1],tags:['safe'],slot:0,w:1.5,req:s=>!!s.flags.life50,run:s=>{const first=!s.flags.teeth;s.flags.teeth=1;const salt=have('salt')>0;
   if(first)return{d:{hp:4},know:salt?['fusayouji','shioha']:'fusayouji',t:['ずっと、指とハンカチでみがいていた歯。\n……ちゃんとした歯ブラシが、ほしいな。','やわらかい木の細い枝を折って、先っぽを、石でとんとん叩く。\n繊維がほぐれて、小さな筆みたいになった。\n房楊枝。江戸時代の人の、歯ブラシ。\n番組で、楊枝屋さんの職人さんに作り方を見せてもらって、「ほんとうに歯ブラシみたい……」って、三人でびっくりしたっけ。',(salt?'手作りの塩を、ほんの少しつけて、ごしごし。\n……しょっぱい。でも、口の中が、すうっとする。':'ごしごし。\n……うん。口の中が、すうっとする。')+'\n\nアイドルは、笑顔がお仕事。\n魔法瓶のふたに映った自分に、にこっと笑ってみる。……うん、大丈夫。']};
   return{d:{hp:3},t:['房楊枝で、歯をみがいた。すっきり。','歯をみがきながら、朝の海をながめた。','しゃかしゃか。今日も、いい天気。'][ri(0,2)]}}});
-C('camp','cafetime',{i:'☕',t:'カフェで、ひと休み',s:'夕方だけ。香りのいい葉を使う',c:[1,1],tags:['safe'],slot:2,w:2,req:s=>s.tools.cafe&&s.fire,dis:s=>have('herb')<1&&'香りのいい葉がない',run:s=>({get:{herb:-1},d:{hp:10,water:10},t:['葉っぱのお茶を淹れて、カフェの椅子に座った。\n夕焼けが、湯気の向こうでゆらゆらしている。'+(s.flags.birdFriend?'\nルリは、今日もふたつめの椅子の常連さん。':''),'「本日のおすすめは、葉っぱのお茶です」\n……ほかに、メニューはないけれど。\n一杯のお茶を、ゆっくり、ゆっくり飲んだ。','カフェの椅子で、日記を書いた。\nお茶が冷めるくらい、ゆっくり。'][ri(0,2)]})});
-C('camp','smudge',{i:'💨',t:'葉っぱをいぶして虫よけ',s:'香りのいい葉を使う',c:[1,2],tags:['safe'],req:s=>s.fire&&have('herb')>=1&&s.flags.smudge!==s.day,run:s=>{s.flags.smudge=s.day;return{get:{herb:-1},know:'kayari',t:'焚き火のはしに、香りのいい葉をくべた。\n白い煙がゆるゆると岩陰に広がって、羽音が遠ざかっていく。\n「……よかったぁ」\n虫は、本当に苦手なんです。今夜は、ぐっすり眠れそう。'}}});
+// カフェでひと休み：1回目はビビッドカラーエイジ、2回目はFloweryの夕美ちゃんを思い出す
+function cafeVisit(s,n){
+  if(n===1)return[
+  '葉っぱのお茶を淹れて、カフェの椅子に座った。\n今日は、お店の人じゃなくて、はじめてのお客さまとして。\n土器のカップを両手で包むと、じんわりあたたかい。\n夕焼けが、湯気の向こうでゆらゆらしている。',
+  '……このカップ、肇ちゃんが見たら、なんて言うかな。\nきっと、くるくる回して、底までじっくり見てから、\n「少しいびつですけど、いい焼き色です」って、まじめな顔でほめてくれる。\nそのとなりで、加奈ちゃんは手帳をひらいて、\n「藍子ちゃんの島カフェ、メモしておかなきゃ！」',
+  'ビビッドカラーエイジの三人で、レッスンの帰りに、よくカフェへ寄り道した。\n私は、アールグレイをポットで。\nおしゃべりに夢中になって、気がつくと、いつもお茶が冷めていた。\n「……また冷めちゃいましたね」って、三人で笑って。',
+  '椅子は、ふたつ。\n'+(s.flags.birdFriend?'今日のお客さまは、ルリだけ。\n':'今日のお客さまは、私だけ。\n')+'でも、いつか、みんなをご招待できたらいいな。\n「……そのときは、一日店長さんです」\n\nお茶が冷めるくらい、ゆっくり、ゆっくり飲んだ。'];
+  return[
+  '今日も、葉っぱのお茶を淹れた。\nカフェの椅子に座ると、夕焼けの色が、カップの中にまで落ちてくる。',
+  s.tools.garden?'おうちの前の花畑で、白い小花が、夕風に揺れている。\n夕美ちゃんなら、この花の名前も、育て方も、きっと知ってる。\n「この子たち、ちゃんと根づいたね」って、しゃがみこんで、花に話しかけそう。':'テーブルの上が、少しさびしい。\n夕美ちゃんがいたら、どこからか一輪摘んできて、そっと飾ってくれそう。\n「ほら、こうすると、カフェっぽくなるでしょ？」なんて。',
+  '夕美ちゃんのまわりには、いつもお花がある。\nFloweryのステージでも、事務所でも。\nいつか、ふたりでガーデニングをしてみたいな、って、ずっと思っていて。'+(s.tools.garden?'\n……この島で、先に、ひとりでお花を育てることになるなんて。':''),
+  '帰ったら、夕美ちゃんを、ふたつめの椅子にご招待しよう。\nこの島で見つけたお花の話を、ひとつずつ。\n\nきっと、お茶が冷めるくらい、たくさん話すことになる。']}
+C('camp','cafetime',{i:'☕',t:'カフェで、ひと休み',s:'夕方だけ。香りのいい葉を使う',c:[1,1],tags:['safe'],slot:2,w:2,req:s=>s.tools.cafe&&s.fire,dis:s=>have('herb')<1&&'香りのいい葉がない',run:s=>({get:{herb:-1},d:{hp:10,water:10},t:(s.flags.cafeN=(s.flags.cafeN||0)+1)<=2?cafeVisit(s,s.flags.cafeN):['葉っぱのお茶を淹れて、カフェの椅子に座った。\n夕焼けが、湯気の向こうでゆらゆらしている。'+(s.flags.birdFriend?'\nルリは、今日もふたつめの椅子の常連さん。':''),'「本日のおすすめは、葉っぱのお茶です」\n……ほかに、メニューはないけれど。\n一杯のお茶を、ゆっくり、ゆっくり飲んだ。','カフェの椅子で、日記を書いた。\nお茶が冷めるくらい、ゆっくり。'][ri(0,2)]})});
+C('camp','smudge',{i:'💨',t:'葉っぱをいぶして虫よけ',s:'香りのいい葉を使う',c:[1,2],tags:['safe'],req:s=>s.fire,dis:s=>s.flags.smudge===s.day?'今夜は、もういぶした':have('herb')<1&&'香りのいい葉がない',run:s=>{s.flags.smudge=s.day;return{get:{herb:-1},know:'kayari',t:'焚き火のはしに、香りのいい葉をくべた。\n白い煙がゆるゆると岩陰に広がって、羽音が遠ざかっていく。\n「……よかったぁ」\n虫は、本当に苦手なんです。今夜は、ぐっすり眠れそう。'}}});
 C('camp','sing',{i:'🎵',t:'歌を口ずさむ',s:'ひとりの夕方は、少しさびしいから',c:[1,2],tags:['safe'],run:s=>{const n=(s.flags.sang||0);s.flags.sang=n+1;
   const t=['流木に腰かけて、小さな声で歌った。\nポジパの三人で歌った、元気な曲。ひとりで歌うと、ちょっとゆっくりになる。','波の音に合わせて、ゆったりした曲を歌った。\nライブでこの曲を歌うと、客席のペンライトが波みたいに揺れるんです。\nあの光のひとつひとつに、応援してくれる人がいる。……みんな、元気かな。','鼻歌まじりに、曲の振りをなぞってみた。\n……レッスン、ずいぶん休んじゃってる。帰ったら、トレーナーさんに怒られちゃうかな。\nプロデューサーさんも、きっと心配してる。'][n%3];
   return{d:{hp:6},t:t+(s.flags.birdFriend?'\nルリが、合いの手みたいにピィと鳴いた。':'')}}});
@@ -681,7 +693,7 @@ C('forest','palm',{i:'🌴',t:'ヤシの木に登る',s:'実と葉がまとめ�
 C('forest','fallen',{i:'🥥',t:'落ちたヤシの実を探す',s:'木の根もとを見て回る',c:[3,5],tags:['safe'],run:s=>P(.7)?{get:{coconut:1},t:'根もとの草むらに、熟した実がひとつ落ちていた。'}:{get:{shell:1},t:'あるのは割れて乾いた殻ばかり。\nきれいに半分に割れたものをひとつ拾った。器になりそうだ。'}});
 C('forest','deep',{i:'🌳',t:'森の奥へ分け入る',s:'水の音がした気がする',c:[6,10],tags:['explore'],once:1,w:2,req:s=>!s.places.stream,run:s=>{if(P(known('followdown')?.75:.5))return{discover:['stream'],know:['followdown','birdwater'],want:'shell',t:['喉がからから。水を探さなきゃ。\n「迷ったら、沢へ下りちゃいけないよ。落ち着いて、来た道を引き返すの」\n山歩き名人のおばあさんの言葉が、頭の中で聞こえる。',...ep('forest'),'立ち止まって、目を閉じた。耳をすます。\n葉のざわめき。虫の羽音。それから、鳥の声。\n……あちこちで鳴いているけれど、右手の奥のほうだけ、いくつもの声が重なって、にぎやかだ。\n「鳥はね、毎日水を飲みに行くの。鳥がたくさん鳴いているほうに、水はあるよ」\nこれも、おばあさんの言葉。','迷っているわけじゃない。来た道は、まだちゃんとわかる。\nそれに、今は水がいる。鳥の声のするほうへ。\n通った枝にツルを結んで目印にしながら、地面のくぼみに沿って、少しずつ下りた。\n子どものころは、迷子になってばかりだった。だから、ふり返って目印を確かめるのを忘れない。','さらさら、と音がした。\n茂みを抜けた先に、澄んだ小川が流れていた。\n思わずかけ寄って、手を浸す。冷たい。\n……でも、このまま飲んで大丈夫かな。']};return{keep:1,d:{water:-4},know:'followdown',t:['シダをかき分けて進むうちに、どっちから来たのかわからなくなった。\n胸がどきどきする。……子どものころ、迷子になったときと同じ。','「迷ったら、落ち着いて、来た道を引き返すの」\n深呼吸して、折れた枝と足あとをたどって、森の入口まで戻った。\n次は、通った道に目印を残しながら進もう。',...ep('forest')]}}});
 C('forest','bird',{i:'svg:bird4',t:'鳥の声をたどる',s:'鳥のいる所には実がある',c:[3,6],tags:['observe'],run:s=>{if(!s.clues.bird&&P(.6)){s.flags.recall=1;return{clue:'bird',want:'fruit',get:{fruit:1},photo:'bird',t:['枝の上で、青い鳥が実をついばんでいた。\n……あれ？　この色、どこかで――\nふいに鳥がこちらを向いた。小さな顔に、黒い目が四つ並んでいる。\n二股の尾羽をひるがえして、鳥は森の奥へ飛んでいった。','……思い出した。\nあの朝、ポジパ島の浜辺に白い霧が出て、霧のなかから、あの青い鳥が飛んできたんだ。\n一枚撮りたくて追いかけて、岩のアーチをくぐって――\n気がついたら、この島の浜で眠っていた。']}};return{get:{fruit:1},t:'鳥が落とした実を拾った。「ありがとう」'}}});
-C('forest','feedbird',{i:'svg:bird4',t:'青い鳥に木の実をわける',s:'木の実を持っていく',c:[2,3],tags:['observe'],w:2,req:s=>s.clues.bird&&!s.flags.birdFriend&&inv('fruit')>=1,run:s=>{const n=s.flags.birdN||0;s.flags.birdN=n+1;
+C('forest','feedbird',{i:'svg:bird4',t:'青い鳥に木の実をわける',s:'木の実を持っていく',c:[2,3],tags:['observe'],w:2,req:s=>s.clues.bird&&!s.flags.birdFriend,dis:s=>inv('fruit')<1&&'木の実を持っていない',run:s=>{const n=s.flags.birdN||0;s.flags.birdN=n+1;
   if(n===0)return{get:{fruit:-1},t:'枝の上の青い鳥に、木の実をそっと差し出した。\n「こんにちは。お腹、すいてませんか？」\n四つの目が、じっとこちらを見る。……今日は、降りてきてくれなかった。\n実は枝の根もとに置いておいた。'};
   if(n===1)return{get:{fruit:-1},t:'今日も木の実を差し出すと、青い鳥は枝を一本ずつ降りてきて、手のひらの実をついばんだ。\n小さなくちばしが、くすぐったい。\n「ふふっ。また明日も来ますね」'};
   s.flags.birdFriend=1;return{get:{fruit:-1},photo:'sora',t:['呼ぶより先に、青い鳥が肩に舞い降りてきた。\n「わっ……。ふふっ、おはようございます」','「あなたに、名前をつけてもいいですか？」\nきれいな瑠璃色だから――「ルリちゃん」。\nルリちゃんは、二股の尾羽をふるわせて鳴いた。\n……前にも、こんなふうに瑠璃色の小鳥に名前をつけたことがあるような。夢の中だったかな。\n\nこの島で、はじめてのお友だち。']}}});
@@ -714,12 +726,12 @@ function fetchWater(s,where){
   if(pk){if(pk!==g+'pot'){get[pk]=-1;get[g+'pot']=1}s.potW=s.flags.sealed?3:1;parts.push(s.flags.sealed?'土器（3杯分）':'土器')}
   if(pk&&!s.flags.sealed){s.flags.leaked=1;if(!have('imo'))(s.want||(s.want={})).imo=1}
   const leak=pk&&!s.flags.sealed?'\n……土器の底から、じわりと水がしみ出してくる。焼きたての器には、目に見えないすき間があるんだっけ。一杯分しか持ちそうにない。':'';
-  if(where==='lake')return{get,d:{water:30},know:'groundwater',t:(inv('torch')?'松明を岩のすき間に立てかけて':'ほたる石を岩のくぼみに置いて')+'、地底湖のほとりにしゃがむ。\nまずは両手ですくって、しんと冷えた水を、喉が満足するまで飲んだ。\n持ってきた'+parts.join('と')+'を、湖にそっと沈めて、水を満たした。\nこぼさないように葉でふたをする。'+leak+'\n岩のすき間を、長い時間をかけてしみ出してきた水。小川の水とは違って、このまま持って帰っても飲めそう。'};
+  if(where==='lake')return{get,d:{water:30},know:'groundwater',t:(inv('torch')?'松明を岩のすき間に立てかけて':'つきよ石を岩のくぼみに置いて')+'、地底湖のほとりにしゃがむ。\nまずは両手ですくって、しんと冷えた水を、喉が満足するまで飲んだ。\n持ってきた'+parts.join('と')+'を、湖にそっと沈めて、水を満たした。\nこぼさないように葉でふたをする。'+leak+'\n岩のすき間を、長い時間をかけてしみ出してきた水。小川の水とは違って、このまま持って帰っても飲めそう。'};
   return{get,t:'持ってきた'+parts.join('と')+'に、水を汲んだ。こぼさないように葉でふたをする。'+leak+(known('boil')?'\n野営地で沸かしてから飲もう。':'')};
 }
 C('stream','clay',{i:'🟤',t:'粘土を掘る',s:'焼けば器になる',c:[4,7],tags:['craft'],run:s=>({get:{clay:2},t:'川岸のきめこまかい粘土を、両手ですくい取った。\nひんやりして、肇ちゃんのおじいさんの工房と同じ匂いがする。'})});
-C('stream','handfish',{i:'🐟',t:'魚を手づかみする',s:'なかなか難しい',c:[5,8],tags:['risk'],req:s=>!inv('rod'),run:s=>P(.35)?{get:{fish:1},t:'石の下に手を差しこんで、魚をつかんだ！'}:{d:{water:4},t:'水しぶきを浴びただけだった。'}});
-C('stream','rodfish',{i:'🎣',t:'釣り糸を垂らす',s:'釣り竿を持ってきた',c:[3,5],tags:['safe'],req:s=>inv('rod'),run:s=>s.flags.fline?(P(.95)?{get:{fish:ri(2,3)},t:'細い糸の先で、浮きがすっと沈んだ。\n一匹釣りあげて、また糸を垂らすと、すぐに次の当たり。\n繊維の糸は、水の中でほとんど見えない。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}):P(.85)?{get:{fish:ri(1,2)},t:'しずかに待っていると、貝殻の針に銀色の魚がかかった。\n魚は、しずかな人のところに来る。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}});
+C('stream','handfish',{i:'🐟',t:'魚を手づかみする',s:'なかなか難しい',c:[5,8],tags:['risk'],run:s=>P(.35)?{get:{fish:1},t:'石の下に手を差しこんで、魚をつかんだ！'}:{d:{water:4},t:'水しぶきを浴びただけだった。'}});
+C('stream','rodfish',{i:'🎣',t:'釣り糸を垂らす',s:'釣り竿で、のんびり',c:[3,5],tags:['safe'],req:s=>owns('rod'),dis:s=>!inv('rod')&&'釣り竿を持ってきていない',run:s=>s.flags.fline?(P(.95)?{get:{fish:ri(2,3)},t:'細い糸の先で、浮きがすっと沈んだ。\n一匹釣りあげて、また糸を垂らすと、すぐに次の当たり。\n繊維の糸は、水の中でほとんど見えない。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}):P(.85)?{get:{fish:ri(1,2)},t:'しずかに待っていると、貝殻の針に銀色の魚がかかった。\n魚は、しずかな人のところに来る。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}});
 C('stream','wash',{i:'🫧',t:'水浴びをする',s:'汗と塩を落とす',c:[1,0],tags:['safe'],run:s=>({d:{hp:7},t:'冷たい水に体を沈める。肌に張りついていた塩が流れ落ちた。\n髪を結びなおすと、気持ちまでしゃんとする。'})});
 C('stream','upstream',{i:'🌫️',t:'上流をたどる',s:'水はどこから来るのだろう',c:[6,9],tags:['explore'],once:1,w:2,req:s=>!s.places.ruins,run:s=>{if(clueN(s)>=4)return{discover:['ruins'],t:['岩を越え、苔の斜面を登る。やがて濃い霧が立ちこめた。\n……この霧、なんだかなつかしい。','霧の切れ間に、石の柱が並んでいるのが見えた。\n自然にできたものじゃない。誰かが、ここに立てたものだ。']};return{discover:['ruins'],t:'上流へ行くほど霧が濃くなって、足もとも見えなくなった。引き返すしかない。\nこの霧の先へ進むには、まだ何かが足りない気がする。\nこの島のことを、もっとよく知らなきゃ。'}}});
 // ---- cave ----
@@ -727,15 +739,15 @@ C('cave','moss',{i:'✨',t:'光る苔を観察する',s:'壁がぼんやり青�
 C('cave','mural',{i:'🖐️',t:'壁画を調べる',s:'岩肌に何か描かれている',c:[3,5],tags:['observe'],once:1,w:2,run:s=>s.flags.muralLeft?(packFull()?{keep:1,t:'壁画の下のくぼみで、青いかけらが光っている。'+FULLSHARD}:{get:{shard:1},t:'壁画の下のくぼみから、残しておいた青いかけらをそっと外した。\nかけらは手のひらで、かすかに光った。'}):(f=>{if(f)s.flags.muralLeft=1;return{clue:'mural',keep:f,get:f?{}:{shard:1},photo:'mural',t:['奥の岩壁に、赤い顔料で絵が描かれていた。\n'+light()+'を近づける。','空に、大小ふたつの円。\nその下に、柱が並ぶ石の門。\n海の上には舟。舟から降りる、小さな人の姿がいくつも。\n「私みたいに、迷いこんだ人たち……？」','絵の下のくぼみに、青い石のかけらがはめこまれていた。'+(f?FULLSHARD:'\nそっと外すと、かけらは手のひらでかすかに光った。')]}})(packFull())});
 C('cave','lake',{i:'💧',t:'地底湖の水を飲む',s:'岩にこされた水',c:[1,0],tags:['safe'],run:s=>({d:{water:35},know:'groundwater',t:['しんと冷えた水。舌に何の味も残らない。',...ep('well')]})});
 C('cave','cavelife',{i:'🛖',t:'ここで暮らせないか考える',s:'雨もしのげるし、水もある',c:[1,2],tags:['observe'],once:1,w:3,run:s=>({know:'cavelife',t:['ひんやりした岩壁に、手を当てて考える。\n雨はしのげる。地底湖の水もある。苔のおかげで、真っ暗でもない。\n……ここに住めたら、楽かもしれない。','でも、しばらく座っていると、背中から冷えがしみこんでくる。\n外はあんなに暑いのに、ここは一日じゅう、ひんやりしたまま。\n岩壁はじっとり濡れていて、服も、拾ってきた枝も、乾きそうにない。','鍾乳洞の回で、ガイドさんが言っていた。\n「洞窟の中は、一年じゅうほとんど同じ温度なんだ。夏はすずしいけど、寝泊まりするには冷えすぎるし、湿気で体が冷える」\n「それに、奥で火を焚くと、煙の逃げ場がないからね」','足もとの砂に、波のようなすじが残っていた。岩壁の、私の背より高いところにも、水のあとの線。\n……大雨のあとは、地底湖の水がここまで上がってくるんだ。\nそれに、ここからは海が見えない。もし船が通っても、狼煙も、手を振ることもできない。','「……休ませてもらうのは、入口のあたりまでにしよう」\n住むのは、お日さまと海の見える、あの岩陰。\n洞窟は、水を汲みに来て、苔の光をながめに来る場所。']})});
-const light=()=>inv('torch')?'松明':'ほたる石';
+const light=()=>inv('torch')?'松明':'つきよ石';
 const DEEP=[
-  s=>({tool:'glow',clue:'glowstone',photo:'glowstone',t:['松明の明かりの外、岩の割れ目の奥で、何かが青白く光っていた。\n手を伸ばすと、ころんとした石がひとつ、手のひらに転がりこんできた。','松明を背中に隠してみる。\n……石は、ひとりで光っていた。苔よりずっと明るい。足もとの小石まで、くっきり見える。\n「お月さまを、ちぎってきたみたい」\nあたたかくもない。重くもない。ポケットに入れると、布ごしに、ぽうっと青く透けた。\n「ほたる石、って呼ぶことにしますね」\n――これがあれば、松明がなくても洞窟を歩けそう。']}),
+  s=>({tool:'glow',clue:'glowstone',photo:'glowstone',t:['松明の明かりの外、岩の割れ目の奥で、何かが青白く光っていた。\n手を伸ばすと、ころんとした石がひとつ、手のひらに転がりこんできた。','松明を背中に隠してみる。\n……石は、ひとりで光っていた。苔よりずっと明るい。足もとの小石まで、くっきり見える。\n「お月さまを、ちぎってきたみたい」\nあたたかくもない。重くもない。ポケットに入れると、布ごしに、ぽうっと青く透けた。\n「つきよ石、って呼ぶことにしますね」\n――これがあれば、松明がなくても洞窟を歩けそう。']}),
   s=>({clue:'ceiling',photo:'ceiling',d:{hp:4},t:['低い通路を抜けると、広い空洞に出た。\n'+light()+'の光を、そっと手でおおう。','見上げると、天井いっぱいに、小さな光の粒が散らばっていた。\n苔でも、石でもない。ひとつひとつが、ゆっくりまたたいている。\n……星空だ。洞窟の中に、星空がある。\n目でなぞっていくと、大きな丸と、小さな丸。そのまわりを、光の粒が輪になってめぐっている。\n「ふたつの、月……？」']}),
   s=>({d:{hp:10},t:['ぽちょん。ぽちょん。\n天井から垂れた鍾乳石の先から、しずくが落ちている。\nしずくが落ちるたびに、下の石の皿が、澄んだ音を鳴らす。','ド、ミ、ソ……。いくつも並んだ皿が、それぞれ違う高さで歌っている。\n「……ふふっ。伴奏、してくれるんですか？」\nしずくの音に合わせて、小さな声で歌ってみた。\n洞窟じゅうに声が広がって、ひとりなのに、みんなで歌っているみたいだった。']}),
   s=>({clue:'glowfish',photo:'glowfish',d:{hp:6},t:['細い地下の流れに、ほのかな光がいくつも浮かんでいた。\nしゃがんで、そっとのぞきこむ。\n……お魚さん。体が透きとおっていて、骨まで見える。その骨が、ぼんやり光っているんだ。','「七海ちゃんが見たら、きっと大はしゃぎですね」\n手をさし入れても、逃げない。指のまわりを、光がくるくる回った。\n……とるのは、やめておこう。ここは、この子たちのおうちだから。']}),
   s=>({discover:['cove'],clue:'cove',photo:'cove',t:['奥へ進むほど、'+light()+'の光が、ふわりと横に流れる。\n……風だ。洞窟の奥なのに、風が吹いてくる。それも、潮の匂いのする風。','風をたどって、狭いすき間を横向きになってすり抜ける。\n岩のざらざらが、背中とおなかをこすっていく。\n「ん、しょ……っ」\n……その先に、光が見えた。']})
 ];
-C('cave','deeper',{i:'svg:torch',t:'洞窟の奥へ進む',s:'足もとに注意',c:[5,7],tags:['explore'],run:s=>{const n=s.flags.deepN||0;s.flags.deepN=n+1;const k=s.flags.deepF||0;if(n>=3&&k<DEEP.length){s.flags.deepF=k+1;return DEEP[k](s)}const o={get:P(.5)?{stone:2}:{clay:1},t:'奥へ進むと、粘土質の床と崩れた岩があった。使えそうなものを拾う。'};if(P(.25)){o.d={hp:-8};o.hurt='天井に頭をぶつけた';o.t=hurtAdd(o.t,'head','ごつん。\n低い天井に、思いきり頭をぶつけた。目の前に星が散る。\n'+(inv('torch')?'松明を落としそうになって、あわてて握りなおす。……ここで火を落としたら、まっくらだ。':'ほたる石を落としそうになって、あわてて握りなおす。……これをなくしたら、まっくらだ。')+'\nしゃがみこんで、痛みが引くのを待った。\n鍾乳洞のロケで頭をぶつけていた茜ちゃんの気持ちが、ちょっとわかった。洞窟では、頭を低く。','低い天井に頭をぶつけた。……洞窟では、頭を低く。')}else if(P(.3))o.t+='\n足もとを何かがカサカサと横切った。「ひゃっ……！」虫は、苦手です。';return o}});
+C('cave','deeper',{i:'svg:torch',t:'洞窟の奥へ進む',s:'足もとに注意',c:[5,7],tags:['explore'],run:s=>{const n=s.flags.deepN||0;s.flags.deepN=n+1;const k=s.flags.deepF||0;if(n>=3&&k<DEEP.length){s.flags.deepF=k+1;return DEEP[k](s)}const o={get:P(.5)?{stone:2}:{clay:1},t:'奥へ進むと、粘土質の床と崩れた岩があった。使えそうなものを拾う。'};if(P(.25)){o.d={hp:-8};o.hurt='天井に頭をぶつけた';o.t=hurtAdd(o.t,'head','ごつん。\n低い天井に、思いきり頭をぶつけた。目の前に星が散る。\n'+(inv('torch')?'松明を落としそうになって、あわてて握りなおす。……ここで火を落としたら、まっくらだ。':'つきよ石を落としそうになって、あわてて握りなおす。……これをなくしたら、まっくらだ。')+'\nしゃがみこんで、痛みが引くのを待った。\n鍾乳洞のロケで頭をぶつけていた茜ちゃんの気持ちが、ちょっとわかった。洞窟では、頭を低く。','低い天井に頭をぶつけた。……洞窟では、頭を低く。')}else if(P(.3))o.t+='\n足もとを何かがカサカサと横切った。「ひゃっ……！」虫は、苦手です。';return o}});
 // ---- cove ----
 C('cave','singcave',{i:'🎵',t:'鍾乳石に合わせて歌ってみる',s:'しずくの音が、歌みたい',c:[2,3],tags:['observe'],once:1,w:2,req:s=>!!s.names&&(s.flags.deepF||0)>=3,run:s=>{trace('melody');return{d:{hp:12},t:[
   '歌う鍾乳石の前に座った。\nぽちょん。ぽちょん。しずくが落ちるたびに、石の皿が、澄んだ音を返す。',
@@ -749,7 +761,7 @@ C('cove','coveclam',{i:'🐚',t:'浅瀬で貝を探す',s:'光る砂の下に',c
 // ---- hill ----
 C('hill','overlook',{i:'🏝️',t:'島を見渡す',s:'島の形を確かめる',c:[3,6],tags:['explore','observe'],once:1,w:2,run:s=>{const o={noGo:1,clue:'fogwall',photo:'overlook',t:['島は、思っていたより小さい。歩いて一日でひと回りできそう。\n浜辺、森、岩場。'+(s.fire?'自分の野営地の煙も見える。':'崖の下に、野営地の岩陰も見える。'),'視線を沖へ移す。\n……どの方角も、海の少し先で、白い霧が壁のように立ちのぼっている。\n空と海の境目が、どこにも見えなかった。']};if(!s.places.stream){o.discover=['stream'];o.t.push('森の中に、光る筋が見えた。小川だ。')}return o}});
 C('hill','stars',{i:'🌌',t:'星が出るのを待つ',s:'夕方だけ',c:[2,4],tags:['observe'],slot:2,once:1,w:2,run:s=>({clue:'stars',know:'polaris',photo:'stars',t:['日が沈んで、空いっぱいに星が広がった。\nこんなに星の多い空は、はじめて。',...ep('stars'),'北の空を探す。ひしゃくの形。カシオペヤのW。\n目をこらしても、どの星をつないでも、見覚えのある形にならない。\n「……未央ちゃん。北極星、どこにもないよ」']})});
-C('hill','smoke',{i:'💨',t:'狼煙を上げる',s:'枯れ枝とヤシの葉を持っていく',c:[5,7],tags:['explore'],req:s=>s.fire&&inv('twig')>=1&&inv('leaf')>=1,run:s=>{const o={get:{twig:-1,leaf:-1},know:'smoke',t:['焚き火の燠を運んで、青い葉をくべた。白い煙が高く昇っていく。',...ep('smoke')]};if(!s.clues.noplanes){o.clue='noplanes';o.t.push('日が傾くまで待った。\n返事の煙も、船も、飛行機も、何も来なかった。')}else o.t.push('誰も来ない。\nそれでも、白い煙がまっすぐ昇っていくのを見ていると、少しだけ心が強くなる。');return o}});
+C('hill','smoke',{i:'💨',t:'狼煙を上げる',s:'枯れ枝とヤシの葉を持っていく',c:[5,7],tags:['explore'],req:s=>s.fire,dis:s=>!(inv('twig')>=1&&inv('leaf')>=1)&&'枯れ枝とヤシの葉を持っていない',run:s=>{const o={get:{twig:-1,leaf:-1},know:'smoke',t:['焚き火の燠を運んで、青い葉をくべた。白い煙が高く昇っていく。',...ep('smoke')]};if(!s.clues.noplanes){o.clue='noplanes';o.t.push('日が傾くまで待った。\n返事の煙も、船も、飛行機も、何も来なかった。')}else o.t.push('誰も来ない。\nそれでも、白い煙がまっすぐ昇っていくのを見ていると、少しだけ心が強くなる。');return o}});
 C('hill','nest',{i:'🪺',t:'海鳥の巣を探る',s:'崖のふちにある',c:[4,6],tags:['risk'],run:s=>{let o;if(!s.flags.nestShard){const seen=s.flags.nestSeen;s.flags.nestSeen=1;const f=packFull();if(!f)s.flags.nestShard=1;o={get:f?{}:{shard:1},t:seen?'崖のふちに腹ばいになって、もう一度巣をのぞいた。下は見ない。\n'+(f?'青いかけらは、まだそこにある。'+FULLSHARD:'残しておいた青いかけらを、そっと取り出した。'):'崖のふちに腹ばいになって、巣をのぞいた。下は見ない。\n巣の中に、卵といっしょに、青く光る石のかけらがあった。\n鳥が光るものを集めてきたのかな。'+(f?FULLSHARD:'')}}else o=P(.6)?{get:{egg:1},t:'卵をひとつ、ゆずってもらった。'}:{t:'親鳥に追い払われた。「ご、ごめんなさい」'};if(P(.15)){o.d={hp:-5};o.t=hurtAdd(o.t,'peck','頭の上で、ばさっと羽音がした。\n親鳥が、鋭いくちばしで頭をつついてくる。何度も、何度も。\n「ご、ごめんなさい……！」\n腕で頭をかばいながら後ずさる。……すぐ後ろは、崖のふち。\nあわてて動くのが、いちばん危ない。息を整えて、ゆっくり、ゆっくり離れた。','親鳥に頭をつつかれた。')}return o}});
 C('hill','benchmake',{i:'🪑',t:'夕日のベンチを作る',s:'流木を運んでくる',c:[4,6],tags:['craft'],once:1,w:3,req:s=>!!s.names,dis:s=>inv('wood')<2&&'流木を2本、持ってくる',run:s=>(trace('seat'),{get:{wood:-2},tool:'bench',made:'夕日のベンチ',t:['崖の上の草地の、いちばん西のはし。\n運んできた流木を、平たい石の上に渡して、ぐらつかないように小石をかませた。\n腰かけてみる。……うん、ちょうどいい高さ。','ベンチのわきの草をかき分けたら、苔むした平たい石が顔を出した。\nまわりの石とちがって、上がつるりと平らにならしてある。\n座るのに、ちょうどいい高さ。……向いているのも、夕日の沈むほう。\n\nずっと昔に、誰かが、ここで夕日を見ていたのかもしれない。\n「……おとなり、失礼しますね」','ここからなら、島がぜんぶ見える。\n'+['beach','forest','rocks','camp'].filter(p=>s.places[p]).map(pn).join('。')+'。\n「夕方に、また来ますね」']})});
 C('hill','benchsun',{i:'🌅',t:'ベンチで夕日を待つ',s:'夕方だけ',c:[1,2],tags:['safe','observe'],slot:2,req:s=>s.tools.bench,run:s=>{const first=!s.flags.benchSun;s.flags.benchSun=1;
@@ -965,8 +977,9 @@ function think(){
   for(const k of W)if(pick.some(c=>(GIVES[k]||[]).includes(c.id)))delete S.want[k];
   S.think={ids:pick.map(c=>c.id),swap:null};save();render();
 }
+// 考えて浮かんだ案は、いまできなくても（材料が足りないなど）手札に加えられる。手札では、できるようになるまで押せない
 function takeIdea(id){
-  const c=CARDS[id];if(disOf(c))return;
+  const c=CARDS[id];
   track('choice',{scene:'idea:'+S.place,pick:id,day:S.day});
   const h=handOf(S.place);
   if(h.length<3){h.push(id);S.think=null;S.justAdded=id}else S.think.swap=id;
@@ -980,10 +993,12 @@ function act(c){
   if(c.work){S.work=true;save();render(false);return}
   S.justAdded=null;
   track('action',{scene:S.place,pick:c.id,day:S.day});
+  const nd=(S.drying||[]).length;
   const o=c.run(S)||{};
   if(o.hurt)S.hurt[c.id]=o.hurt;
   if(c.once&&!o.keep)S.once[c.id]=1;
   const res=apply(o,costOf(c.c),c.tags);
+  dryNote(res,nd);
   res.title=c.t;
   res.goto=o.goto||(!o.noGo&&res.disc.find(p=>!(PLACES[p].lock&&PLACES[p].lock(S))))||null;
   S.result=res;save();render(true);
@@ -1003,6 +1018,7 @@ function craft(r){
   if(S.result||!S.work||craftReason(r))return;
   S.work=false;
   track('craft',{pick:r.id,day:S.day});
+  const nd=(S.drying||[]).length;
   const o=r.run(S)||{};
   const mats={};
   if(!o.keepMats)for(const[k,n]of Object.entries(needOf(r)))mats[k]=-n;
@@ -1010,6 +1026,7 @@ function craft(r){
   o.get=mats;
   if(o.made)S.stats.made.push(o.made);
   const res=apply(o,costOf(CARDS.work.c),['craft']);
+  dryNote(res,nd);
   res.title=r.t;
   S.result=res;save();render(true);
 }
@@ -1094,7 +1111,7 @@ function doNight(){
 }
 function morningLine(){
   const d=S.day;let x;
-  if(S.flags.village&&!S.flags.dreamV){S.flags.dreamV=1;x='ゆうべ、夢を見た。\n知らない言葉で笑いあう人たちの村。焚き火のまわりで、みんなが歌っていた。\n言葉はひとつもわからないのに、歌だけは、ちゃんとわかった。'}
+  if(S.flags.village&&!S.flags.dreamV){S.flags.dreamV=1;x='ゆうべ、夢を見た。\n知らない言葉で笑いあう人たちの村。焚き火のまわりで、みんなが歌っていた。\n'+(S.traces&&S.traces.melody?'言葉はひとつもわからない。でも、その歌は知っていた。\n洞窟の鍾乳石が鳴らしていた、あの旋律。\n気がつくと、私もいっしょに歌っていた。':'言葉はひとつもわからないのに、気がつくと、私もいっしょに歌っていた。')}
   else if(d===7)x='島に来て一週間。岩に七本目の線を刻んだ。\n'+(S.seen['do:todayphoto']?'写真を撮らない日も、日記の最後はいつも同じ。':'日記の最後は、いつも同じ。')+'「今日も、生きています」';
   else if(d===14)x='二週間がたった。もう、波の音がしないと眠れない気がする。';
   else if(d===21)x='三週間。手のひらの皮が、すっかり厚くなった。握力、ついたかも。';
@@ -1137,10 +1154,12 @@ function day30Scene(){
     lines,
     '地図のまんなかに、小さな家の絵。その横に「'+cn+'」。\n\n名前をつけたら、島が少しだけ、近くなった気がする。'+(S.flags.birdFriend?'\nルリが、地図の上をちょこちょこ歩いて、ペンの先をつついた。':'')]};
 }
+// 干したものは何日かあとの朝に野営地へ入る。そのことを結果に書き添える
+function dryNote(res,nd){(S.drying||[]).slice(nd).forEach(x=>res.extra.push('☀️ '+ITEMS[x.k][0]+' +'+x.n+' は、乾くまで待つ（'+(x.d-S.day)+'日後の朝、野営地に）'))}
 function dry(k,n){(S.drying||(S.drying=[])).push({k,n,d:S.day+2})}
 function dryDone(){if(!S.drying||!S.drying.length)return'';const ok=S.drying.filter(x=>S.day>=x.d);if(!ok.length)return'';
-  S.drying=S.drying.filter(x=>S.day<x.d);const names=[];ok.forEach(x=>{S.store[x.k]=(S.store[x.k]||0)+x.n;if(!names.includes(ITEMS[x.k][0]))names.push(ITEMS[x.k][0])});
-  return'\n干しておいた'+names.join('と')+'が、いい具合に乾いていた。'}
+  S.drying=S.drying.filter(x=>S.day<x.d);const names=[],cnt={};ok.forEach(x=>{S.store[x.k]=(S.store[x.k]||0)+x.n;cnt[x.k]=(cnt[x.k]||0)+x.n;if(!names.includes(ITEMS[x.k][0]))names.push(ITEMS[x.k][0])});
+  return'\n干しておいた'+names.join('と')+'が、いい具合に乾いていた。（'+Object.keys(cnt).map(k=>ITEMS[k][0]+' +'+cnt[k]).join('・')+'・野営地）'}
 // むかしの人のあしあと（島の地図に書く）
 const TRACE={kaizuka:'浜の砂丘の、貝塚。縄目もようの土器のかけら。',terrace:'森の奥の、苔に埋もれた段々畑。',seat:'崖の上の、夕日のほうを向いた石の腰かけ。',melody:'洞窟の鍾乳石の、削ったあとと、知らない歌。',awatree:'泡で種をまく、あわの実の大きな木。',village:'段々畑の上の、村のあと。大きな手と、小さな手。'};
 function trace(k){(S.traces||(S.traces={}))[k]=1}
@@ -1217,7 +1236,8 @@ function uses(k){
     case 'rain': o.push({l:'飲む',e:'💧+24',fn:()=>({d:{water:24},get:{rain:-1},t:'雨水は冷たく、やわらかい味がした。'})});break;
     case 'wshell': o.push({l:'そのまま飲む',e:'💧+24・お腹をこわすかも',warn:known('boil'),fn:()=>P(.4)?{d:{water:12,hp:-12,food:-6},get:{wshell:-1,shell:1},know:'boil',cause:'生水',t:firstHurt('rawwater','汲んできた水を、そのままごくごく飲んだ。\nしばらくして、お腹がきりきりと痛みだした。\n冷や汗。何度も茂みへ走るうちに、飲んだ以上に体から水が抜けていく。\n……沸かせばよかった。生水は、見た目ではわからない。','しばらくして、お腹がきりきり痛みだした。沸かせばよかった。')}:{d:{water:24},get:{wshell:-1,shell:1},t:'ごくごく飲んだ。殻は空になった。'}});break;
     case 'clam': o.push({l:'生で食べる',e:'🍖+7・あたるかも',warn:known('shellpoison'),fn:()=>P(.3)?{d:{food:7,hp:-9},get:{clam:-1},know:'shellpoison',cause:'食あたり',t:firstHurt('rawclam','生の貝を、つるりと飲みこんだ。\nしばらくして、お腹がしくしくと痛みだした。\n「貝は傷みやすい。火を通すんじゃ」\n漁師のおじいさんの声。膝を抱えて、痛みが引くのを待った。','生の貝にあたった。お腹がしくしく痛む。')}:{d:{food:7},get:{clam:-1},t:'つるりと飲みこんだ。'}});break;
-    case 'fish': o.push({l:'生で食べる',e:'🍖+12・あたるかも',fn:()=>P(.2)?{d:{food:12,hp:-7},get:{fish:-1},cause:'食あたり',t:firstHurt('rawfish','生のままの魚にかじりついた。\nしばらくして、胃のあたりがむかむかしてきた。\n……焼いてから、食べればよかった。','生の魚で、お腹をこわした。')}:{d:{food:12},get:{fish:-1},t:'生のままかじりついた。'}});break;
+    case 'fish': if(inv('knife')){o.push({l:'刺身にする',e:'🍖+12・あたりにくい',fn:()=>P(.05)?{d:{food:12,hp:-4},get:{fish:-1},cause:'食あたり',t:'刺身にして食べたけれど、少しあとで、お腹がしくしくしてきた。\n……今日の魚は、ちょっと時間がたっていたかも。'}:{d:{food:12},get:{fish:-1},t:firstEat('sashimi','石ナイフで、まず魚のおなかを開いて、わたを取りのぞく。\n海水で、さっと洗う。\n「魚はな、わたから傷む。獲ったら、すぐにわたを抜くんじゃ」\n漁師のおじいさんの言葉。\n身を、うすく、うすく、そぎ切りにしていく。\nうすく切ると、身の中まで、ちゃんと目で確かめられる。\n平たい石の上に並べたら、ちょっとしたお造り。\n「……いただきます」\nひと切れ、口に入れる。ぷりっとして、ほんのり甘い。','石ナイフでわたを抜いて、うすく切って、刺身にした。ぷりっと甘い。')}});break}
+      o.push({l:'生で食べる',e:'🍖+12・あたるかも',fn:()=>P(.2)?{d:{food:12,hp:-7},get:{fish:-1},cause:'食あたり',t:firstHurt('rawfish','生のままの魚にかじりついた。\nしばらくして、胃のあたりがむかむかしてきた。\n……焼いてから、食べればよかった。','生の魚で、お腹をこわした。')}:{d:{food:12},get:{fish:-1},t:'生のままかじりついた。'}});break;
     case 'egg': o.push({l:'生で飲む',e:'🍖+9',fn:()=>({d:{food:9},get:{egg:-1},t:'殻に穴をあけて飲んだ。'})});break;
     case 'hfish': o.push({l:'あぶって食べる',e:'🍖+28 💧−3 ♥+2',fn:()=>({d:{food:28,water:-3,hp:2},get:{hfish:-1},t:firstEat('hfish','干物を、焚き火の燠の上で、さっとあぶる。\n脂が、じゅっと落ちて、香ばしい匂いが立ちのぼった。\nひと口。……塩がきいていて、かむほど、うま味が出てくる。\n「……白いごはんが、ほしくなっちゃいますね」','干物をあぶって食べた。香ばしい。')})});break;
     case 'hclam': o.push({l:'かじる',e:'🍖+14',fn:()=>({d:{food:14},get:{hclam:-1},t:firstEat('hclam','干し貝を、ひとつ口に入れる。\nかたい。でも、かんでいるうちに、海の味が、じんわりしみ出してくる。','干し貝をかじった。かむほど、海の味。')})});break;
@@ -1354,7 +1374,7 @@ function renderMain(deal){
     m.innerHTML=head+`<div class="thinkhead">💭 ${THINK[S.place]}<small>${needNote()}${LITE?'':'1つ選んで手札に加える（時間は進まない）'}</small></div>
       <div class="cards">${T.ids.map((id,i)=>cardHTML(CARDS[id],{deal:i,idea:1})).join('')||'<p class="scene">何も思いつかない。</p>'}</div>
       <button class="btn sub" id="skip">どれもやめておく</button>`;
-    m.querySelectorAll('.card').forEach(b=>b.onclick=()=>{if(b.classList.contains('off')){shake(b);return}takeIdea(b.dataset.id)});
+    m.querySelectorAll('.card').forEach(b=>b.onclick=()=>takeIdea(b.dataset.id));
     document.getElementById('skip').onclick=()=>{S.think=null;save();render(false)};
     return;
   }
@@ -1373,14 +1393,14 @@ function renderMain(deal){
   document.getElementById('think').onclick=think;
   const idl=document.getElementById('idle');if(idl)idl.onclick=idle;
 }
-const THINK={beach:'波打ち際で、何をしようか考える',forest:'森の入口で、何をしようか考える',rocks:'岩場で、何をしようか考える',stream:'小川のほとりで、何をしようか考える',camp:'野営地で、何をしようか考える',hill:'崖の上で、何をしようか考える',cave:'洞窟で、何をしようか考える',ruins:'石の門の前で、何をしようか考える'};
+const THINK={beach:'波打ち際で、何をしようか考える',forest:'森の入口で、何をしようか考える',rocks:'岩場で、何をしようか考える',stream:'小川のほとりで、何をしようか考える',camp:'野営地で、何をしようか考える',hill:'崖の上で、何をしようか考える',cave:'洞窟で、何をしようか考える',cove:'光の入り江で、何をしようか考える',ruins:'石の門の前で、何をしようか考える'};
 function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
 function cardHTML(c,o={}){
   const co=costOf(c.c);const dis=disOf(c);const so=!o.idea&&slotOff(c);const hurt=S.hurt[c.id];
   let notes='';
-  if(dis)notes+=`<span class="note">🚫 ${esc(dis)}</span>`;
+  if(dis)notes+=o.idea?`<span class="note info">⏳ いまは：${esc(dis)}</span>`:`<span class="note">🚫 ${esc(dis)}</span>`;
   else{
-    if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 夕方にできる</span>`;
+    if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 ${c.slot===2?'夕方':SLOTS[c.slot]}にできる</span>`;
     if(so)notes+=`<span class="note">🕒 ${esc(so)}</span>`;
     if(hurt)notes+=`<span class="note warn">⚠ 前回：${esc(hurt)}</span>`;
     const zf=co.food>0&&S.food-co.food<=0,zw=co.water>0&&S.water-co.water<=0;
@@ -1389,7 +1409,7 @@ function cardHTML(c,o={}){
   let sub=c.s;
   if(c.work){const n=RECIPES.filter(r=>S.recipes[r.id]&&r.req(S)&&!craftReason(r)).length;sub=n?`いま作れるもの：${n}`:'道具や住まいを作る'}
   const costs=c.work?'<i class="cost">作るものを選ぶ</i>':(co.food?`<i class="cost f">🍖−${co.food}</i>`:'')+(co.water?`<i class="cost w">💧−${co.water}${!LITE&&heat()&&c.c[1]>0?'（暑さ+2）':''}</i>`:'')+(!co.food&&!co.water?'<i class="cost">消耗なし</i>':'')+(c.once&&!c.fixed?'<i class="cost once">一度きり</i>':'');
-  const off=dis||so;const tag=o.tag||'button';
+  const off=(!o.idea&&dis)||so;const tag=o.tag||'button';
   return`<${tag} class="card ${off?'off':''} ${hurt&&!off?'warn':''} ${o.deal!=null?'deal':''} ${o.fresh?'fresh':''} ${o.cls||''}" ${o.deal!=null?`style="animation-delay:${o.deal*90}ms"`:''} data-id="${c.id}" ${off?'aria-disabled="true"':''}>
     <span class="ci" aria-hidden="true">${ic(c.i)}</span><span><span class="ct">${esc(c.t)}</span>${o.fresh?'<span class="newtag">NEW</span>':''}<div class="cs">${esc(sub)}</div></span>
     <span class="costs">${costs}</span>${notes}</${tag}>`;

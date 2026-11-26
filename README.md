@@ -49,7 +49,8 @@
 │   ├── relationship_producer.md
 │   └── speech_patterns.md
 │
-├── tests/                    # Claude Code スキルの動作確認テスト
+├── tests/                    # テスト
+│   ├── island/               # 島ゲーム（gamebook/island.html）のテスト（下の「島ゲームのテスト」）
 │   └── judge-dialogue/       # /judge-dialogue スキルのテストケース
 │       └── 01_basic.md
 │
@@ -83,6 +84,24 @@ bun run scrape:dry
 #   --page <name>       ページ名で絞り込む（部分一致）
 #   --no-skip           既取得済みでも強制再取得
 ```
+
+### 島ゲームのテスト
+
+`gamebook/island.html` を直したら、公開の前に通す。GitHub Actions でもプルリクエストと公開の前に動き、失敗すると公開されない。
+
+```bash
+# ユニットテスト（1秒かからない）：ブラウザなしでゲームのスクリプトを読み込み、
+# 場所ごとのデータのそろい具合、全カード・レシピ・持ちものの文（undefined が出ないか、
+# 「ひとつだけ」と言って2つ手に入れないか）、時間帯の案内などを確かめる
+npm run test:island
+
+# 大きいテスト（十数秒）：Playwright の Chromium で、押せるボタンを乱数で押しつづけて遊ぶ。
+# 例外・画面の undefined / NaN・スマホ幅での横はみ出しを探す。半分の回は後半のセーブから始める
+npm run test:island:e2e            # 4回 × 600手
+npm run test:island:e2e -- 8 1000  # 8回 × 1000手
+```
+
+テストの方針（何をどちらに書くか、肥大化させないための決まり）は `docs/gamebook-island-handoff.md` の「テストと確認のしかた」。
 
 ---
 
