@@ -1380,7 +1380,7 @@ function cardHTML(c,o={}){
   let notes='';
   if(dis)notes+=`<span class="note">🚫 ${esc(dis)}</span>`;
   else{
-    if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 夕方にできる</span>`;
+    if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 ${c.slot===2?'夕方':SLOTS[c.slot]}にできる</span>`;
     if(so)notes+=`<span class="note">🕒 ${esc(so)}</span>`;
     if(hurt)notes+=`<span class="note warn">⚠ 前回：${esc(hurt)}</span>`;
     const zf=co.food>0&&S.food-co.food<=0,zw=co.water>0&&S.water-co.water<=0;
