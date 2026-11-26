@@ -1373,7 +1373,7 @@ function renderMain(deal){
   document.getElementById('think').onclick=think;
   const idl=document.getElementById('idle');if(idl)idl.onclick=idle;
 }
-const THINK={beach:'波打ち際で、何をしようか考える',forest:'森の入口で、何をしようか考える',rocks:'岩場で、何をしようか考える',stream:'小川のほとりで、何をしようか考える',camp:'野営地で、何をしようか考える',hill:'崖の上で、何をしようか考える',cave:'洞窟で、何をしようか考える',ruins:'石の門の前で、何をしようか考える'};
+const THINK={beach:'波打ち際で、何をしようか考える',forest:'森の入口で、何をしようか考える',rocks:'岩場で、何をしようか考える',stream:'小川のほとりで、何をしようか考える',camp:'野営地で、何をしようか考える',hill:'崖の上で、何をしようか考える',cave:'洞窟で、何をしようか考える',cove:'光の入り江で、何をしようか考える',ruins:'石の門の前で、何をしようか考える'};
 function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}
 function cardHTML(c,o={}){
   const co=costOf(c.c);const dis=disOf(c);const so=!o.idea&&slotOff(c);const hurt=S.hurt[c.id];
