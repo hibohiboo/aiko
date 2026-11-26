@@ -980,10 +980,12 @@ function act(c){
   if(c.work){S.work=true;save();render(false);return}
   S.justAdded=null;
   track('action',{scene:S.place,pick:c.id,day:S.day});
+  const nd=(S.drying||[]).length;
   const o=c.run(S)||{};
   if(o.hurt)S.hurt[c.id]=o.hurt;
   if(c.once&&!o.keep)S.once[c.id]=1;
   const res=apply(o,costOf(c.c),c.tags);
+  dryNote(res,nd);
   res.title=c.t;
   res.goto=o.goto||(!o.noGo&&res.disc.find(p=>!(PLACES[p].lock&&PLACES[p].lock(S))))||null;
   S.result=res;save();render(true);
@@ -1003,6 +1005,7 @@ function craft(r){
   if(S.result||!S.work||craftReason(r))return;
   S.work=false;
   track('craft',{pick:r.id,day:S.day});
+  const nd=(S.drying||[]).length;
   const o=r.run(S)||{};
   const mats={};
   if(!o.keepMats)for(const[k,n]of Object.entries(needOf(r)))mats[k]=-n;
@@ -1010,6 +1013,7 @@ function craft(r){
   o.get=mats;
   if(o.made)S.stats.made.push(o.made);
   const res=apply(o,costOf(CARDS.work.c),['craft']);
+  dryNote(res,nd);
   res.title=r.t;
   S.result=res;save();render(true);
 }
@@ -1137,10 +1141,12 @@ function day30Scene(){
     lines,
     '地図のまんなかに、小さな家の絵。その横に「'+cn+'」。\n\n名前をつけたら、島が少しだけ、近くなった気がする。'+(S.flags.birdFriend?'\nルリが、地図の上をちょこちょこ歩いて、ペンの先をつついた。':'')]};
 }
+// 干したものは何日かあとの朝に野営地へ入る。そのことを結果に書き添える
+function dryNote(res,nd){(S.drying||[]).slice(nd).forEach(x=>res.extra.push('☀️ '+ITEMS[x.k][0]+' +'+x.n+' は、乾くまで待つ（'+(x.d-S.day)+'日後の朝、野営地に）'))}
 function dry(k,n){(S.drying||(S.drying=[])).push({k,n,d:S.day+2})}
 function dryDone(){if(!S.drying||!S.drying.length)return'';const ok=S.drying.filter(x=>S.day>=x.d);if(!ok.length)return'';
-  S.drying=S.drying.filter(x=>S.day<x.d);const names=[];ok.forEach(x=>{S.store[x.k]=(S.store[x.k]||0)+x.n;if(!names.includes(ITEMS[x.k][0]))names.push(ITEMS[x.k][0])});
-  return'\n干しておいた'+names.join('と')+'が、いい具合に乾いていた。'}
+  S.drying=S.drying.filter(x=>S.day<x.d);const names=[],cnt={};ok.forEach(x=>{S.store[x.k]=(S.store[x.k]||0)+x.n;cnt[x.k]=(cnt[x.k]||0)+x.n;if(!names.includes(ITEMS[x.k][0]))names.push(ITEMS[x.k][0])});
+  return'\n干しておいた'+names.join('と')+'が、いい具合に乾いていた。（'+Object.keys(cnt).map(k=>ITEMS[k][0]+' +'+cnt[k]).join('・')+'・野営地）'}
 // むかしの人のあしあと（島の地図に書く）
 const TRACE={kaizuka:'浜の砂丘の、貝塚。縄目もようの土器のかけら。',terrace:'森の奥の、苔に埋もれた段々畑。',seat:'崖の上の、夕日のほうを向いた石の腰かけ。',melody:'洞窟の鍾乳石の、削ったあとと、知らない歌。',awatree:'泡で種をまく、あわの実の大きな木。',village:'段々畑の上の、村のあと。大きな手と、小さな手。'};
 function trace(k){(S.traces||(S.traces={}))[k]=1}
