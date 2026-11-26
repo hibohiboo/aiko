@@ -123,7 +123,7 @@ test('時間帯の決まった行動は、考えている画面でも手札で�
   }
 });
 
-test('手札のカードは、材料が足りないときや「1日1回」を使ったあとも、手札から消えない', () => {
+test('手札のカードは、材料や道具を持っていないときや「1日1回」を使ったあとも、手札から消えない', () => {
   // 出る条件（req）が偽になると、カードは手札から消えて、考え直すまで戻らない。
   // 材料の数や1日1回のような一時的な条件は dis（押せない理由を出す）に書く。
   const { G, F } = load();
@@ -135,14 +135,33 @@ test('手札のカードは、材料が足りないときや「1日1回」を使
   };
   for (const [id, c] of Object.entries(G.CARDS)) {
     if (!c.req || c.once || c.fixed || !c.req(mk(c))) continue;
-    const poor = mk(c);
-    for (const k of Object.keys(poor.inv)) if (!G.CARRY.includes(k)) delete poor.inv[k];
+    const poor = mk(c); // 材料がなく、背負う道具は野営地に置いてきた
     poor.store = {};
-    assert.ok(c.req(poor), `${id}: 材料がないと手札から消える（req の材料の条件を dis に移す）`);
+    for (const k of Object.keys(poor.inv)) { if (G.CARRY.includes(k)) poor.store[k] = 1; delete poor.inv[k]; }
+    assert.ok(c.req(poor), `${id}: 材料や道具を持っていないと手札から消える（その条件を dis に移す）`);
     const used = mk(c);
     c.run(used);
     for (const k of Object.keys(G.ITEMS)) { G.S.store[k] = 3; G.S.inv[k] = G.S.inv[k] || 1; }
     assert.ok(c.req(G.S), `${id}: 使ったあと、その日のうちは手札から消える（1日1回の条件を dis に移す）`);
+  }
+});
+
+test('考えて浮かんだ案は、いまできなくても手札に加えられ、手札では押せない', () => {
+  const { G, F, els } = load();
+  for (const [id, c] of Object.entries(G.CARDS)) {
+    if (!c.dis || c.fixed) continue;
+    const S = richState(G, F, { place: c.p });
+    for (const k of Object.keys(S.inv)) if (!G.CARRY.includes(k)) delete S.inv[k];
+    S.store = {}; delete S.inv.rod; S.flags.smudge = S.day;
+    const why = c.dis(S);
+    if (!why || (c.req && !c.req(S))) continue; // この状態では「できない理由」が出ないカード
+    S.hand[c.p] = []; S.think = { ids: [id] };
+    F.render();
+    assert.ok(!/class="card off/.test(els.main.innerHTML), `${id}: 考える画面で押せない`);
+    F.takeIdea(id);
+    assert.ok(G.S.hand[c.p].includes(id), `${id}: できない理由（${why}）があると手札に加えられない`);
+    F.render();
+    assert.ok(new RegExp(`class="card off[^"]*"[^>]*data-id="${id}"`).test(els.main.innerHTML), `${id}: 手札で押せてしまう`);
   }
 });
 

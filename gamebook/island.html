@@ -730,8 +730,8 @@ function fetchWater(s,where){
   return{get,t:'持ってきた'+parts.join('と')+'に、水を汲んだ。こぼさないように葉でふたをする。'+leak+(known('boil')?'\n野営地で沸かしてから飲もう。':'')};
 }
 C('stream','clay',{i:'🟤',t:'粘土を掘る',s:'焼けば器になる',c:[4,7],tags:['craft'],run:s=>({get:{clay:2},t:'川岸のきめこまかい粘土を、両手ですくい取った。\nひんやりして、肇ちゃんのおじいさんの工房と同じ匂いがする。'})});
-C('stream','handfish',{i:'🐟',t:'魚を手づかみする',s:'なかなか難しい',c:[5,8],tags:['risk'],req:s=>!inv('rod'),run:s=>P(.35)?{get:{fish:1},t:'石の下に手を差しこんで、魚をつかんだ！'}:{d:{water:4},t:'水しぶきを浴びただけだった。'}});
-C('stream','rodfish',{i:'🎣',t:'釣り糸を垂らす',s:'釣り竿を持ってきた',c:[3,5],tags:['safe'],req:s=>inv('rod'),run:s=>s.flags.fline?(P(.95)?{get:{fish:ri(2,3)},t:'細い糸の先で、浮きがすっと沈んだ。\n一匹釣りあげて、また糸を垂らすと、すぐに次の当たり。\n繊維の糸は、水の中でほとんど見えない。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}):P(.85)?{get:{fish:ri(1,2)},t:'しずかに待っていると、貝殻の針に銀色の魚がかかった。\n魚は、しずかな人のところに来る。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}});
+C('stream','handfish',{i:'🐟',t:'魚を手づかみする',s:'なかなか難しい',c:[5,8],tags:['risk'],run:s=>P(.35)?{get:{fish:1},t:'石の下に手を差しこんで、魚をつかんだ！'}:{d:{water:4},t:'水しぶきを浴びただけだった。'}});
+C('stream','rodfish',{i:'🎣',t:'釣り糸を垂らす',s:'釣り竿で、のんびり',c:[3,5],tags:['safe'],req:s=>owns('rod'),dis:s=>!inv('rod')&&'釣り竿を持ってきていない',run:s=>s.flags.fline?(P(.95)?{get:{fish:ri(2,3)},t:'細い糸の先で、浮きがすっと沈んだ。\n一匹釣りあげて、また糸を垂らすと、すぐに次の当たり。\n繊維の糸は、水の中でほとんど見えない。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}):P(.85)?{get:{fish:ri(1,2)},t:'しずかに待っていると、貝殻の針に銀色の魚がかかった。\n魚は、しずかな人のところに来る。'}:{t:'今日は食いが悪い。のんびり待つのも、釣りのうち。'}});
 C('stream','wash',{i:'🫧',t:'水浴びをする',s:'汗と塩を落とす',c:[1,0],tags:['safe'],run:s=>({d:{hp:7},t:'冷たい水に体を沈める。肌に張りついていた塩が流れ落ちた。\n髪を結びなおすと、気持ちまでしゃんとする。'})});
 C('stream','upstream',{i:'🌫️',t:'上流をたどる',s:'水はどこから来るのだろう',c:[6,9],tags:['explore'],once:1,w:2,req:s=>!s.places.ruins,run:s=>{if(clueN(s)>=4)return{discover:['ruins'],t:['岩を越え、苔の斜面を登る。やがて濃い霧が立ちこめた。\n……この霧、なんだかなつかしい。','霧の切れ間に、石の柱が並んでいるのが見えた。\n自然にできたものじゃない。誰かが、ここに立てたものだ。']};return{discover:['ruins'],t:'上流へ行くほど霧が濃くなって、足もとも見えなくなった。引き返すしかない。\nこの霧の先へ進むには、まだ何かが足りない気がする。\nこの島のことを、もっとよく知らなきゃ。'}}});
 // ---- cave ----
@@ -977,8 +977,9 @@ function think(){
   for(const k of W)if(pick.some(c=>(GIVES[k]||[]).includes(c.id)))delete S.want[k];
   S.think={ids:pick.map(c=>c.id),swap:null};save();render();
 }
+// 考えて浮かんだ案は、いまできなくても（材料が足りないなど）手札に加えられる。手札では、できるようになるまで押せない
 function takeIdea(id){
-  const c=CARDS[id];if(disOf(c))return;
+  const c=CARDS[id];
   track('choice',{scene:'idea:'+S.place,pick:id,day:S.day});
   const h=handOf(S.place);
   if(h.length<3){h.push(id);S.think=null;S.justAdded=id}else S.think.swap=id;
@@ -1373,7 +1374,7 @@ function renderMain(deal){
     m.innerHTML=head+`<div class="thinkhead">💭 ${THINK[S.place]}<small>${needNote()}${LITE?'':'1つ選んで手札に加える（時間は進まない）'}</small></div>
       <div class="cards">${T.ids.map((id,i)=>cardHTML(CARDS[id],{deal:i,idea:1})).join('')||'<p class="scene">何も思いつかない。</p>'}</div>
       <button class="btn sub" id="skip">どれもやめておく</button>`;
-    m.querySelectorAll('.card').forEach(b=>b.onclick=()=>{if(b.classList.contains('off')){shake(b);return}takeIdea(b.dataset.id)});
+    m.querySelectorAll('.card').forEach(b=>b.onclick=()=>takeIdea(b.dataset.id));
     document.getElementById('skip').onclick=()=>{S.think=null;save();render(false)};
     return;
   }
@@ -1397,7 +1398,7 @@ function shake(el){el.classList.remove('shake');void el.offsetWidth;el.classList
 function cardHTML(c,o={}){
   const co=costOf(c.c);const dis=disOf(c);const so=!o.idea&&slotOff(c);const hurt=S.hurt[c.id];
   let notes='';
-  if(dis)notes+=`<span class="note">🚫 ${esc(dis)}</span>`;
+  if(dis)notes+=o.idea?`<span class="note info">⏳ いまは：${esc(dis)}（手札に加えておける）</span>`:`<span class="note">🚫 ${esc(dis)}</span>`;
   else{
     if(o.idea&&c.slot!=null)notes+=`<span class="note info">🕒 ${c.slot===2?'夕方':SLOTS[c.slot]}にできる</span>`;
     if(so)notes+=`<span class="note">🕒 ${esc(so)}</span>`;
@@ -1408,7 +1409,7 @@ function cardHTML(c,o={}){
   let sub=c.s;
   if(c.work){const n=RECIPES.filter(r=>S.recipes[r.id]&&r.req(S)&&!craftReason(r)).length;sub=n?`いま作れるもの：${n}`:'道具や住まいを作る'}
   const costs=c.work?'<i class="cost">作るものを選ぶ</i>':(co.food?`<i class="cost f">🍖−${co.food}</i>`:'')+(co.water?`<i class="cost w">💧−${co.water}${!LITE&&heat()&&c.c[1]>0?'（暑さ+2）':''}</i>`:'')+(!co.food&&!co.water?'<i class="cost">消耗なし</i>':'')+(c.once&&!c.fixed?'<i class="cost once">一度きり</i>':'');
-  const off=dis||so;const tag=o.tag||'button';
+  const off=(!o.idea&&dis)||so;const tag=o.tag||'button';
   return`<${tag} class="card ${off?'off':''} ${hurt&&!off?'warn':''} ${o.deal!=null?'deal':''} ${o.fresh?'fresh':''} ${o.cls||''}" ${o.deal!=null?`style="animation-delay:${o.deal*90}ms"`:''} data-id="${c.id}" ${off?'aria-disabled="true"':''}>
     <span class="ci" aria-hidden="true">${ic(c.i)}</span><span><span class="ct">${esc(c.t)}</span>${o.fresh?'<span class="newtag">NEW</span>':''}<div class="cs">${esc(sub)}</div></span>
     <span class="costs">${costs}</span>${notes}</${tag}>`;
